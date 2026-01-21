@@ -215,7 +215,6 @@ export class FraggedEmpireActorSheet extends foundry.appv1.sheets.ActorSheet {
   /* -------------------------------------------- */
   /** @override */
   _updateObject(event, formData) {
-    console.log("We are in _updateObject",event)
     if (event.type == "change" && event.target.parentElement.className == "stat-label weapon-munitions-label") {
       this.actor.updateWeaponMunitions(event.target.name, event.target.value)
     }

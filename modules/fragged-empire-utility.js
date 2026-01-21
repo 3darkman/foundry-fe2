@@ -187,6 +187,7 @@ export class FraggedEmpireUtility  {
     if ( rollData.mode == 'weapon' || rollData.mode == 'spacecraftweapon') {
       rollData.rofValue = (rollData.rofValue < 1) ? 1 : Number(rollData.rofValue);
       rollData.weaponHit = Number(rollData.weapon.system.statstotal.hit.value);
+      console.log(nbDice,rollData.weapon.system.statstotal.hitdice.value)
       nbDice = Number(rollData.weapon.system.statstotal.hitdice.value);
     }
     if ( rollData.bMHitDice ) {
@@ -195,7 +196,6 @@ export class FraggedEmpireUtility  {
     } else {
       console.log("No extra hit dice found")
     }
-
     if ( rollData.mode == 'npcfight' ) {
       rollData.rofValue = (rollData.rofValue < 1) ? 1 : Number(rollData.rofValue);
       rollData.weaponHit = Number(rollData.npcstats.hit.value);
@@ -258,6 +258,7 @@ export class FraggedEmpireUtility  {
         rollData.targetArmor = rollData.target.system.armourbonus.total
         rollData.targetEnd = rollData.target.system.endurance.value
         rollData.critDmg = rollData.weapon.system.statstotal.crit.value - rollData.target.system.armourbonus.total
+        rollData.totalEndDmg = Number(rollData.weapon.system.statstotal.enddmg.value) + Number(actor.system.attributes.focus.current)
         if (rollData.hasGrit != false) {
           rollData.gritRerollsLeft = actor.system.gritreroll.value
           rollData.gritRerollsMax = actor.system.gritreroll.max

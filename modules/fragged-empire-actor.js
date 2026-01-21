@@ -85,12 +85,12 @@ export class FraggedEmpireActor extends Actor {
   /* -------------------------------------------- */
   prepareDerivedData() {
     if (this.type == 'character') {
-      let restotal = this.system.level.value + 2 + this.system.resources.bonus;
+      let restotal = this.system.level.value + 3 + this.system.resources.bonus;
       if ( restotal != this.system.resources.total) {
         this.system.resources.total = restotal;
         this.update( { 'system.resources.total': restotal } );
       }
-      let inftotal = this.system.level.value + 2 + this.system.influence.bonus;
+      let inftotal = this.system.level.value + 3 + this.system.influence.bonus;
       if ( inftotal != this.system.influence.total) {
         this.system.influence.total = inftotal;
         this.update( { 'system.influence.total': inftotal } );
@@ -236,7 +236,7 @@ export class FraggedEmpireActor extends Actor {
   }
 
   /* -------------------------------------------- */
-  prepareSkill( item, type) {
+  prepareSkill(item, type) {
     if (item.type == 'skill' && item.system.type == type) {
       item.system.trainedValue = (item.system.trained) ? 1 : -2
       if (item.system.attribute != "") {
@@ -252,6 +252,7 @@ export class FraggedEmpireActor extends Actor {
         }
       }
       item.system.total = item.system.trainedValue + item.system.bonus;
+      if (item.system.staticmod) {item.system.total = item.system.total + item.system.staticmod}
       item.system.isTrait = item.system.traits.length > 0;
       return item;
     }

@@ -52,7 +52,7 @@
     {{/if}}
     
     {{#if (eq mode "weapon")}}
-    <li>End Damage : {{weapon.system.statstotal.enddmg.value}}</li>
+    <li>End Damage : {{totalEndDmg}}</li>
     <li>Crit Damage : {{critDmg}} ({{weapon.system.statstotal.crit.value}} versus {{targetArmor}})</li>
     {{/if}}
     {{#if (eq mode "spacecraftweapon")}}

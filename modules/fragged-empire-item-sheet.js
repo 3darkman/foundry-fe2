@@ -253,7 +253,6 @@ export class FraggedEmpireItemSheet extends foundry.appv1.sheets.ItemSheet {
   /* -------------------------------------------- */
   /** @override */
   _updateObject(event, formData) {
-    console.log("We are in _updateObject for item-sheet",event,formData)
     return this.object.update(formData);
   }
 }
