@@ -56,8 +56,8 @@
     <li>Crit Damage : {{critDmg}} ({{weapon.system.statstotal.crit.value}} versus {{targetArmor}})</li>
     {{/if}}
     {{#if (eq mode "spacecraftweapon")}}
-    <li>Shield Damage : {{weapon.system.statstotal.shielddmg.value}}</li>
-    <li>Crit Damage : {{weapon.system.statstotal.crit.value}}</li>
+    <li>Shield Damage : {{totalEndDmg}}</li>
+    <li>Crit Damage : {{critDmg}} ({{weapon.system.statstotal.crit.value}} versus {{targetArmor}})</li>
     {{/if}}
 
     <li><strong>Total Roll : {{rollTotal}}</strong>

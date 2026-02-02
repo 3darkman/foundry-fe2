@@ -189,6 +189,7 @@ export class FraggedEmpireUtility  {
       rollData.weaponHit = Number(rollData.weapon.system.statstotal.hit.value);
       nbDice = Number(rollData.weapon.system.statstotal.hitdice.value.substring(0,1));
     }
+
     if ( rollData.bMHitDice ) {
       nbDice = nbDice + rollData.bMHitDice 
     }
@@ -238,10 +239,31 @@ export class FraggedEmpireUtility  {
     console.log("ROLLLL!!!!", rollData);
     
     let actor = game.actors.get(rollData.actorId);
+    switch (actor.type) {
+      case "npc":
+        rollData.endDmgAdd = Number(actor.system.stats.Attribute.value)
+        break;
+      case "character":
+        rollData.endDmgAdd = Number(actor.system.attributes.focus.current)
+        break;
+      case "spacecraft":
+        rollData.endDmgAdd = Number(actor.system.attributes.sensors.current)
+        break;
+    }
     if (rollData.mode != "skill") {
       if (rollData.hasGrit != false) {
-        rollData.gritRerollsLeft = actor.system.gritreroll.value
-        rollData.gritRerollsMax = actor.system.gritreroll.max
+        switch (actor.type) {
+          case "character":
+            console.log('Getting grit for a character')
+            rollData.gritRerollsLeft = actor.system.gritreroll.value
+            rollData.gritRerollsMax = actor.system.gritreroll.max
+            break;
+          case "spacecraft":
+            console.log('Getting grit for a spacecraft')
+            rollData.gritRerollsLeft = actor.system.fight.gritreroll.value
+            rollData.gritRerollsMax = 2
+            break;
+        }
       }
       if (rollData.target.type == "npc"){
         rollData.targetDefence = rollData.target.system.fight.defence.value + (rollData.intmod * rollData.cover)
@@ -251,23 +273,22 @@ export class FraggedEmpireUtility  {
         rollData.critDmg = rollData.weapon.system.statstotal.crit.value - rollData.target.system.fight.armour.value
       } else if (rollData.target.type == "spacecraft") {
         rollData.targetDefence = rollData.target.system.fight.defence.total
-        rollData.targetArmor = rollData.target.system.fight.armor.total
+        rollData.targetArmor = rollData.target.system.fight.armour.total
         rollData.targetEnd = rollData.target.system.fight.shield.total
-        rollData.critDmg = rollData.weapon.system.statstotal.crit.value - rollData.target.system.fight.armor.value
+        rollData.totalEndDmg = Number(rollData.weapon.system.statstotal.shielddmg.value) + rollData.endDmgAdd
+        rollData.critDmg = rollData.weapon.system.statstotal.crit.value - rollData.target.system.fight.armour.total
       } else {
         rollData.targetDefence = rollData.target.system.defensebonus.total + (rollData.intmod * rollData.cover)
         rollData.targetArmor = rollData.target.system.armourbonus.total
         rollData.targetEnd = rollData.target.system.endurance.value
         rollData.critDmg = rollData.weapon.system.statstotal.crit.value - rollData.target.system.armourbonus.total
-        rollData.totalEndDmg = Number(rollData.weapon.system.statstotal.enddmg.value) + Number(actor.system.attributes.focus.current)
-        console.log('hasGrit',rollData.hasGrit)
-
+        rollData.totalEndDmg = Number(rollData.weapon.system.statstotal.enddmg.value) + rollData.endDmgAdd
       }
     }
     
     actor.saveRollData( rollData );
 
-    if (game.modules.get("sequencer")?.active && game.modules.get("JB2A_DnD5e")?.active) {
+    if (game.modules.get("sequencer")?.active && game.modules.get("JB2A_DnD5e")?.active && rollData.mode != "skill") {
       const fxSource = canvas.tokens.controlled[0]
       const fxTarget = game.user.targets.first();
 

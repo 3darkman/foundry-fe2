@@ -113,6 +113,25 @@ Hooks.once("ready", async function () {
     }
   }
 
+  if (foundry.utils.isNewerVersion("1.02", game.settings.get("foundry-fe2", "systemMigrationVersion"))) {
+    for (let actor of game.actors) {
+      try {
+        if (actor.type == 'spacecraft') {
+          let updateData = foundry.utils.deepClone(actor.toObject());
+          updateData.system.fight.gritreroll.label = "Grit re-rolls";
+          updateData.system.fight.gritreroll.valueonly = true;
+          updateData.system.fight.gritreroll.value = 0;
+          if (!foundry.utils.isEmpty(updateData)) {
+            await actor.update(updateData, { enforceTypes: false });
+          }
+        }
+      } catch (error) {
+        error.message = `Failed migration for Actor ${actor.name}: ${error.message} `;
+        console.error(error);
+      }
+    }
+  }
+
   await game.settings.set("foundry-fe2", "systemMigrationVersion", game.system.version);
   ui.notifications.notify(`Migration Complete`);
 

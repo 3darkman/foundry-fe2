@@ -181,9 +181,10 @@ export class FraggedEmpireActorSheet extends foundry.appv1.sheets.ActorSheet {
     });
     html.find('.weapons-munitions-label').click(ev => {
       const li = $(ev.currentTarget).parents(".item");
-      console.log("We are in a custom trap for munitions", ev)
-      // this.actor.equipItem( li.data("item-id") );
-      // this.render(true);
+    });
+    html.find('.combatorder.bonus').click(ev => {
+      const li = $(ev.currentTarget).parents(".item");
+
     });
 
   }
