@@ -37,7 +37,7 @@
               <ul>
                 {{#each system.attributes as |attr key|}}
                 <li class="item flexrow list-item" data-attr-key="{{key}}" data-item-id="{{attr.traitId}}">
-                  <span class="stat-label flexrow" name="{{key}}"><a class="carac-roll">{{attr.label}}</a></span>        
+                  <span class="stat-label flexrow" name="{{key}}"><a class="carac-roll">{{localize attr.label}}</a></span>        
                   <input type="text" class="input-numeric-short" name="system.attributes.{{key}}.current" value="{{attr.current}}" data-dtype="Number"/>
                   <input type="text" class="input-numeric-short" name="system.attributes.{{key}}.value" value="{{attr.value}}" data-dtype="Number"/>
                   <div class="item-controls">
@@ -501,7 +501,7 @@
               <li class="item flexrow list-item" data-item-id="{{equip.id}}">
                 <img class="sheet-competence-img" src="{{equip.img}}"/>
                 <span class="equipement-label">{{equip.name}}</span>
-                <span class="equipement-label">{{equip.type}}</span>
+                <span class="equipement-label">{{localizeType equip.type}}</span>
                 <div class="item-controls">
                   <a class="item-control item-equip" title="{{localize "FE2.Sheet.Common.Worn"}}">{{#if equip.system.equipped}}<i class="fas fa-circle"></i>{{else}}<i class="fas fa-genderless"></i>{{/if}}</a>
                   <a class="item-control item-edit" title="{{localize "FE2.Sheet.Common.EditItem"}}"><i class="fas fa-edit"></i></a>

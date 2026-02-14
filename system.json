@@ -65,6 +65,17 @@
         "items"
       ],
       "type": "Item"
+    },
+    {
+      "label": "Perícias (Português)",
+      "name": "skills-pt-br",
+      "path": "./packs/skills-pt-br.db",
+      "system": "foundry-fe2",
+      "tags": [
+        "skill",
+        "pt-br"
+      ],
+      "type": "Item"
     }
   ],
   "primaryTokenAttribute": "endurance.endurance",
@@ -73,6 +84,6 @@
   "styles": ["styles/simple.css"],
   "title": "Fragged Empire 2E",
   "url": "https://gitlab.com/jkknorr/foundry-fe2",
-  "version": "1.02",
+  "version": "1.03",
   "background" : "./systems/foundry-fe2/images/ui/FE_Welcome_Page.webp"
 }

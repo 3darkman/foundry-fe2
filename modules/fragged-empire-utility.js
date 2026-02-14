@@ -10,8 +10,15 @@ export class FraggedEmpireUtility  {
   }
 
   /* -------------------------------------------- */
+  static getSkillsCompendiumName() {
+    const lang = game.i18n.lang;
+    if (lang === "pt-BR") return "foundry-fe2.skills-pt-br";
+    return "foundry-fe2.skills";
+  }
+
+  /* -------------------------------------------- */
   static async ready() {
-    const skills = await FraggedEmpireUtility.loadCompendium("foundry-fe2.skills");
+    const skills = await FraggedEmpireUtility.loadCompendium(FraggedEmpireUtility.getSkillsCompendiumName());
     this.compendiumSkills  = skills.map(i => i.toObject());
   }
 

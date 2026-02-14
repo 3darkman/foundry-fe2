@@ -65,7 +65,7 @@ export class FraggedEmpireActor extends Actor {
     }
 
     if ( data.type == 'character') {
-      const skills = await FraggedEmpireUtility.loadCompendium("foundry-fe2.skills");
+      const skills = await FraggedEmpireUtility.loadCompendium(FraggedEmpireUtility.getSkillsCompendiumName());
       data.items = skills.map(i => i.toObject());
     }
 

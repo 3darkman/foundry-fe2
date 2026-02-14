@@ -11,6 +11,28 @@
       "Main": "Main",
       "DefenceWeapons": "Defence/Weapons"
     },
+    "Attributes": {
+      "Strength": "Strength",
+      "Reflexes": "Reflexes",
+      "Mobility": "Mobility",
+      "Focus": "Focus",
+      "Intelligence": "Intelligence",
+      "Grit": "Grit"
+    },
+    "SpacecraftAttr": {
+      "Hull": "Hull",
+      "Engines": "Engines",
+      "Crew": "Crew",
+      "Power": "Power",
+      "CPU": "CPU",
+      "Sensors": "Sensors",
+      "Velocity": "Velocity"
+    },
+    "ActorTypes": {
+      "Character": "Character",
+      "NPC": "NPC",
+      "Spacecraft": "Spacecraft"
+    },
     "Sheet": {
       "Common": {
         "Name": "Name",
@@ -78,7 +100,11 @@
         "OtherStats": "Other Stats",
         "CargoSpaceUsed": "Cargo Space Used",
         "SpacecraftPerks": "Spacecraft Perks",
-        "SpacecraftTraitsList": "Spacecraft Traits List"
+        "SpacecraftTraitsList": "Spacecraft Traits List",
+        "Cargo": "Cargo",
+        "SecretCargo": "Secret Cargo",
+        "WeaponsSlot": "Weapons slot",
+        "Resupply": "Resupply"
       },
       "NPC": {
         "KeyStats": "Key stats",
@@ -87,7 +113,8 @@
         "Commander": "NPC Commander",
         "Henchman": "Henchman",
         "Drone": "Drone",
-        "Companion": "Companion"
+        "Companion": "Companion",
+        "Attribute": "Attribute"
       }
     },
     "SkillList": {
@@ -140,6 +167,28 @@
         "Automatic": "Automatic"
       },
       "Types": {
+        "Weapon": "Weapon",
+        "Skill": "Skill",
+        "Trait": "Trait",
+        "Outfit": "Outfit",
+        "Equipment": "Equipment",
+        "Perk": "Perk",
+        "Complication": "Complication",
+        "Race": "Race",
+        "Language": "Language",
+        "Utility": "Utility",
+        "TradeGood": "Trade Good",
+        "Research": "Research",
+        "Modification": "Modification",
+        "Variation": "Variation",
+        "StrongHit": "Strong Hit",
+        "SpacecraftPerk": "Spacecraft Perk",
+        "SpacecraftTrait": "Spacecraft Trait",
+        "SpacecraftWeapon": "Spacecraft Weapon",
+        "SpacecraftWeaponMod": "Spacecraft Weapon Modification",
+        "SpacecraftWeaponVar": "Spacecraft Weapon Variation",
+        "VariationOutfit": "Outfit Variation",
+        "ModificationOutfit": "Outfit Modification",
         "Gun": "Gun",
         "Shell": "Shell",
         "Melee": "Melee",
@@ -178,6 +227,126 @@
         "CPU": "CPU",
         "Sensors": "Sensors",
         "Size": "Size"
+      }
+    },
+    "Stats": {
+      "Weapon": {
+        "HitDice": "Hit Dice",
+        "HitBonus": "Hit Bonus",
+        "EnduranceDamage": "Endurance Damage",
+        "CriticalDamage": "Critical Damage",
+        "RangeIncrement": "Range Increment",
+        "Acquire": "Acquire",
+        "Resources": "Resources"
+      },
+      "Outfit": {
+        "Armour": "Armour",
+        "Defence": "Defence",
+        "Endurance": "Endurance",
+        "Cover": "Cover",
+        "FrontCover": "Front Cover",
+        "EquippedEquipmentSlots": "Equipped Equipment Slots",
+        "Weight": "Weight",
+        "Cost": "Cost",
+        "AtZeroEndurance": "At 0 Endurance",
+        "OutfitType": "Outfit Type"
+      },
+      "Spacecraft": {
+        "HitDice": "Hit Dice",
+        "HitBonus": "Hit Bonus",
+        "RangeIncrement": "Range Increment",
+        "ShieldDamage": "Shield Damage",
+        "CriticalDamage": "Critical Damage",
+        "Mount": "Mount",
+        "WeaponType": "Weapon Type",
+        "Acquire": "Acquire",
+        "Influence": "Influence"
+      }
+    },
+    "Keywords": {
+      "Weapon": {
+        "ArcOfFire": "Arc of Fire",
+        "Attribute1d3": "Attribute 1d3",
+        "BioTech": "Bio Tech",
+        "Blunt": "Blunt",
+        "Burn": "Burn",
+        "CostSpareTP": "Cost Spare TP",
+        "ElectroGravity": "Electro-Gravity",
+        "Energy": "Energy",
+        "For1SessionOnly": "For 1 Session Only",
+        "Gauntlet": "Gauntlet",
+        "Innate": "Innate",
+        "Jam": "Jam",
+        "LockOn": "Lock On",
+        "Lose": "Lose",
+        "LowTech": "Low Tech",
+        "ModRolls": "Mod. Rolls",
+        "Natural": "Natural",
+        "NoVarOrMod": "No Var. or Mod.",
+        "Optional": "Optional",
+        "Only": "Only",
+        "Pen": "Pen",
+        "Prototype": "Prototype",
+        "Requires": "Requires",
+        "Robot": "Robot",
+        "Setup": "Setup ",
+        "Slow": "Slow",
+        "Small": "Small",
+        "Splash": "Splash",
+        "Stealth": "Stealth",
+        "StrongHit": "Strong Hit",
+        "WorksInLiquid": "Works in Liquid",
+        "NotInTheVoid": "Not in the void",
+        "Min": "Min",
+        "PullDown": "Pull Down",
+        "Dash": "-"
+      },
+      "SpacecraftWeapon": {
+        "CostSpareTimePoint": "Cost Spare Time Point",
+        "ForOneSessionOnly": "For One Session Only",
+        "ModificationRolls": "Modification Rolls",
+        "NoVarOrMod": "No Variation or Modifications",
+        "NotInTheVoid": "Does not work in the void"
+      },
+      "Outfit": {
+        "BioTech": "Bio Tech",
+        "CommunicationsShort": "Communications Short",
+        "CommunicationsLong": "Communications Long",
+        "CostSpareTimePoint": "Cost Spare Time Point",
+        "EnvironmentalGear": "Environmental Gear",
+        "Flight": "Flight",
+        "Gauntlet": "Gauntlet",
+        "Innate": "Innate",
+        "ModificationRolls": "Modification Rolls",
+        "SetUpPullDown": "Set Up, Pull Down",
+        "Shield": "Shield"
+      }
+    },
+    "Fight": {
+      "NPC": {
+        "Endurance": "Endurance",
+        "Durability": "Durability",
+        "Movement": "Movement",
+        "Armour": "Armour",
+        "Defence": "Defence",
+        "VsStealth": "vs Stealth",
+        "VsImpair": "vs Impair",
+        "Bodies": "Bodies",
+        "AveragePlayerResource": "Average Player Resource"
+      },
+      "Spacecraft": {
+        "Defence": "Defence",
+        "Armour": "Armour",
+        "Munitions": "Munitions",
+        "GritRerolls": "Grit re-rolls",
+        "Boarded": "Boarded",
+        "LaunchedBodies": "Launched Bodies",
+        "Bodies": "Bodies",
+        "Shield": "Shield",
+        "VsOrdinance": "Vs Ordinance",
+        "VsBoarding": "Vs Boarding",
+        "At0Shield": "At 0 Shield",
+        "Regen": "Regen"
       }
     },
     "Roll": {

@@ -35,7 +35,7 @@
               <ul>
                 {{#each system.attributes as |attr key|}}
                 <li class="item flexrow list-item" data-attr-key="{{key}}" data-item-id="{{attr.traitId}}">
-                  <span class="stat-label flexrow tooltip tooltip-nobottom" name="{{key}}"><a class="carac-roll">{{attr.label}}</a></span>
+                  <span class="stat-label flexrow tooltip tooltip-nobottom" name="{{key}}"><a class="carac-roll">{{localize attr.label}}</a></span>
                   <select class="carac-base flexrow" type="text" name="system.attributes.{{key}}.current" value="{{attr.current}}" data-dtype="Number" {{#unless @root.editScore}}disabled{{/unless}}>
                     {{#select attr.current}}
                     <option value="-5">-5</option>
@@ -98,7 +98,7 @@
                 </li>
                   {{#each system.stats as |stat key|}}
                   <li class="item flexrow list-item stack-left" data-attr-key="{{key}}" data-item-id="{{stat.traitId}}">
-                    <span class="stat-label " name="{{key}}">{{stat.label}}</span>
+                    <span class="stat-label " name="{{key}}">{{localize stat.label}}</span>
                     {{#if stat.bonus}}
                     <input type="text" class="input-numeric-short padd-right" name="system.stats.{{key}}.bonus" value="{{stat.bonus}}" data-dtype="Number" {{#unless @root.editScore}}disabled{{/unless}}/>
                     {{/if}}
@@ -122,7 +122,7 @@
           <div class="">     
             {{#each system.fight as |fight key|}}   
             <div class="flexrow stack-left">     
-              <span class="stat-label packed-left padd-right"><strong>{{fight.label}}</strong></span>
+              <span class="stat-label packed-left padd-right"><strong>{{localize fight.label}}</strong></span>
               {{#if fight.valueonly}}
               <input type="text" class="input-numeric-short padd-right"  name="system.fight.{{key}}.value" value="{{fight.value}}" data-dtype="Number"/>
               {{else}}
@@ -135,7 +135,7 @@
             <ul>
               {{#each fight.derivated as |derivated keydev|}}   
               <li class="item flexrow list-item stack-left">
-                <span class="stat-label padd-left padd-right packed-left">{{derivated.label}}</span>
+                <span class="stat-label padd-left padd-right packed-left">{{localize derivated.label}}</span>
                 {{#if derivated.valueonly}}
                 <input type="text" class="input-numeric-short padd-right"  name="system.fight.{{key}}.derivated.{{keydev}}.value" value="{{derivated.value}}" data-dtype="Number"/>
                 {{else}}

@@ -11,6 +11,28 @@
       "Main": "Principal",
       "DefenceWeapons": "Defesa/Armas"
     },
+    "Attributes": {
+      "Strength": "Força",
+      "Reflexes": "Reflexos",
+      "Mobility": "Mobilidade",
+      "Focus": "Foco",
+      "Intelligence": "Inteligência",
+      "Grit": "Determinação"
+    },
+    "SpacecraftAttr": {
+      "Hull": "Casco",
+      "Engines": "Motores",
+      "Crew": "Tripulação",
+      "Power": "Energia",
+      "CPU": "CPU",
+      "Sensors": "Sensores",
+      "Velocity": "Velocidade"
+    },
+    "ActorTypes": {
+      "Character": "Personagem",
+      "NPC": "NPC",
+      "Spacecraft": "Espaçonave"
+    },
     "Sheet": {
       "Common": {
         "Name": "Nome",
@@ -78,7 +100,11 @@
         "OtherStats": "Outras Estatísticas",
         "CargoSpaceUsed": "Espaço de Carga Utilizado",
         "SpacecraftPerks": "Vantagens da Nave",
-        "SpacecraftTraitsList": "Lista de Traços da Nave"
+        "SpacecraftTraitsList": "Lista de Traços da Nave",
+        "Cargo": "Carga",
+        "SecretCargo": "Carga Secreta",
+        "WeaponsSlot": "Slot de Armas",
+        "Resupply": "Reabastecimento"
       },
       "NPC": {
         "KeyStats": "Estatísticas principais",
@@ -87,7 +113,8 @@
         "Commander": "NPC Comandante",
         "Henchman": "Capanga",
         "Drone": "Drone",
-        "Companion": "Companheiro"
+        "Companion": "Companheiro",
+        "Attribute": "Atributo"
       }
     },
     "SkillList": {
@@ -140,6 +167,28 @@
         "Automatic": "Automático"
       },
       "Types": {
+        "Weapon": "Arma",
+        "Skill": "Perícia",
+        "Trait": "Característica",
+        "Outfit": "Traje",
+        "Equipment": "Equipamento",
+        "Perk": "Vantagem",
+        "Complication": "Complicação",
+        "Race": "Raça",
+        "Language": "Idioma",
+        "Utility": "Utilitário",
+        "TradeGood": "Mercadoria",
+        "Research": "Pesquisa",
+        "Modification": "Modificação",
+        "Variation": "Variação",
+        "StrongHit": "Acerto Forte",
+        "SpacecraftPerk": "Vantagem de Espaçonave",
+        "SpacecraftTrait": "Característica de Espaçonave",
+        "SpacecraftWeapon": "Arma de Espaçonave",
+        "SpacecraftWeaponMod": "Modificação de Arma de Espaçonave",
+        "SpacecraftWeaponVar": "Variação de Arma de Espaçonave",
+        "VariationOutfit": "Variação de Traje",
+        "ModificationOutfit": "Modificação de Traje",
         "Gun": "Arma de fogo",
         "Shell": "Projétil",
         "Melee": "Corpo a corpo",
@@ -178,6 +227,126 @@
         "CPU": "CPU",
         "Sensors": "Sensores",
         "Size": "Tamanho"
+      }
+    },
+    "Stats": {
+      "Weapon": {
+        "HitDice": "Dados de Acerto",
+        "HitBonus": "Bônus de Acerto",
+        "EnduranceDamage": "Dano de Resistência",
+        "CriticalDamage": "Dano Crítico",
+        "RangeIncrement": "Incremento de Alcance",
+        "Acquire": "Aquisição",
+        "Resources": "Recursos"
+      },
+      "Outfit": {
+        "Armour": "Armadura",
+        "Defence": "Defesa",
+        "Endurance": "Resistência",
+        "Cover": "Cobertura",
+        "FrontCover": "Cobertura Frontal",
+        "EquippedEquipmentSlots": "Slots de Equip. Equipado",
+        "Weight": "Peso",
+        "Cost": "Custo",
+        "AtZeroEndurance": "Com Res. 0",
+        "OutfitType": "Tipo de Traje"
+      },
+      "Spacecraft": {
+        "HitDice": "Dados de Acerto",
+        "HitBonus": "Bônus de Acerto",
+        "RangeIncrement": "Incremento de Alcance",
+        "ShieldDamage": "Dano de Escudo",
+        "CriticalDamage": "Dano Crítico",
+        "Mount": "Montagem",
+        "WeaponType": "Tipo de Arma",
+        "Acquire": "Aquisição",
+        "Influence": "Influência"
+      }
+    },
+    "Keywords": {
+      "Weapon": {
+        "ArcOfFire": "Arco de Fogo",
+        "Attribute1d3": "Atributo 1d3",
+        "BioTech": "Biotecnologia",
+        "Blunt": "Contundente",
+        "Burn": "Queimadura",
+        "CostSpareTP": "Custo PH",
+        "ElectroGravity": "Eletro-Gravidade",
+        "Energy": "Energia",
+        "For1SessionOnly": "Apenas 1 Sessão",
+        "Gauntlet": "Manopla",
+        "Innate": "Inato",
+        "Jam": "Travamento",
+        "LockOn": "Mira Fixa",
+        "Lose": "Perder",
+        "LowTech": "Baixa Tecnologia",
+        "ModRolls": "Mod. Rolagens",
+        "Natural": "Natural",
+        "NoVarOrMod": "Sem Var. ou Mod.",
+        "Optional": "Opcional",
+        "Only": "Apenas",
+        "Pen": "Pen",
+        "Prototype": "Protótipo",
+        "Requires": "Requer",
+        "Robot": "Robô",
+        "Setup": "Preparação ",
+        "Slow": "Lento",
+        "Small": "Pequeno",
+        "Splash": "Respingo",
+        "Stealth": "Furtividade",
+        "StrongHit": "Acerto Forte",
+        "WorksInLiquid": "Funciona em Líquido",
+        "NotInTheVoid": "Não funciona no vácuo",
+        "Min": "Mín",
+        "PullDown": "Recolher",
+        "Dash": "-"
+      },
+      "SpacecraftWeapon": {
+        "CostSpareTimePoint": "Custo Ponto de Hora Vaga",
+        "ForOneSessionOnly": "Apenas Uma Sessão",
+        "ModificationRolls": "Rolagens de Modificação",
+        "NoVarOrMod": "Sem Variação ou Modificações",
+        "NotInTheVoid": "Não funciona no vácuo"
+      },
+      "Outfit": {
+        "BioTech": "Biotecnologia",
+        "CommunicationsShort": "Comunicação Curta",
+        "CommunicationsLong": "Comunicação Longa",
+        "CostSpareTimePoint": "Custo Ponto de Hora Vaga",
+        "EnvironmentalGear": "Equipamento Ambiental",
+        "Flight": "Voo",
+        "Gauntlet": "Manopla",
+        "Innate": "Inato",
+        "ModificationRolls": "Rolagens de Modificação",
+        "SetUpPullDown": "Montar, Desmontar",
+        "Shield": "Escudo"
+      }
+    },
+    "Fight": {
+      "NPC": {
+        "Endurance": "Resistência",
+        "Durability": "Durabilidade",
+        "Movement": "Movimento",
+        "Armour": "Armadura",
+        "Defence": "Defesa",
+        "VsStealth": "vs Furtividade",
+        "VsImpair": "vs Debilitar",
+        "Bodies": "Corpos",
+        "AveragePlayerResource": "Recurso Médio dos Jogadores"
+      },
+      "Spacecraft": {
+        "Defence": "Defesa",
+        "Armour": "Armadura",
+        "Munitions": "Munições",
+        "GritRerolls": "Re-rolagens de Determinação",
+        "Boarded": "Abordado",
+        "LaunchedBodies": "Corpos Lançados",
+        "Bodies": "Corpos",
+        "Shield": "Escudo",
+        "VsOrdinance": "Vs Artilharia",
+        "VsBoarding": "Vs Abordagem",
+        "At0Shield": "Com Escudo 0",
+        "Regen": "Regeneração"
       }
     },
     "Roll": {

@@ -47,7 +47,7 @@
               <ul>
                 {{#each system.stats as |stat key|}}
                 <li class="item flexrow list-item stack-left" data-attr-key="{{key}}">
-                  <span class="stat-label padd-right npc-stat-label" name="{{key}}"><a class="carac-roll">{{stat.label}}</a></span>
+                  <span class="stat-label padd-right npc-stat-label" name="{{key}}"><a class="carac-roll">{{localize stat.label}}</a></span>
                   <input type="text" class="input-numeric-short padd-right" name="system.stats.{{key}}.value" value="{{stat.value}}" data-dtype="Number" {{#unless @root.editScore}}disabled{{/unless}}>
                 </li>
                 {{/each}}
@@ -59,7 +59,7 @@
               <ul>
                 {{#each system.spec as |spec key|}}
                 <li class="item flexrow list-item stack-left" data-attr-key="{{key}}">
-                  <span class="stat-label padd-right npc-stat-label" name="{{key}}">{{spec.label}}</span>
+                  <span class="stat-label padd-right npc-stat-label" name="{{key}}">{{localize spec.label}}</span>
                   <input type="text" class="input-numeric-short padd-right" name="system.spec.{{key}}.value" value="{{spec.value}}" data-dtype="Number" {{#unless @root.editScore}}disabled{{/unless}}/>
                 </li>
                 {{/each}}
@@ -78,12 +78,12 @@
             {{#each system.fight as |fight key|}}   
             <ul>
               <li class="item flexrow list-item stack-left">
-                <span class="stat-label padd-right"><strong>{{fight.label}}</strong></span>                
+                <span class="stat-label padd-right"><strong>{{localize fight.label}}</strong></span>                
                 <input type="text" class="input-numeric-short padd-right" name="system.fight.{{key}}.value" value="{{fight.value}}" data-dtype="Number"/>
               </li>
               {{#each fight.derivated as |derivated keydev|}}   
               <li class="item flexrow list-item">
-                <span class="stat-label flexrow ">{{derivated.label}}</span>
+                <span class="stat-label flexrow ">{{localize derivated.label}}</span>
                 <input type="text" class="input-numeric-short padd-right"  name="system.fight.{{key}}.derivated.{{keydev}}.value" value="{{derivated.value}}" data-dtype="Number"/>
               </li>
               {{/each}}
@@ -151,7 +151,7 @@
             <li class="item flexrow list-item" data-item-id="{{equip.id}}">
               <img class="sheet-competence-img" src="{{equip.img}}"/>
               <span class="equipement-label">{{equip.name}}</span>
-              <span class="equipement-label">{{equip.type}}</span>
+              <span class="equipement-label">{{localizeType equip.type}}</span>
               <div class="item-controls">
                 <a class="item-control item-equip" title="{{localize "FE2.Sheet.Common.Worn"}}">{{#if equip.system.system.equipped}}<i class="fas fa-circle"></i>{{else}}<i class="fas fa-genderless"></i>{{/if}}</a>
                 <a class="item-control item-edit" title="{{localize "FE2.Sheet.Common.EditItem"}}"><i class="fas fa-edit"></i></a>

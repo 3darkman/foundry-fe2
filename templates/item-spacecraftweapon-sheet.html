@@ -22,13 +22,13 @@
                 {{#each keywordArray as |keyword key|}}
                 <li class="item-list item flexrow stack-left">
                   <input type="checkbox" name="system.keywords.{{keyword.key}}.flag" {{checked keyword.flag}}/>
-                  <label class="generic-label keyword-label packed-left">{{keyword.label}}</label>
+                  <label class="generic-label keyword-label packed-left">{{localize keyword.label}}</label>
                   {{#if keyword.X}}
                     <input type="text" class="input-numeric-short padd-right" name="system.keywords.{{keyword.key}}.X" value="{{keyword.X}}" data-dtype="String"/>
                   {{/if}}
                   {{#if keyword.Y}}
                     {{#if keyword.labelY}}
-                    <label class="generic-label keyword-label  packed-left">{{keyword.labelY}}</label>
+                    <label class="generic-label keyword-label  packed-left">{{localize keyword.labelY}}</label>
                     {{/if}}
                     <input type="text" class="input-numeric-short padd-right" name="system.keywords.{{keyword.key}}.Y" value="{{keyword.Y}}" data-dtype="String"/>
                   {{/if}}
