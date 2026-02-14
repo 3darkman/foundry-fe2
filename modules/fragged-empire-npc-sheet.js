@@ -1,141 +1,191 @@
-/**
- * Extend the basic ActorSheet with some very simple modifications
- * @extends {ActorSheet}
- */
-
 import { FraggedEmpireUtility } from "./fragged-empire-utility.js";
-import { FraggedEmpireItemSheet } from "./fragged-empire-item-sheet.js";
 
 /* -------------------------------------------- */
-export class FraggedEmpireNPCSheet extends foundry.appv1.sheets.ActorSheet {
+const { HandlebarsApplicationMixin } = foundry.applications.api;
+
+export class FraggedEmpireNPCSheet extends HandlebarsApplicationMixin(foundry.applications.sheets.ActorSheetV2) {
 
   /** @override */
-  static get defaultOptions() {
+  static DEFAULT_OPTIONS = {
+    classes: ["fragged-empire", "sheet", "actor"],
+    position: { width: 640, height: 720 },
+    window: { resizable: true },
+    form: { submitOnChange: true },
+    actions: {
+      editItem: FraggedEmpireNPCSheet.#onEditItem,
+      deleteItem: FraggedEmpireNPCSheet.#onDeleteItem,
+      equipItem: FraggedEmpireNPCSheet.#onEquipItem,
+      rollSkill: FraggedEmpireNPCSheet.#onRollSkill,
+      rollWeapon: FraggedEmpireNPCSheet.#onRollWeapon,
+      rollNPCFight: FraggedEmpireNPCSheet.#onRollNPCFight,
+      rollGenericSkill: FraggedEmpireNPCSheet.#onRollGenericSkill,
+      lockUnlockSheet: FraggedEmpireNPCSheet.#onLockUnlockSheet
+    },
+    dragDrop: [{ dragSelector: ".item-list .item", dropSelector: null }]
+  };
 
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["fragged-empire", "sheet", "actor"],
-      template: "systems/foundry-fe2/templates/npc-sheet.html",
-      width: 640,
-      height: 720,
-      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "stats" }],
-      dragDrop: [{ dragSelector: ".item-list .item", dropSelector: null }],
-      editScore: false
-    });
+  /** @override */
+  static PARTS = {
+    body: { template: "systems/foundry-fe2/templates/npc-sheet.html" }
+  };
+
+  tabGroups = { primary: "attribute" };
+
+  _editScore = false;
+
+  /* -------------------------------------------- */
+
+  /** @override */
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    const actor = this.document;
+
+    actor.prepareTraitsAttributes();
+
+    context.name = actor.name;
+    context.img = actor.img;
+    context.system = actor.system;
+    context.cssClass = this.isEditable ? "editable" : "locked";
+    context.effects = actor.effects.map(e => foundry.utils.deepClone(e));
+    context.limited = actor.limited;
+    context.equipments = actor.getEquipments();
+    context.defenseBase = actor.getDefenseBase();
+    context.defenseTotal = actor.getDefenseTotal();
+    context.armourBase = actor.getBaseArmour();
+    context.armourTotal = actor.getTotalArmour();
+    context.weapons = actor.getWeapons();
+    context.traits = actor.getTraits();
+    context.optionsDMDP = FraggedEmpireUtility.createDirectOptionList(-3, +3);
+    context.optionsBase = FraggedEmpireUtility.createDirectOptionList(0, 20);
+    context.owner = actor.isOwner;
+    context.npcTypeChoices = FraggedEmpireUtility.buildNPCTypeChoices();
+    context.editScore = this._editScore ??= false;
+    context.isGM = game.user.isGM;
+
+    // Enrich HTML for prose-mirror collapsed display
+    const enrichOptions = { async: true, relativeTo: actor };
+    context.enrichedDescription = await foundry.applications.ux.TextEditor.implementation.enrichHTML(actor.system.description ?? "", enrichOptions);
+    context.enrichedNotes = await foundry.applications.ux.TextEditor.implementation.enrichHTML(actor.system.notes ?? "", enrichOptions);
+    context.enrichedGMNotes = await foundry.applications.ux.TextEditor.implementation.enrichHTML(actor.system.gmnotes ?? "", enrichOptions);
+
+    return context;
   }
 
   /* -------------------------------------------- */
-  async getData() {
-    const objectData = FraggedEmpireUtility.data(this.object);
-    
-    this.actor.prepareTraitsAttributes();
-    let actorData = foundry.utils.duplicate(FraggedEmpireUtility.templateData(this.object));
 
-    let formData = {
-      title: this.title,
-      id: this.object._id,
-      type: this.object.type,
-      img: this.object.img,
-      name: this.object.name,
-      editable: this.isEditable,
-      cssClass: this.isEditable ? "editable" : "locked",
-      system: this.object.system,
-      effects: this.object.effects.map(e => foundry.utils.deepClone(e.data)),
-      limited: this.object.limited,
-      equipments: this.actor.getEquipments(),
-      defenseBase: this.actor.getDefenseBase(),
-      defenseTotal: this.actor.getDefenseTotal(),
-      armourBase: this.actor.getBaseArmour(),
-      armourTotal: this.actor.getTotalArmour(),
-      weapons: this.actor.getWeapons(),
-      traits: this.actor.getTraits(),
-      optionsDMDP: FraggedEmpireUtility.createDirectOptionList(-3, +3),      
-      optionsBase: FraggedEmpireUtility.createDirectOptionList(0, 20),      
-      options: this.options,
-      owner: this.document.isOwner,
-      editScore: this.options.editScore,
-      isGM: game.user.isGM
+  /** @override */
+  async _onRender(context, options) {
+    await super._onRender(context, options);
+    // Activate tabs after render (V2 does not auto-activate from tabGroups)
+    for (const [group, tab] of Object.entries(this.tabGroups)) {
+      if (tab) this.changeTab(tab, group, {force: true});
     }
-    this.formData = formData;
-
-    console.log("NPC : ", formData, this.object);
-    return formData;
   }
 
   /* -------------------------------------------- */
-  /** @override */
-  activateListeners(html) {
-    super.activateListeners(html);
+  /*  Action Handlers                              */
+  /* -------------------------------------------- */
 
-    // Everything below here is only needed if the sheet is editable
-    if (!this.options.editable) return;
+  /**
+   * Open the sheet for an owned item.
+   * @this {FraggedEmpireNPCSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static #onEditItem(event, target) {
+    const itemId = target.closest("[data-item-id]")?.dataset.itemId;
+    if (!itemId) return;
+    this.document.items.get(itemId)?.sheet.render(true);
+  }
 
-    // Update Inventory Item
-    html.find('.item-edit').click(ev => {
-      const li = $(ev.currentTarget).parents(".item");
-      let itemId = li.data("item-id");
-      const item = this.actor.items.get( itemId );
-      item.sheet.render(true);
-    });
-    // Delete Inventory Item
-    html.find('.item-delete').click(ev => {
-      const li = $(ev.currentTarget).parents(".item");
-      FraggedEmpireUtility.confirmDelete(this, li);
-    });
+  /**
+   * Delete an owned item after confirmation.
+   * @this {FraggedEmpireNPCSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static #onDeleteItem(event, target) {
+    const itemId = target.closest("[data-item-id]")?.dataset.itemId;
+    if (!itemId) return;
+    FraggedEmpireUtility.confirmDelete(this.document, itemId);
+  }
 
-    html.find('.trait-link').click((event) => {
-      const itemId = $(event.currentTarget).data("item-id");
-      const item = this.actor.getOwnedItem(itemId);
-      item.sheet.render(true);
-    }); 
-    
-    html.find('.competence-label a').click((event) => {
-      const li = $(event.currentTarget).parents(".item");
-      const competenceId = li.data("item-id");
-      this.actor.rollSkill(competenceId);
-    });
-    html.find('.weapon-label a').click((event) => {
-      const li = $(event.currentTarget).parents(".item");
-      const armeId = li.data("item-id");
-      this.actor.rollWeapon(armeId);
-    });    
-    html.find('.npc-fight-roll').click((event) => {
-      this.actor.rollNPCFight();
-    });        
-    html.find('.npc-skill-roll').click((event) => {
-      this.actor.rollGenericSkill();
-    });        
-    html.find('.lock-unlock-sheet').click((event) => {
-      this.options.editScore = !this.options.editScore;
-      this.render(true);
-    });    
-    html.find('.item-link a').click((event) => {
-      const itemId = $(event.currentTarget).data("item-id");
-      const item = this.actor.getOwnedItem(itemId);
-      item.sheet.render(true);
-    });    
-    html.find('.item-equip').click(ev => {
-      const li = $(ev.currentTarget).parents(".item");
-      console.log(li,li[0].dataset);
-      this.actor.equipItem( li[0].dataset.itemId );
-      this.render(true);
-    });
+  /**
+   * Toggle the equipped state of an item.
+   * @this {FraggedEmpireNPCSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static #onEquipItem(event, target) {
+    const itemId = target.closest("[data-item-id]")?.dataset.itemId;
+    if (!itemId) return;
+    this.document.equipItem(itemId);
+  }
 
+  /**
+   * Roll a skill check.
+   * @this {FraggedEmpireNPCSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static #onRollSkill(event, target) {
+    const skillId = target.closest("[data-item-id]")?.dataset.itemId;
+    if (!skillId) return;
+    this.document.rollSkill(skillId);
+  }
+
+  /**
+   * Roll a weapon attack.
+   * @this {FraggedEmpireNPCSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static #onRollWeapon(event, target) {
+    const weaponId = target.closest("[data-item-id]")?.dataset.itemId;
+    if (!weaponId) return;
+    this.document.rollWeapon(weaponId);
+  }
+
+  /**
+   * Roll the NPC fight action.
+   * @this {FraggedEmpireNPCSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static #onRollNPCFight(event, target) {
+    this.document.rollNPCFight();
+  }
+
+  /**
+   * Roll a generic skill check.
+   * @this {FraggedEmpireNPCSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static #onRollGenericSkill(event, target) {
+    this.document.rollGenericSkill();
+  }
+
+  /**
+   * Toggle the lock/unlock state of the sheet for score editing.
+   * @this {FraggedEmpireNPCSheet}
+   * @param {PointerEvent} event
+   * @param {HTMLElement} target
+   */
+  static #onLockUnlockSheet(event, target) {
+    this._editScore = !this._editScore;
+    this.render();
   }
 
   /* -------------------------------------------- */
-  /** @override */
-  setPosition(options = {}) {
-    const position = super.setPosition(options);
-    const sheetBody = this.element.find(".sheet-body");
-    const bodyHeight = position.height - 192;
-    sheetBody.css("height", bodyHeight);
-    return position;
-  }
-
+  /*  Form Submission                             */
   /* -------------------------------------------- */
-  /** @override */
-  _updateObject(event, formData) {
-    // Update the Actor
-    return this.object.update(formData);
+
+  async _onChangeForm(formConfig, event) {
+    const form = this.form;
+    if (!form) return;
+    const formData = new foundry.applications.ux.FormDataExtended(form);
+    const data = foundry.utils.expandObject(formData.object);
+    await this.document.update(data);
   }
 }

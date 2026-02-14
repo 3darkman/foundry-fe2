@@ -1,259 +1,303 @@
 import { FraggedEmpireUtility } from "./fragged-empire-utility.js";
 
 /**
- * Extend the basic ItemSheet with some very simple modifications
- * @extends {ItemSheet}
+ * Item sheet using Application V2.
+ * @extends {ItemSheetV2}
  */
-export class FraggedEmpireItemSheet extends foundry.appv1.sheets.ItemSheet {
+const { HandlebarsApplicationMixin } = foundry.applications.api;
 
-  /** @override */
-	static get defaultOptions() {
-
-    return foundry.utils.mergeObject(super.defaultOptions, {
-			classes: ["foundry-fe2", "sheet", "item"],
-			template: "systems/foundry-fe2/templates/item-sheet.html",
-      dragDrop: [{dragSelector: null, dropSelector: null}],
-			width: 620,
-			height: 550
-      //tabs: [{navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "description"}]
-		});
-  }
+export class FraggedEmpireItemSheet extends HandlebarsApplicationMixin(foundry.applications.sheets.ItemSheetV2) {
 
   /* -------------------------------------------- */
-  _getHeaderButtons() {
-    let buttons = super._getHeaderButtons();
-    // Add "Post to chat" button
-    // We previously restricted this to GM and editable items only. If you ever find this comment because it broke something: eh, sorry!
-    buttons.unshift(
-      {
-        class: "post",
-        icon: "fas fa-comment",
-        onclick: ev => {} 
-      })
-    return buttons
-  }
+  static DEFAULT_OPTIONS = {
+    classes: ["foundry-fe2", "sheet", "item"],
+    position: { width: 620, height: 550 },
+    window: {
+      resizable: true,
+      controls: [
+        {
+          icon: "fas fa-comment",
+          label: "FE2.Sheet.Common.PostToChat",
+          action: "postItem"
+        }
+      ]
+    },
+    form: { submitOnChange: true },
+    actions: {
+      postItem: FraggedEmpireItemSheet.#onPostItem,
+      viewVariation: FraggedEmpireItemSheet.#onViewVariation,
+      viewModification: FraggedEmpireItemSheet.#onViewModification,
+      viewTrait: FraggedEmpireItemSheet.#onViewTrait,
+      deleteEmbedded: FraggedEmpireItemSheet.#onDeleteEmbedded
+    },
+    dragDrop: [{ dragSelector: null, dropSelector: null }]
+  };
 
   /* -------------------------------------------- */
-  /** @override */
-  setPosition(options={}) {
-    const position = super.setPosition(options);
-    const sheetBody = this.element.find(".sheet-body");
-    const bodyHeight = position.height - 192;
-    sheetBody.css("height", bodyHeight);
-    if ( this.item.type.includes('weapon')) {
-      position.width = 640;
+  static PARTS = {
+    body: { template: "systems/foundry-fe2/templates/item-skill-sheet.html" }
+  };
+
+  /* -------------------------------------------- */
+  /**
+   * Dynamically configure render parts to use the correct template for this item type.
+   * @param {HandlebarsRenderOptions} options
+   * @returns {Record<string, HandlebarsTemplatePart>}
+   * @protected
+   */
+  _configureRenderParts(options) {
+    const parts = super._configureRenderParts(options);
+    if (this.document.type) {
+      parts.body.template = `systems/foundry-fe2/templates/item-${this.document.type}-sheet.html`;
     }
-    return position;
+    return parts;
   }
-  
+
   /* -------------------------------------------- */
-  async getData() {
-    const objectData = FraggedEmpireUtility.data(this.object);
-    
-    // let itemData = foundry.utils.deepClone(FraggedEmpireUtility.templateData(this.object));
-    let itemData = foundry.utils.duplicate(this.object);
-    let formData = {
-      title: this.title,
-      id: this.id,
-      type: this.type,
-      img: itemData.img,
-      name: this.title,
-      editable: this.isEditable,
-      cssClass: this.isEditable ? "editable" : "locked",
-      system: itemData.system, 
-      combatSkills: FraggedEmpireUtility.getSkillsType('personalcombat'),
-      keywords: FraggedEmpireUtility.split3Columns(itemData.system.keywords),
-      optionsBase: FraggedEmpireUtility.createDirectOptionList(0, 20),
-      limited: this.object.limited,
-      options: this.options,
-      owner: this.document.isOwner,
-      isGM: game.user.isGM      
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    const item = this.document;
+    const itemData = foundry.utils.deepClone(item);
+
+    context.title = this.title;
+    context.id = item.id;
+    context.type = item.type;
+    context.img = item.img;
+    context.name = item.name;
+    context.editable = this.isEditable;
+    context.cssClass = this.isEditable ? "editable" : "locked";
+    context.system = itemData.system;
+    context.combatSkills = FraggedEmpireUtility.getSkillsType("personalcombat");
+    context.keywords = FraggedEmpireUtility.split3Columns(itemData.system.keywords);
+    context.optionsBase = FraggedEmpireUtility.createDirectOptionList(0, 20);
+    context.limited = item.limited;
+    context.owner = item.isOwner;
+    context.isGM = game.user.isGM;
+
+    // Type-specific choice objects for selectOptions
+    switch (item.type) {
+      case "weapon":
+        context.weaponTypeChoices = FraggedEmpireUtility.buildWeaponTypeChoices();
+        context.defaultSkillChoices = this.#buildDefaultSkillChoices(context.combatSkills);
+        break;
+      case "modification":
+        context.modificationTypeChoices = FraggedEmpireUtility.buildModificationTypeChoices();
+        context.weaponTypeWithAllChoices = FraggedEmpireUtility.buildWeaponTypeWithAllChoices();
+        break;
+      case "variation":
+        context.variationTypeChoices = FraggedEmpireUtility.buildVariationTypeChoices();
+        context.weaponTypeWithAllChoices = FraggedEmpireUtility.buildWeaponTypeWithAllChoices();
+        break;
+      case "trait":
+        context.traitTypeChoices = FraggedEmpireUtility.buildTraitTypeChoices();
+        break;
+      case "tradegood":
+        context.tradeGoodTypeChoices = FraggedEmpireUtility.buildTradeGoodTypeChoices();
+        break;
+      case "perk":
+        context.perkTypeChoices = FraggedEmpireUtility.buildPerkTypeChoices();
+        break;
+      case "spacecraftperk":
+        context.spacecraftPerkTypeChoices = FraggedEmpireUtility.buildSpacecraftPerkTypeChoices();
+        break;
+      case "spacecrafttrait":
+        context.spacecraftTraitTypeChoices = FraggedEmpireUtility.buildSpacecraftTraitTypeChoices();
+        break;
+      case "complication":
+        context.complicationTypeChoices = FraggedEmpireUtility.buildComplicationTypeChoices();
+        break;
+      case "research":
+        context.researchGainChoices = FraggedEmpireUtility.buildResearchGainChoices();
+        break;
+      case "spacecraftweapon":
+        context.weaponTypeChoices = FraggedEmpireUtility.buildWeaponTypeChoices();
+        context.defaultSkillChoices = this.#buildDefaultSkillChoices(context.combatSkills);
+        break;
+      case "outfit":
+        break;
     }
-    
-    this.options.editable = !(this.object.system.origin == "embeddedItem");
-    console.log("ITEM DATA", formData, this);
-    return formData;
+
+    // Enrich HTML for prose-mirror collapsed display
+    const enrichOptions = { async: true, relativeTo: item };
+    context.enrichedDescription = await foundry.applications.ux.TextEditor.implementation.enrichHTML(item.system.description ?? "", enrichOptions);
+    context.enrichedRequirements = await foundry.applications.ux.TextEditor.implementation.enrichHTML(item.system.requirements ?? "", enrichOptions);
+    context.enrichedBenefits = await foundry.applications.ux.TextEditor.implementation.enrichHTML(item.system.benefits ?? "", enrichOptions);
+    context.enrichedDisadvantages = await foundry.applications.ux.TextEditor.implementation.enrichHTML(item.system.disadvantages ?? "", enrichOptions);
+    context.enrichedGMNotes = await foundry.applications.ux.TextEditor.implementation.enrichHTML(item.system.gmnotes ?? "", enrichOptions);
+
+    return context;
   }
 
   /* -------------------------------------------- */
-  async manageVariation( itemId) {
-    let itemData = this.object.system.variations.find( item => item._id == itemId);
-    let variation = await Item.create(itemData, {temporary: true});   
-    variation.data.origin = "embeddedItem";
-    new FraggedEmpireItemSheet(variation).render(true);
-    console.log("Variation", variation);
+  _onRender(context, options) {
+    super._onRender(context, options);
+    // Item templates use .tab class for content wrapper — activate it so content is visible
+    this.element.querySelectorAll(".tab[data-group]").forEach(el => el.classList.add("active"));
   }
 
   /* -------------------------------------------- */
-  async manageModification( itemId) {
-    let itemData = this.object.system.modifications.find( item => item._id == itemId);
-    let modification = await Item.create(itemData, {temporary: true});   
-    modification.data.origin = "embeddedItem";
-    new FraggedEmpireItemSheet(modification).render(true);
-    console.log("Modification", modification);
+  /*  Action Handlers                             */
+  /* -------------------------------------------- */
+
+  static #onPostItem(event, target) {
+    this.#postItemToChat();
   }
 
   /* -------------------------------------------- */
-  async manageTrait( itemId)  {
-    let itemData = this.object.system.traits.find( item => item._id == itemId);
-    let trait = await Item.create(itemData, {temporary: true});   
-    trait.origin = "embeddedItem";
-    new FraggedEmpireItemSheet(trait).render(true);
-    console.log("Trait", trait);
+  static #onViewVariation(event, target) {
+    const itemRow = target.closest("[data-item-id]");
+    if (!itemRow) return;
+    const itemId = itemRow.dataset.itemId;
+    this.#viewEmbeddedItem("variations", itemId);
   }
 
   /* -------------------------------------------- */
-  _getHeaderButtons() {
-    let buttons = super._getHeaderButtons();
-    buttons.unshift({
-      class: "post",
-      icon: "fas fa-comment",
-      onclick: ev => this.postItem()
-    });
-    return buttons
+  static #onViewModification(event, target) {
+    const itemRow = target.closest("[data-item-id]");
+    if (!itemRow) return;
+    const itemId = itemRow.dataset.itemId;
+    this.#viewEmbeddedItem("modifications", itemId);
   }
-  
+
   /* -------------------------------------------- */
-  postItem() {
-    console.log(this.item);
-    let chatData = foundry.utils.duplicate(FraggedEmpireUtility.data(this.item));
-    console.log(chatData);
-    if (this.actor) {
-      chatData.actor = { id: this.actor.id };
+  static #onViewTrait(event, target) {
+    const itemRow = target.closest("[data-item-id]");
+    if (!itemRow) return;
+    const itemId = itemRow.dataset.itemId;
+    this.#viewEmbeddedItem("traits", itemId);
+  }
+
+  /* -------------------------------------------- */
+  static #onDeleteEmbedded(event, target) {
+    const itemRow = target.closest("[data-item-id]");
+    if (!itemRow) return;
+    const itemId = itemRow.dataset.itemId;
+    const itemType = itemRow.dataset.itemType;
+    const array = foundry.utils.deepClone(this.document.system[itemType]);
+    const newArray = array.filter(item => item._id !== itemId);
+    this.document.update({ [`system.${itemType}`]: newArray });
+  }
+
+  /* -------------------------------------------- */
+  /*  Private Helpers                             */
+  /* -------------------------------------------- */
+
+  /**
+   * Post the item details to chat.
+   */
+  #postItemToChat() {
+    const item = this.document;
+    let chatData = foundry.utils.deepClone(item.toObject());
+    if (item.actor) {
+      chatData.actor = { id: item.actor.id };
     }
-    // Don't post any image for the item (which would leave a large gap) if the default image is used
-    if (chatData.img.includes("/blank.png")) {
+    if (chatData.img?.includes("/blank.png")) {
       chatData.img = null;
     }
-    console.log("ITEM CHAT", chatData);
-    // JSON object for easy creation
-    chatData.jsondata = JSON.stringify(
-      {
-        compendium: "postedItem",
-        payload: chatData,
-      });
+    chatData.jsondata = JSON.stringify({
+      compendium: "postedItem",
+      payload: chatData
+    });
 
-    renderTemplate('systems/foundry-fe2/templates/post-item.html', chatData).then(html => {
+    foundry.applications.handlebars.renderTemplate("systems/foundry-fe2/templates/post-item.html", chatData).then(html => {
       let chatOptions = FraggedEmpireUtility.chatDataSetup(html);
       chatOptions.flags = { "foundry-fe2": { itemData: chatData } };
-      ChatMessage.create(chatOptions)
+      ChatMessage.create(chatOptions);
     });
   }
 
   /* -------------------------------------------- */
-  /** @override */
-	activateListeners(html) {
-    super.activateListeners(html);
-
-    // Everything below here is only needed if the sheet is editable
-    if (!this.options.editable) return;
-    
-
-    // Update Inventory Item
-    html.find('.item-edit').click(ev => {
-      const li = $(ev.currentTarget).parents(".item");
-      const item = this.object.options.actor.getOwnedItem(li.data("item-id"));
-      item.sheet.render(true);
-    });
-
-    // Update Inventory Item
-    html.find('.item-delete').click(ev => {
-      const li = $(ev.currentTarget).parents(".item");
-      let itemId = li.data("item-id");
-      let itemType = li.data("item-type");
-      let array = duplicate(this.object.system[itemType]);
-      let newArray = array.filter( item => item._id != itemId);
-      console.log("Delete", array, newArray, itemId, itemType);
-      if ( itemType == 'variations') {
-        this.object.update( {"system.variations": newArray} );
-      } else if (itemType == "modifications") {
-        this.object.update( { "system.modifications": newArray} );
-      } else {
-        this.object.update( { "system.traits": newArray} );
-      }
-    });
-
-    html.find('.trait-name').click(ev => {
-      const li = $(ev.currentTarget).parents(".item");
-      let itemId = li.data("item-id");
-      this.manageTrait( itemId);
-    });
-    html.find('.variation-name').click(ev => {
-      const li = $(ev.currentTarget).parents(".item");
-      let itemId = li.data("item-id");
-      this.manageVariation( itemId);
-    });
-    html.find('.modification-name').click(ev => {
-      const li = $(ev.currentTarget).parents(".item");
-      let itemId = li.data("item-id");
-      this.manageModification( itemId);
-    });
-
+  /**
+   * View an embedded sub-item (variation, modification, or trait) stored in system arrays.
+   * @param {string} arrayName  The system property name ("variations", "modifications", or "traits")
+   * @param {string} itemId     The _id of the embedded item
+   */
+  async #viewEmbeddedItem(arrayName, itemId) {
+    const itemData = this.document.system[arrayName]?.find(item => item._id === itemId);
+    if (!itemData) return;
+    const tempItem = await Item.create(itemData, { temporary: true });
+    tempItem.sheet.render(true);
   }
 
   /* -------------------------------------------- */
+  /**
+   * Build a choices object from combat skills for default skill select.
+   * @param {Array} combatSkills
+   * @returns {Object}
+   */
+  #buildDefaultSkillChoices(combatSkills) {
+    const choices = {};
+    for (const skill of combatSkills) {
+      choices[skill.name] = skill.name;
+    }
+    return choices;
+  }
+
+  /* -------------------------------------------- */
+  /*  Form Submission                             */
+  /* -------------------------------------------- */
+
+  async _onChangeForm(formConfig, event) {
+    const form = this.form;
+    if (!form) return;
+    const formData = new foundry.applications.ux.FormDataExtended(form);
+    const data = foundry.utils.expandObject(formData.object);
+    await this.document.update(data);
+  }
+
+  /* -------------------------------------------- */
+  /*  Drag and Drop                               */
+  /* -------------------------------------------- */
+
   async _onDrop(event) {
+    const item = this.document;
 
-    if (this.object.type == "skill" ) {
-      let data = event.dataTransfer.getData('text/plain');
-      if (data) {
-        let dataItem = JSON.parse(data);
-        let item;
-        console.log(dataItem.uuid.replace('Item.',''));
-        if (dataItem.pack) {
-          item = await fromUuid(dataItem.uuid);
-        } else {
-          item = game.items.get(dataItem.uuid.replace('Item.',''));
-        }
-        console.log("FOUND TRAIT", item, dataItem.uuid.length);
-        if ( item.type == "trait") {
-          let traitArray = duplicate(this.object.system.traits);
-          let newItem = foundry.utils.duplicate(item);
-          newItem._id = randomID( dataItem.uuid.length );
-          traitArray.push( newItem );
-          await this.object.update( { 'system.traits': traitArray} );     
-        }
+    if (item.type === "skill") {
+      let data;
+      try {
+        data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
+      } catch (e) {
+        return;
       }
+      if (!data?.uuid) return;
+      const droppedItem = await fromUuid(data.uuid);
+      if (!droppedItem) return;
+      if (droppedItem.type === "trait") {
+        const traitArray = foundry.utils.deepClone(item.system.traits);
+        const newItem = foundry.utils.deepClone(droppedItem.toObject());
+        newItem._id = foundry.utils.randomID();
+        traitArray.push(newItem);
+        await item.update({ "system.traits": traitArray });
+      }
+      return;
     }
 
-    if (this.object.type == "weapon" || this.object.type == "spacecraftweapon"|| this.object.type == "outfit") {
-      let data = event.dataTransfer.getData('text/plain');
-      if (data) {
-        let dataItem = JSON.parse( data);
-        let item;
-        if (dataItem.pack) {
-          item = await fromUuid(dataItem.uuid.split('.')[1]);
-        } else {
-          item = game.items.get(dataItem.uuid.split('.')[1]);
-        }
-        // console.log("Item dropped : ", event, dataItem, dataItem.uuid, data);
-        console.log("FOUND ITEM", item, dataItem.uuid.length);
-        if ( item.type.includes("variation") ) {
-          let variationsArray = foundry.utils.duplicate(this.object.system.variations);
-          let newItem = foundry.utils.duplicate(item);
-          newItem._id = randomID( dataItem.uuid.length );
-          variationsArray.push( newItem );
-          await this.object.update( { 'system.variations': variationsArray} );            
-        } else if ( item.type.includes("modification") ) {
-          let modsArray = foundry.utils.duplicate(this.object.system.modifications);
-          let newItem = foundry.utils.duplicate(item);
-          newItem._id = randomID( dataItem.uuid.length );
-          modsArray.push( newItem );
-          await this.object.update( { 'system.modifications': modsArray} );
-        }
+    if (item.type === "weapon" || item.type === "spacecraftweapon" || item.type === "outfit") {
+      let data;
+      try {
+        data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
+      } catch (e) {
+        return;
       }
+      if (!data?.uuid) return;
+      const droppedItem = await fromUuid(data.uuid);
+      if (!droppedItem) return;
+      if (droppedItem.type.includes("variation")) {
+        const variationsArray = foundry.utils.deepClone(item.system.variations);
+        const newItem = foundry.utils.deepClone(droppedItem.toObject());
+        newItem._id = foundry.utils.randomID();
+        variationsArray.push(newItem);
+        await item.update({ "system.variations": variationsArray });
+      } else if (droppedItem.type.includes("modification")) {
+        const modsArray = foundry.utils.deepClone(item.system.modifications);
+        const newItem = foundry.utils.deepClone(droppedItem.toObject());
+        newItem._id = foundry.utils.randomID();
+        modsArray.push(newItem);
+        await item.update({ "system.modifications": modsArray });
+      }
+      return;
     }
-  }
-  
-  /* -------------------------------------------- */
-  get template() {
-    let type = this.item.type;
-    return `systems/foundry-fe2/templates/item-${type}-sheet.html`;
-  }
 
-  /* -------------------------------------------- */
-  /** @override */
-  _updateObject(event, formData) {
-    return this.object.update(formData);
+    super._onDrop(event);
   }
 }

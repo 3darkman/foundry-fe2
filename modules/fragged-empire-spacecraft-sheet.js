@@ -1,162 +1,123 @@
-/**
- * Extend the basic ActorSheet with some very simple modifications
- * @extends {ActorSheet}
- */
-
 import { FraggedEmpireUtility } from "./fragged-empire-utility.js";
-import { FraggedEmpireItemSheet } from "./fragged-empire-item-sheet.js";
 
-/* -------------------------------------------- */
-export class FraggedEmpireSpacecraftSheet extends foundry.appv1.sheets.ActorSheet {
+const { HandlebarsApplicationMixin } = foundry.applications.api;
 
-  /** @override */
-  static get defaultOptions() {
+export class FraggedEmpireSpacecraftSheet extends HandlebarsApplicationMixin(foundry.applications.sheets.ActorSheetV2) {
 
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["fragged-empire", "sheet", "spacecraft"],
-      template: "systems/foundry-fe2/templates/spacecraft-sheet.html",
-      width: 640,
-      height: 720,
-      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "stats" }],
-      dragDrop: [{ dragSelector: ".item-list .item", dropSelector: null }],
-      editScore: false
-    });
+  static DEFAULT_OPTIONS = {
+    classes: ["fragged-empire", "sheet", "spacecraft"],
+    position: { width: 640, height: 720 },
+    window: { resizable: true },
+    form: { submitOnChange: true },
+    actions: {
+      editItem: FraggedEmpireSpacecraftSheet.#onEditItem,
+      deleteItem: FraggedEmpireSpacecraftSheet.#onDeleteItem,
+      equipItem: FraggedEmpireSpacecraftSheet.#onEquipItem,
+      rollSkill: FraggedEmpireSpacecraftSheet.#onRollSkill,
+      rollSpacecraftWeapon: FraggedEmpireSpacecraftSheet.#onRollSpacecraftWeapon,
+      lockUnlockSheet: FraggedEmpireSpacecraftSheet.#onLockUnlockSheet
+    },
+    dragDrop: [{ dragSelector: ".item-list .item", dropSelector: null }]
+  };
+
+  static PARTS = {
+    body: { template: "systems/foundry-fe2/templates/spacecraft-sheet.html" }
+  };
+
+  tabGroups = { primary: "attribute" };
+
+  _editScore = false;
+
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    const actor = this.document;
+
+    actor.prepareTraitsAttributes();
+
+    context.name = actor.name;
+    context.img = actor.img;
+    context.system = actor.system;
+    context.cssClass = this.isEditable ? "editable" : "locked";
+    context.effects = actor.effects.map(e => foundry.utils.deepClone(e));
+    context.limited = actor.limited;
+    context.weapons = actor.getSpacecraftWeapons();
+    context.tradeGoods = actor.getTradeGoods();
+    context.cargoSpaceUsed = actor.getCargoSpaceUsed();
+    context.defenseBase = actor.getDefenseBase();
+    context.armourBase = actor.getBaseArmour();
+    context.armourTotal = actor.getTotalArmour();
+    context.traits = actor.getTraits();
+    context.perks = actor.getPerks();
+    context.optionsDMDP = FraggedEmpireUtility.createDirectOptionList(-3, +3);
+    context.optionsBase = FraggedEmpireUtility.createDirectOptionList(0, 20);
+    context.spacecraftAttrCurrentChoices = FraggedEmpireUtility.createDirectOptionList(-5, 6);
+    context.spacecraftAttrValueChoices = FraggedEmpireUtility.createDirectOptionList(0, 6);
+    context.owner = actor.isOwner;
+    context.editScore = this._editScore ??= false;
+    context.isGM = game.user.isGM;
+
+    // Enrich HTML for prose-mirror collapsed display
+    const enrichOptions = { async: true, relativeTo: actor };
+    context.enrichedDescription = await foundry.applications.ux.TextEditor.implementation.enrichHTML(actor.system.description ?? "", enrichOptions);
+    context.enrichedNotes = await foundry.applications.ux.TextEditor.implementation.enrichHTML(actor.system.notes ?? "", enrichOptions);
+    context.enrichedGMNotes = await foundry.applications.ux.TextEditor.implementation.enrichHTML(actor.system.gmnotes ?? "", enrichOptions);
+
+    return context;
   }
 
-  /* -------------------------------------------- */
-  async getData() {
-    // const objectData = FraggedEmpireUtility.data(this.object);
-    const objectData = this.object
-
-    this.actor.prepareTraitsAttributes();
-    let shipData = foundry.utils.duplicate(FraggedEmpireUtility.templateData(this.object));
-
-    let formData = {
-      title: this.title,
-      id: objectData.id,
-      type: objectData.type,
-      img: objectData.img,
-      name: objectData.name,
-      editable: this.isEditable,
-      cssClass: this.isEditable ? "editable" : "locked",
-      system: this.object.system,
-      effects: this.object.effects.map(e => foundry.utils.deepClone(e.data)),
-      limited: this.object.limited,
-      weapons: this.actor.getSpacecraftWeapons(),
-      tradeGoods : this.actor.getTradeGoods(),
-      cargoSpaceUsed : this.actor.getCargoSpaceUsed(),
-      defenseBase: this.actor.getDefenseBase(),
-      armourBase: this.actor.getBaseArmour(),
-      armourTotal: this.actor.getTotalArmour(),
-      traits: this.actor.getTraits(),
-      perks: this.actor.getPerks(),
-      optionsDMDP: FraggedEmpireUtility.createDirectOptionList(-3, +3),      
-      optionsBase: FraggedEmpireUtility.createDirectOptionList(0, 20),      
-      options: this.options,
-      owner: this.document.isOwner,
-      editScore: this.options.editScore,
-      isGM: game.user.isGM
+  _onRender(context, options) {
+    super._onRender(context, options);
+    // Activate tabs after render (V2 does not auto-activate from tabGroups)
+    for (const [group, tab] of Object.entries(this.tabGroups)) {
+      if (tab) this.changeTab(tab, group, {force: true});
     }
+  }
 
-    console.log("SHIP : ", formData, this.object);
-    return formData;
+  static #onEditItem(event, target) {
+    const itemId = target.closest("[data-item-id]")?.dataset.itemId;
+    if (!itemId) return;
+    const item = this.document.items.get(itemId);
+    if (item) item.sheet.render(true);
+  }
+
+  static #onDeleteItem(event, target) {
+    const itemId = target.closest("[data-item-id]")?.dataset.itemId;
+    if (!itemId) return;
+    FraggedEmpireUtility.confirmDelete(this.document, itemId);
+  }
+
+  static #onEquipItem(event, target) {
+    const itemId = target.closest("[data-item-id]")?.dataset.itemId;
+    if (!itemId) return;
+    this.document.equipItem(itemId);
+  }
+
+  static #onRollSkill(event, target) {
+    const skillId = target.closest("[data-item-id]")?.dataset.itemId;
+    if (!skillId) return;
+    this.document.rollSkill(skillId);
+  }
+
+  static #onRollSpacecraftWeapon(event, target) {
+    const weaponId = target.closest("[data-item-id]")?.dataset.itemId;
+    if (!weaponId) return;
+    this.document.rollSpacecraftWeapon(weaponId);
+  }
+
+  static #onLockUnlockSheet(event, target) {
+    this._editScore = !this._editScore;
+    this.render();
   }
 
   /* -------------------------------------------- */
-  async prepareTraits( subtype) {
-    let traits = duplicate(await FraggedEmpireUtility.getTraitAttributeList( subtype ));
-    return traits
-  }
-
+  /*  Form Submission                             */
   /* -------------------------------------------- */
-  async prepareTraitsAttributes( actorData ) {
-    let traits = {}
-    for( let key in actorData.attributes) {
-      traits[key] = duplicate(await FraggedEmpireUtility.getTraitAttributeList( key ));
-    }
-    return traits
-  }
-  /* -------------------------------------------- */
-  /** @override */
-  activateListeners(html) {
-    super.activateListeners(html);
 
-    // Everything below here is only needed if the sheet is editable
-    if (!this.options.editable) return;
-
-    // Update Inventory Item
-    // Update Inventory Item
-    html.find('.item-edit').click(ev => {
-      const li = $(ev.currentTarget).parents(".item");
-      let itemId = li.data("item-id");
-      const item = this.actor.items.get( itemId );
-      item.sheet.render(true);
-    });
-    // Delete Inventory Item
-    html.find('.item-delete').click(ev => {
-      const li = $(ev.currentTarget).parents(".item");
-      FraggedEmpireUtility.confirmDelete(this, li);
-    });
-
-    html.find('.trait-link').click((event) => {
-      const itemId = $(event.currentTarget).data("item-id");
-      const item = this.actor.getOwnedItem(itemId);
-      item.sheet.render(true);
-    }); 
-    
-
-    html.find('.competence-label a').click((event) => {
-      const li = $(event.currentTarget).parents(".item");
-      const competenceId = li.data("item-id");
-      this.actor.rollSkill(competenceId);
-    });
-    html.find('.spacecraft-weapon-label a').click((event) => {
-      const li = $(event.currentTarget).parents(".item");
-      const armeId = li.data("item-id");
-      this.actor.rollSpacecraftWeapon(armeId);
-    });    
-    html.find('.weapon-damage').click((event) => {
-      const li = $(event.currentTarget).parents(".item");
-      const weapon = this.actor.getOwnedItem(li.data("item-id"));
-      this.actor.rollDamage(weapon, 'damage');
-    });
-    html.find('.weapon-damage-critical').click((event) => {
-      const li = $(event.currentTarget).parents(".item");
-      const weapon = this.actor.getOwnedItem(li.data("item-id"));
-      this.actor.rollDamage(weapon, 'criticaldamage');
-    });
-    
-    html.find('.lock-unlock-sheet').click((event) => {
-      this.options.editScore = !this.options.editScore;
-      this.render(true);
-    });    
-    html.find('.item-link a').click((event) => {
-      const itemId = $(event.currentTarget).data("item-id");
-      const item = this.actor.getOwnedItem(itemId);
-      item.sheet.render(true);
-    });    
-    html.find('.item-equip').click(ev => {
-      const li = $(ev.currentTarget).parents(".item");
-      this.actor.equipItem( li.data("item-id") );
-      this.render(true);
-    });
-
-  }
-
-  /* -------------------------------------------- */
-  /** @override */
-  setPosition(options = {}) {
-    const position = super.setPosition(options);
-    const sheetBody = this.element.find(".sheet-body");
-    const bodyHeight = position.height - 192;
-    sheetBody.css("height", bodyHeight);
-    return position;
-  }
-
-  /* -------------------------------------------- */
-  /** @override */
-  _updateObject(event, formData) {
-    // Update the Actor
-    return this.object.update(formData);
+  async _onChangeForm(formConfig, event) {
+    const form = this.form;
+    if (!form) return;
+    const formData = new foundry.applications.ux.FormDataExtended(form);
+    const data = foundry.utils.expandObject(formData.object);
+    await this.document.update(data);
   }
 }

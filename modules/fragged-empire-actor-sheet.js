@@ -1,208 +1,273 @@
 /**
- * Extend the basic ActorSheet with some very simple modifications
- * @extends {ActorSheet}
+ * Character actor sheet using Application V2.
+ * @extends {ActorSheetV2}
  */
 
 import { FraggedEmpireUtility } from "./fragged-empire-utility.js";
-import { FraggedEmpireItemSheet } from "./fragged-empire-item-sheet.js";
 
 /* -------------------------------------------- */
-export class FraggedEmpireActorSheet extends foundry.appv1.sheets.ActorSheet {
+const { HandlebarsApplicationMixin } = foundry.applications.api;
 
-  /** @override */
-  static get defaultOptions() {
-
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["fragged-empire", "sheet", "actor"],
-      template: "systems/foundry-fe2/templates/actor-sheet.html",
-      width: 640,
-      height: 720,
-      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "stats" }],
-      dragDrop: [{ dragSelector: ".item-list .item", dropSelector: null }],
-      editScore: false
-    });
-  }
+export class FraggedEmpireActorSheet extends HandlebarsApplicationMixin(foundry.applications.sheets.ActorSheetV2) {
 
   /* -------------------------------------------- */
-  async getData() {
-    // const objectData = FraggedEmpireUtility.data(this.object);
-    const objectData = this.object
-    
-    this.actor.prepareTraitsAttributes();
-    // let actorData = foundry.utils.duplicate(FraggedEmpireUtility.templateData(this.object));
-    let actorData = foundry.utils.duplicate(this.object);
-    let sortedSkills = this.actor.getSortedSkills();
+  static DEFAULT_OPTIONS = {
+    classes: ["fragged-empire", "sheet", "actor"],
+    position: { width: 640, height: 720 },
+    window: { resizable: true },
+    form: { submitOnChange: true },
+    dragDrop: [{ dragSelector: ".item-list .item", dropSelector: null }],
+    actions: {
+      editItem: FraggedEmpireActorSheet.#onEditItem,
+      deleteItem: FraggedEmpireActorSheet.#onDeleteItem,
+      equipItem: FraggedEmpireActorSheet.#onEquipItem,
+      rollSkill: FraggedEmpireActorSheet.#onRollSkill,
+      rollWeapon: FraggedEmpireActorSheet.#onRollWeapon,
+      editSubActor: FraggedEmpireActorSheet.#onEditSubActor,
+      deleteSubActor: FraggedEmpireActorSheet.#onDeleteSubActor,
+      rollNPCFight: FraggedEmpireActorSheet.#onRollNPCFight,
+      lockUnlockSheet: FraggedEmpireActorSheet.#onLockUnlockSheet,
+      viewSkillTrait: FraggedEmpireActorSheet.#onViewSkillTrait,
+      viewTraitLink: FraggedEmpireActorSheet.#onViewTraitLink,
+      viewItemLink: FraggedEmpireActorSheet.#onViewItemLink,
+      rollWeaponDamage: FraggedEmpireActorSheet.#onRollWeaponDamage,
+      rollWeaponDamageCritical: FraggedEmpireActorSheet.#onRollWeaponDamageCritical
+    }
+  };
 
+  /* -------------------------------------------- */
+  static PARTS = {
+    body: { template: "systems/foundry-fe2/templates/actor-sheet.html" }
+  };
 
-    let formData = {
+  /* -------------------------------------------- */
+  tabGroups = { primary: "attribute" };
+
+  /* -------------------------------------------- */
+  /** Instance-level edit score toggle */
+  _editScore = false;
+
+  /* -------------------------------------------- */
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    const actor = this.document;
+
+    actor.prepareTraitsAttributes();
+    let actorData = foundry.utils.deepClone(actor);
+    let sortedSkills = actor.getSortedSkills();
+
+    Object.assign(context, {
       title: this.title,
-      id: objectData.id,
-      type: objectData.type,
-      img: objectData.img,
-      name: objectData.name,
+      id: actor.id,
+      type: actor.type,
+      img: actor.img,
+      name: actor.name,
       editable: this.isEditable,
       cssClass: this.isEditable ? "editable" : "locked",
       system: actorData.system,
-      effects: this.object.effects.map(e => foundry.utils.deepClone(e.data)),
-      limited: this.object.limited,
+      effects: actor.effects.map(e => foundry.utils.deepClone(e)),
+      limited: actor.limited,
       sortedSkills: sortedSkills,
-      weapons: this.actor.getWeapons(),
-      strongHits: this.actor.getStrongHits(),
-      races: this.actor.getRaces(),
-      outfits: this.actor.getOutfits(),
-      utilities: this.actor.getUtilities(),
-      equipments: this.actor.getEquipments(),
-      languages: this.actor.getLanguages(),
-      defenseBase: this.actor.getDefenseBase(),
-      defenseTotal: this.actor.getDefenseTotal(),
-      armourBase: this.actor.getBaseArmour(),
-      armourTotal: this.actor.getTotalArmour(),
-      tradeGoods : this.actor.getTradeGoods(),
-      researches: this.actor.getResearch(),
-      perks: this.actor.getPerks(),
-      traits: this.actor.getTraits(),
-      skillsTraits: this.actor.getSkillsTraits(),
-      complications: this.actor.getComplications(),
-      equipmentsSlotsBase: this.actor.getEquipmentSlotsBase(),
-      equipmentsSlotsTotal: this.actor.getEquipmentSlotsTotal(),
-      equipmentsSlotsUsed: this.actor.getEquipmentSlotsUsed(),
-      subActors: this.actor.getSubActors(),
-      optionsDMDP: FraggedEmpireUtility.createDirectOptionList(-3, +3),      
-      optionsBase: FraggedEmpireUtility.createDirectOptionList(0, 20),      
-      options: this.options,
-      owner: this.document.isOwner,
-      editScore: this.options.editScore,
+      weapons: actor.getWeapons(),
+      strongHits: actor.getStrongHits(),
+      races: actor.getRaces(),
+      outfits: actor.getOutfits(),
+      utilities: actor.getUtilities(),
+      equipments: actor.getEquipments(),
+      languages: actor.getLanguages(),
+      defenseBase: actor.getDefenseBase(),
+      defenseTotal: actor.getDefenseTotal(),
+      armourBase: actor.getBaseArmour(),
+      armourTotal: actor.getTotalArmour(),
+      tradeGoods: actor.getTradeGoods(),
+      researches: actor.getResearch(),
+      perks: actor.getPerks(),
+      traits: actor.getTraits(),
+      skillsTraits: actor.getSkillsTraits(),
+      complications: actor.getComplications(),
+      equipmentsSlotsBase: actor.getEquipmentSlotsBase(),
+      equipmentsSlotsTotal: actor.getEquipmentSlotsTotal(),
+      equipmentsSlotsUsed: actor.getEquipmentSlotsUsed(),
+      subActors: actor.getSubActors(),
+      optionsDMDP: FraggedEmpireUtility.createDirectOptionList(-3, +3),
+      optionsBase: FraggedEmpireUtility.createDirectOptionList(0, 20),
+      owner: actor.isOwner,
+      editScore: this._editScore,
       isGM: game.user.isGM
+    });
+
+    // Enrich HTML for prose-mirror collapsed display
+    const enrichOptions = { async: true, relativeTo: actor };
+    context.enrichedBioDescription = await foundry.applications.ux.TextEditor.implementation.enrichHTML(actor.system.biosystem?.description ?? "", enrichOptions);
+    context.enrichedBioNotes = await foundry.applications.ux.TextEditor.implementation.enrichHTML(actor.system.biosystem?.notes ?? "", enrichOptions);
+    context.enrichedGMNotes = await foundry.applications.ux.TextEditor.implementation.enrichHTML(actor.system.gmnotes ?? "", enrichOptions);
+
+    this._formData = context;
+    return context;
+  }
+
+  /* -------------------------------------------- */
+  _onRender(context, options) {
+    super._onRender(context, options);
+
+    // Activate tabs after render (V2 does not auto-activate from tabGroups)
+    for (const [group, tab] of Object.entries(this.tabGroups)) {
+      if (tab) this.changeTab(tab, group, {force: true});
     }
-    this.formData = formData;
-    
-    console.log("formData : ", formData);
-    return formData;
-  }
 
-  /* -------------------------------------------- */
-  async getSkillTrait(itemId) {
-    if ( itemId != "") { 
-      let itemData = this.formData.skillsTraits.find( item => item._id == itemId);
-      let trait = await Item.create(itemData, {temporary: true});   
-      trait.data.origin = "embeddedItem";
-      new FraggedEmpireItemSheet(trait).render(true);
-      console.log("Trait", trait);  
+    if (!this.isEditable) return;
+
+    // Munitions field change handler (special case for inline weapon munitions inputs)
+    const munitionsInputs = this.element.querySelectorAll(".weapon-munitions-label input");
+    for (const input of munitionsInputs) {
+      input.addEventListener("change", (event) => {
+        const weaponId = event.target.name;
+        const value = event.target.value;
+        this.document.updateWeaponMunitions(weaponId, value);
+      });
     }
   }
 
   /* -------------------------------------------- */
-  /** @override */
-  activateListeners(html) {
-    super.activateListeners(html);
+  /*  Action Handlers                             */
+  /* -------------------------------------------- */
 
-    // Everything below here is only needed if the sheet is editable
-    if (!this.options.editable) return;
-
-    // Update Inventory Item
-    html.find('.skill-trait-view').click(ev => {
-      const li = $(ev.currentTarget).parents(".item");
-      let itemId = li.data("item-id");
-      this.getSkillTrait( itemId);
-    });    
-    // Update Inventory Item
-    html.find('.item-edit').click(ev => {
-      const li = $(ev.currentTarget).parents(".item");
-      let itemId = li.data("item-id");
-      const item = this.actor.items.get( itemId );
-      item.sheet.render(true);
-    });
-    // Delete Inventory Item
-    html.find('.item-delete').click(ev => {
-      const li = $(ev.currentTarget).parents(".item");
-      FraggedEmpireUtility.confirmDelete(this, li);
-    });
-
-    html.find('.subactor-edit').click(ev => {
-      const li = $(ev.currentTarget).parents(".item");
-      let actorId = li.data("actor-id");
-      let actor = game.actors.get( actorId );
-      actor.sheet.render(true);
-    });
-    
-    html.find('.subactor-delete').click(ev => {
-      const li = $(ev.currentTarget).parents(".item");
-      let actorId = li.data("actor-id");
-      this.actor.delSubActor(actorId);
-    });
-    
-    html.find('.trait-link').click((event) => {
-      const itemId = $(event.currentTarget).data("item-id");
-      const item = this.actor.getOwnedItem(itemId);
-      item.sheet.render(true);
-    }); 
-    
-    html.find('.competence-label a').click((event) => {
-      const li = $(event.currentTarget).parents(".item");
-      const competenceId = li.data("item-id");
-      this.actor.rollSkill(competenceId);
-    });
-    html.find('.weapon-label a').click((event) => {
-      const li = $(event.currentTarget).parents(".item");
-      const armeId = li.data("item-id");
-      console.log(this)
-      this.actor.rollWeapon(armeId);
-    });
-    html.find('.npc-fight a').click((event) => {
-      const li = $(event.currentTarget).parents(".item");
-      const actorId = li.data("actor-id");
-      let actor = game.actors.get( actorId );
-      actor.rollNPCFight();
-    });        
-    html.find('.weapon-damage').click((event) => {
-      const li = $(event.currentTarget).parents(".item");
-      const weapon = this.actor.getOwnedItem(li.data("item-id"));
-      this.actor.rollDamage(weapon, 'damage');
-    });
-    html.find('.weapon-damage-critical').click((event) => {
-      const li = $(event.currentTarget).parents(".item");
-      const weapon = this.actor.getOwnedItem(li.data("item-id"));
-      this.actor.rollDamage(weapon, 'criticaldamage');
-    });
-    
-    html.find('.lock-unlock-sheet').click((event) => {
-      this.options.editScore = !this.options.editScore;
-      this.render(true);
-    });    
-    html.find('.item-link a').click((event) => {
-      const itemId = $(event.currentTarget).data("item-id");
-      const item = this.actor.getOwnedItem(itemId);
-      item.sheet.render(true);
-    });    
-    html.find('.item-equip').click(ev => {
-      const li = $(ev.currentTarget).parents(".item");
-      this.actor.equipItem( li.data("item-id") );
-      this.render(true);
-    });
-    html.find('.weapons-munitions-label').click(ev => {
-      const li = $(ev.currentTarget).parents(".item");
-    });
+  static #onEditItem(event, target) {
+    const itemRow = target.closest("[data-item-id]");
+    if (!itemRow) return;
+    const itemId = itemRow.dataset.itemId;
+    const item = this.document.items.get(itemId);
+    item?.sheet.render(true);
   }
 
   /* -------------------------------------------- */
-  /** @override */
-  setPosition(options = {}) {
-    const position = super.setPosition(options);
-    const sheetBody = this.element.find(".sheet-body");
-    const bodyHeight = position.height - 192;
-    sheetBody.css("height", bodyHeight);
-    return position;
+  static #onDeleteItem(event, target) {
+    const itemRow = target.closest("[data-item-id]");
+    if (!itemRow) return;
+    const itemId = itemRow.dataset.itemId;
+    FraggedEmpireUtility.confirmDelete(this.document, itemId);
   }
-  
+
   /* -------------------------------------------- */
+  static #onEquipItem(event, target) {
+    const itemRow = target.closest("[data-item-id]");
+    if (!itemRow) return;
+    const itemId = itemRow.dataset.itemId;
+    this.document.equipItem(itemId);
+  }
+
+  /* -------------------------------------------- */
+  static #onRollSkill(event, target) {
+    const itemRow = target.closest("[data-item-id]");
+    if (!itemRow) return;
+    const skillId = itemRow.dataset.itemId;
+    this.document.rollSkill(skillId);
+  }
+
+  /* -------------------------------------------- */
+  static #onRollWeapon(event, target) {
+    const itemRow = target.closest("[data-item-id]");
+    if (!itemRow) return;
+    const weaponId = itemRow.dataset.itemId;
+    this.document.rollWeapon(weaponId);
+  }
+
+  /* -------------------------------------------- */
+  static #onEditSubActor(event, target) {
+    const itemRow = target.closest("[data-actor-id]");
+    if (!itemRow) return;
+    const actorId = itemRow.dataset.actorId;
+    const actor = game.actors.get(actorId);
+    actor?.sheet.render(true);
+  }
+
+  /* -------------------------------------------- */
+  static #onDeleteSubActor(event, target) {
+    const itemRow = target.closest("[data-actor-id]");
+    if (!itemRow) return;
+    const actorId = itemRow.dataset.actorId;
+    this.document.delSubActor(actorId);
+  }
+
+  /* -------------------------------------------- */
+  static #onRollNPCFight(event, target) {
+    const itemRow = target.closest("[data-actor-id]");
+    if (!itemRow) return;
+    const actorId = itemRow.dataset.actorId;
+    const actor = game.actors.get(actorId);
+    actor?.rollNPCFight();
+  }
+
+  /* -------------------------------------------- */
+  static #onLockUnlockSheet(event, target) {
+    this._editScore = !this._editScore;
+    this.render();
+  }
+
+  /* -------------------------------------------- */
+  static #onViewSkillTrait(event, target) {
+    const itemRow = target.closest("[data-item-id]");
+    if (!itemRow) return;
+    const itemId = itemRow.dataset.itemId;
+    if (itemId && itemId !== "" && this._formData) {
+      const itemData = this._formData.skillsTraits.find(item => item._id === itemId);
+      if (itemData) {
+        Item.create(itemData, { temporary: true }).then(trait => {
+          trait.sheet.render(true);
+        });
+      }
+    }
+  }
+
+  /* -------------------------------------------- */
+  static #onViewTraitLink(event, target) {
+    const itemId = target.dataset.itemId ?? target.closest("[data-item-id]")?.dataset.itemId;
+    if (!itemId) return;
+    const item = this.document.items.get(itemId);
+    item?.sheet.render(true);
+  }
+
+  /* -------------------------------------------- */
+  static #onViewItemLink(event, target) {
+    const itemId = target.dataset.itemId ?? target.closest("[data-item-id]")?.dataset.itemId;
+    if (!itemId) return;
+    const item = this.document.items.get(itemId);
+    item?.sheet.render(true);
+  }
+
+  /* -------------------------------------------- */
+  static #onRollWeaponDamage(event, target) {
+    const itemRow = target.closest("[data-item-id]");
+    if (!itemRow) return;
+    const itemId = itemRow.dataset.itemId;
+    const weapon = this.document.items.get(itemId);
+    if (weapon) this.document.rollDamage(weapon, "damage");
+  }
+
+  /* -------------------------------------------- */
+  static #onRollWeaponDamageCritical(event, target) {
+    const itemRow = target.closest("[data-item-id]");
+    if (!itemRow) return;
+    const itemId = itemRow.dataset.itemId;
+    const weapon = this.document.items.get(itemId);
+    if (weapon) this.document.rollDamage(weapon, "criticaldamage");
+  }
+
+  /* -------------------------------------------- */
+  /*  Drag and Drop                               */
+  /* -------------------------------------------- */
+
   async _onDrop(event) {
-    let data = event.dataTransfer.getData('text/plain');
-    if (data) {
-      let dataItem = JSON.parse( data);
-      console.log("_opDrop firing",dataItem)
-      let npc = game.actors.get( dataItem.id);
-      if ( npc ) {
-        this.actor.addSubActor( dataItem.id);
+    let data;
+    try {
+      data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
+    } catch (e) {
+      return;
+    }
+    if (data && data.type === "Actor" && data.uuid) {
+      const droppedActor = await fromUuid(data.uuid);
+      if (droppedActor) {
+        this.document.addSubActor(droppedActor.id);
         return;
       }
     }
@@ -210,12 +275,16 @@ export class FraggedEmpireActorSheet extends foundry.appv1.sheets.ActorSheet {
   }
 
   /* -------------------------------------------- */
-  /** @override */
-  _updateObject(event, formData) {
-    if (event.type == "change" && event.target.parentElement.className == "stat-label weapon-munitions-label") {
-      this.actor.updateWeaponMunitions(event.target.name, event.target.value)
-    }
-    // Update the Actor
-    return this.object.update(formData);
+  /*  Form Submission                             */
+  /* -------------------------------------------- */
+
+  async _onChangeForm(formConfig, event) {
+    // Munitions inputs are handled by dedicated event listeners in _onRender
+    if (event?.target?.closest(".weapon-munitions-label")) return;
+    const form = this.form;
+    if (!form) return;
+    const formData = new foundry.applications.ux.FormDataExtended(form);
+    const data = foundry.utils.expandObject(formData.object);
+    await this.document.update(data);
   }
 }
