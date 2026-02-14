@@ -301,13 +301,14 @@ export class FraggedEmpireUtility  {
     }
 
     if (rollData.mode != "skill") {
+      if (rollData.mode == "weapon" && rollData.useMunitions) {
+        rollData.munitionsUsed = 1;
+      }
       if (rollData.munitionsUsed != 0) {
         if (rollData.mode == "spacecraftweapon") {
-          actor.updateShipMunitions(rollData.actorId,rollData.munitionsUsed)
-          actor.update
+          actor.updateShipMunitions(rollData.actorId, rollData.munitionsUsed);
         } else {
-          actor.updateWeaponMunitions(rollData.weapon._id,rollData.munitionsUsed)
-          actor.update
+          actor.updateWeaponMunitions(rollData.weapon._id, rollData.munitionsUsed);
         }
       }
     }

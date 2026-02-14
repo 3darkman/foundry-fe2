@@ -275,15 +275,18 @@ export class FraggedEmpireActor extends Actor {
   }
 
   /* -------------------------------------------- */
-  async updateWeaponMunitions(weaponId, newValue) {
+  async updateWeaponMunitions(weaponId, amountUsed) {
     let item = this.items.find( item => item._id == weaponId );
-    let update = { _id: item.id, "system.munitions": newValue  };
-    await this.updateEmbeddedDocuments('Item',[update]);
+    let currentMunitions = Number(item.system.munitions);
+    let decremented = Math.max(0, currentMunitions - amountUsed);
+    let update = { _id: item.id, "system.munitions": String(decremented) };
+    await this.updateEmbeddedDocuments('Item', [update]);
   }
 
     /* -------------------------------------------- */
-  async updateShipMunitions(actorId, newValue) {
-    this.update( { 'system.fight.munitions.value': this.system.fight.munitions.value-newValue } );
+  async updateShipMunitions(actorId, amountUsed) {
+    let decremented = Math.max(0, this.system.fight.munitions.value - amountUsed);
+    this.update( { 'system.fight.munitions.value': decremented } );
   }
 
   /* -------------------------------------------- */
@@ -752,6 +755,7 @@ export class FraggedEmpireActor extends Actor {
         rollData.skillId = combatSkill.id;
         rollData.skill = combatSkill;
         rollData.useMunitions = false;
+        rollData.munitionsUsed = 0;
       } else if (this.type == 'npc' && this.system.npctype == 'henchman') {
         rollData.weapon.system.statstotal.enddmg.value = Number(this.system.stats.Attribute.value) + Number(rollData.weapon.system.statstotal.enddmg.value)
       }
