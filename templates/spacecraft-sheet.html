@@ -32,7 +32,7 @@
           <div class="grid grid-2col">
             <div class="">
               
-              <span class="generic-label"><h3>{{localize "FE2.Tabs.Attributes"}}</h3></span>
+              <span class="generic-label fe2-section-header"><h3>{{localize "FE2.Tabs.Attributes"}}</h3></span>
               <ul>
                 {{#each system.attributes as |attr key|}}
                 <li class="item flexrow list-item" data-attr-key="{{key}}" data-item-id="{{attr.traitId}}">
@@ -56,19 +56,19 @@
             </div>
 
             <div class="">        
-              <span class="generic-label"><h3>{{localize "FE2.Sheet.Spacecraft.Size"}} : </h3>
+              <span class="generic-label fe2-section-header"><h3>{{localize "FE2.Sheet.Spacecraft.Size"}} : </h3>
               <input type="text" name="system.size.value" value="{{system.size.value}}" data-dtype="Number" {{#unless @root.editScore}}disabled{{/unless}}/>
               </span>
 
-              <span class="generic-label"><h3>{{localize "FE2.Sheet.Spacecraft.Build"}} : </h3>
+              <span class="generic-label fe2-section-header"><h3>{{localize "FE2.Sheet.Spacecraft.Build"}} : </h3>
                 <input type="text" name="system.build" value="{{system.build}}" data-dtype="String" {{#unless @root.editScore}}disabled{{/unless}}/>
               </span>
 
-              <span class="generic-label"><h3>{{localize "FE2.Sheet.Common.Influence"}} : </h3>
+              <span class="generic-label fe2-section-header"><h3>{{localize "FE2.Sheet.Common.Influence"}} : </h3>
                 <input type="text" name="system.influence" value="{{system.influence}}" data-dtype="Number" {{#unless @root.editScore}}disabled{{/unless}}/>
               </span>
 
-              <span class="generic-label"><h3>{{localize "FE2.Sheet.Spacecraft.OtherStats"}}</h3></span>
+              <span class="generic-label fe2-section-header"><h3>{{localize "FE2.Sheet.Spacecraft.OtherStats"}}</h3></span>
               <ul>
                 <li class="item flexrow list-item stack-left">
                   <span class="stat-label" name="{{key}}">{{localize "FE2.Sheet.Common.Name"}}</span>
@@ -81,12 +81,12 @@
                   <li class="item flexrow list-item stack-left" data-attr-key="{{key}}" data-item-id="{{stat.traitId}}">
                     <span class="stat-label " name="{{key}}">{{localize stat.label}}</span>
                     {{#if stat.bonus}}
-                    <input type="text" class="input-numeric-short padd-right" name="system.stats.{{key}}.bonus" value="{{stat.bonus}}" data-dtype="Number" {{#unless @root.editScore}}disabled{{/unless}}/>
+                    <input type="text" class="input-numeric-short fe2-stat-input padd-right" name="system.stats.{{key}}.bonus" value="{{stat.bonus}}" data-dtype="Number" {{#unless @root.editScore}}disabled{{/unless}}/>
                     {{/if}}
                     {{#if stat.max}}
                     <span class="stat-label padd-left" name="{{key}}"> {{stat.max}} {{modIndicator stat.max (lookup @root.baseValues.statMaxes key)}}</span>
                     {{/if}}
-                    <input type="text" class="input-numeric-short padd-right" name="system.stats.{{key}}.value" value="{{stat.value}}" data-dtype="Number" {{#unless @root.editScore}}disabled{{/unless}}/>
+                    <input type="text" class="input-numeric-short fe2-stat-input padd-right" name="system.stats.{{key}}.value" value="{{stat.value}}" data-dtype="Number" {{#unless @root.editScore}}disabled{{/unless}}/>
                   </li>
                   {{/each}}
                 </ul>    
@@ -105,11 +105,11 @@
             <div class="flexrow stack-left">     
               <span class="stat-label packed-left padd-right"><strong>{{localize fight.label}}</strong></span>
               {{#if fight.valueonly}}
-              <input type="text" class="input-numeric-short padd-right"  name="system.fight.{{key}}.value" value="{{fight.value}}" data-dtype="Number"/>
+              <input type="text" class="input-numeric-short fe2-stat-input padd-right"  name="system.fight.{{key}}.value" value="{{fight.value}}" data-dtype="Number"/>
               {{else}}
               <span class="stat-label padd-right padd-left packed-left">{{localize "FE2.Sheet.Common.Base"}} : {{fight.base}}</span>
               <span class="stat-label padd-left padd-right packed-left">{{localize "FE2.Sheet.Common.Bonus"}} :</span>
-              <input type="text" class="input-numeric-short padd-right"  name="system.fight.{{key}}.bonus" value="{{fight.bonus}}" data-dtype="Number"/>
+              <input type="text" class="input-numeric-short fe2-stat-input padd-right"  name="system.fight.{{key}}.bonus" value="{{fight.bonus}}" data-dtype="Number"/>
               <span class="stat-label padd-left padd-right packed-left">{{localize "FE2.Sheet.Common.Total"}} : {{fight.total}} {{modIndicator fight.total (lookup @root.baseValues.fightTotals key)}}</span>
               {{/if}}
             </div>         
@@ -118,10 +118,10 @@
               <li class="item flexrow list-item stack-left">
                 <span class="stat-label padd-left padd-right packed-left">{{localize derivated.label}}</span>
                 {{#if derivated.valueonly}}
-                <input type="text" class="input-numeric-short padd-right"  name="system.fight.{{key}}.derivated.{{keydev}}.value" value="{{derivated.value}}" data-dtype="Number"/>
+                <input type="text" class="input-numeric-short fe2-stat-input padd-right"  name="system.fight.{{key}}.derivated.{{keydev}}.value" value="{{derivated.value}}" data-dtype="Number"/>
                 {{else}}
                 <span class="stat-label padd-left padd-right packed-left">{{localize "FE2.Sheet.Common.Bonus"}} :</span>
-                <input type="text" class="input-numeric-short padd-right"  name="system.fight.{{key}}.derivated.{{keydev}}.bonus" value="{{derivated.bonus}}" data-dtype="Number"/>
+                <input type="text" class="input-numeric-short fe2-stat-input padd-right"  name="system.fight.{{key}}.derivated.{{keydev}}.bonus" value="{{derivated.bonus}}" data-dtype="Number"/>
                 <span class="stat-label padd-left padd-right packed-left">{{localize "FE2.Sheet.Common.Total"}} : {{derivated.total}}</span>
                 {{/if}}
               </li>
@@ -131,8 +131,8 @@
             {{/each}}
           </div>
 
-          <span class="generic-label"><h3>{{localize "FE2.Sheet.Common.Weapons"}}</h3></span>
-          <ul class="stat-list alternate-list">
+          <span class="generic-label fe2-section-header"><h3>{{localize "FE2.Sheet.Common.Weapons"}}</h3></span>
+          <ul class="stat-list alternate-list fe2-item-list">
             {{#each weapons as |weapon key|}}
             <li class="item stat flexrow list-item" data-arme-id="{{arme.id}}" data-item-id="{{weapon.id}}">
               <img class="sheet-competence-img" src="{{weapon.img}}"/>
@@ -155,7 +155,7 @@
       {{!-- Cargo Tab --}}
       <div class="tab cargo" data-group="primary" data-tab="cargo">
         <div><h4>{{localize "FE2.Sheet.Common.TradeGoods"}}</h4></div>
-          <ul class="item-list alternate-list">
+          <ul class="item-list alternate-list fe2-item-list">
             <li class="item flexrow list-item">
               <span class="equipement-label">{{localize "FE2.Sheet.Common.Name"}}</span>
               <span class="equipement-label">{{localize "FE2.Sheet.Common.Type"}}</span>
@@ -179,7 +179,7 @@
           {{/each}}
           <ul>
             <li><span class="stat-label">{{localize "FE2.Sheet.Spacecraft.CargoSpaceUsed"}}: {{cargoSpaceUsed}} /</span></li>
-              {{!-- <input type="text" class="input-numeric-short padd-right"  name="cargoSpaceUsed" value="{{cargoSpaceUsed}}" data-dtype="Number"/> --}}
+              {{!-- <input type="text" class="input-numeric-short fe2-stat-input padd-right"  name="cargoSpaceUsed" value="{{cargoSpaceUsed}}" data-dtype="Number"/> --}}
           </ul>
       </div>
 
@@ -187,7 +187,7 @@
       <div class="tab features" data-group="primary" data-tab="features">
         <div class="flexcol">
 
-          <span class="generic-label"><h3>{{localize "FE2.Sheet.Spacecraft.SpacecraftPerks"}}</h3></span>
+          <span class="generic-label fe2-section-header"><h3>{{localize "FE2.Sheet.Spacecraft.SpacecraftPerks"}}</h3></span>
           <ul>
             {{#each perks as |perk key|}}
             <li class="item flexrow list-item" data-item-id="{{perk.id}}">
@@ -201,7 +201,7 @@
             {{/each}}
           </ul>
 
-          <span class="generic-label"><h3>{{localize "FE2.Sheet.Spacecraft.SpacecraftTraitsList"}}</h3></span>
+          <span class="generic-label fe2-section-header"><h3>{{localize "FE2.Sheet.Spacecraft.SpacecraftTraitsList"}}</h3></span>
           <ul>
             {{#each traits as |trait key|}}
             <li class="item flexrow list-item" data-item-id="{{trait.id}}">
@@ -216,7 +216,7 @@
             {{/each}}
           </ul>
 
-          <span class="generic-label"><h3>{{localize "FE2.Sheet.Common.StrongHits"}}</h3></span>
+          <span class="generic-label fe2-section-header"><h3>{{localize "FE2.Sheet.Common.StrongHits"}}</h3></span>
           <ul>
             {{#each strongHits as |stronghit key|}}
             <li class="item flexrow list-item" data-item-id="{{stronghit.id}}">

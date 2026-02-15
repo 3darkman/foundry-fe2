@@ -16,10 +16,10 @@
 
         <div class="tab" data-group="primary" data-tab="details">
           <ul>
-            <span class="generic-label"><h3>{{localize "FE2.Sheet.Common.Type"}}</h3>
-            <select class="competence-base flexrow" type="text" name="system.type" value="{{system.type}}" data-dtype="String">
+            <li class="flexrow"><label class="generic-label">{{localize "FE2.Sheet.Common.Type"}}</label>
+            <select class="competence-base" name="system.type" value="{{system.type}}" data-dtype="String">
               {{selectOptions tradeGoodTypeChoices selected=system.type}}
-            </select> </span>
+            </select></li>
           </ul>
           <h3>{{localize "FE2.Sheet.Common.Description"}}</h3>
           <prose-mirror button="true" toggled="true" name="system.description" value="{{system.description}}">{{{enrichedDescription}}}</prose-mirror>

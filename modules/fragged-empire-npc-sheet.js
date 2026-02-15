@@ -7,7 +7,7 @@ export class FraggedEmpireNPCSheet extends HandlebarsApplicationMixin(foundry.ap
 
   /** @override */
   static DEFAULT_OPTIONS = {
-    classes: ["fragged-empire", "sheet", "actor"],
+    classes: ["foundry-fe2", "sheet", "actor"],
     position: { width: 640, height: 720 },
     window: { resizable: true },
     form: { submitOnChange: true },

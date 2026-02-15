@@ -5,7 +5,7 @@ const { HandlebarsApplicationMixin } = foundry.applications.api;
 export class FraggedEmpireSpacecraftSheet extends HandlebarsApplicationMixin(foundry.applications.sheets.ActorSheetV2) {
 
   static DEFAULT_OPTIONS = {
-    classes: ["fragged-empire", "sheet", "spacecraft"],
+    classes: ["foundry-fe2", "sheet", "spacecraft"],
     position: { width: 640, height: 720 },
     window: { resizable: true },
     form: { submitOnChange: true },

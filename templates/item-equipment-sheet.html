@@ -20,10 +20,10 @@
               <label class="attribute-value checkbox"><input type="checkbox" name="system.equipped" {{checked system.equipped}}/></label>
             </li>
             <li class="flexrow"><label class="generic-label">{{localize "FE2.Items.Common.Weight"}}</label>
-              <input type="text" name="system.weight" value="{{system.weight}}" data-dtype="Number"/>
+              <input type="number" class="fe2-stat-input" name="system.weight" value="{{system.weight}}" data-dtype="Number"/>
             </li>
             <li class="flexrow"><label class="generic-label">{{localize "FE2.Items.Common.Cost"}}</label>
-              <input type="text" name="system.cost" value="{{system.cost}}" data-dtype="Number"/>
+              <input type="number" class="fe2-stat-input" name="system.cost" value="{{system.cost}}" data-dtype="Number"/>
             </li>
           </ul>
           <h3>{{localize "FE2.Sheet.Common.Description"}}</h3>

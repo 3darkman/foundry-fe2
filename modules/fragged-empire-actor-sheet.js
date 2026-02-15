@@ -12,8 +12,8 @@ export class FraggedEmpireActorSheet extends HandlebarsApplicationMixin(foundry.
 
   /* -------------------------------------------- */
   static DEFAULT_OPTIONS = {
-    classes: ["fragged-empire", "sheet", "actor"],
-    position: { width: 640, height: 720 },
+    classes: ["foundry-fe2", "sheet", "actor"],
+    position: { width: 730, height: 720 },
     window: { resizable: true },
     form: { submitOnChange: true },
     dragDrop: [{ dragSelector: ".item-list .item", dropSelector: null }],

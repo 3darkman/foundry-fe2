@@ -27,10 +27,10 @@
               <label class="attribute-value checkbox"><input type="checkbox" name="system.trained" {{checked system.trained}}/></label>
             </li>
             <li class="flexrow"><label class="generic-label">{{localize "FE2.Items.Skill.AttributeBoost"}}</label>
-              <label class="attribute-value checkbox"><input type="text" name="foo" value="{{system.attribute}}" data-dtype="Number" disabled/></label>
+              <label class="attribute-value"><input type="text" name="foo" value="{{system.attribute}}" data-dtype="Number" disabled/></label>
             </li>
             <li class="flexrow"><label class="generic-label">{{localize "FE2.Items.Skill.StaticModifier"}}</label>
-              <label class="attribute-value checkbox"><input type="text" name="system.staticmod" value="{{system.staticmod}}" data-dtype="Number"/></label>
+              <label class="attribute-value"><input type="text" class="fe2-stat-input" name="system.staticmod" value="{{system.staticmod}}" data-dtype="Number"/></label>
             </li>
             <li class="flexrow"><label class="generic-label">{{localize "FE2.Items.Skill.Toolbox"}}</label>
               <label class="attribute-value checkbox"><input type="checkbox" name="system.toolbox" {{checked system.toolbox}}/></label>

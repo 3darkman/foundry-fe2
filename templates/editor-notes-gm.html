@@ -1,7 +1,6 @@
 {{#if system.isGM}}
   <h3>{{localize "FE2.Sheet.Common.GMNotes"}} : </h3>
-  <span class="small-editor item-text-long-line">
+  <div class="small-editor item-text-long-line">
     <prose-mirror button="true" toggled="true" name="system.gmnotes" value="{{system.gmnotes}}">{{{enrichedGMNotes}}}</prose-mirror>
-    
-  </span>
+  </div>
 {{/if}}

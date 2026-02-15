@@ -1,69 +1,93 @@
-  /* ==================== (A) Fonts ==================== */
-  @font-face {
-    font-family: "MiddleSaxonyText";
-    src: url('../fonts/middlesaxonytext.ttf') format("truetype");
-  }
-  @font-face {
-    font-family: "ZagRegular";
-    src: url('../fonts/zag_regular.otf');
-  }
-  @font-face {
-    font-family: "ZagBold";
-    src: url('../fonts/zag_bold.otf');
-  }
+/* ============================================================
+   Section A: Font Faces
+   ============================================================ */
 
-  :root {
-  /* =================== 1. ACTOR SHEET FONT STYLES =========== */
-    --window-header-title-font-family: ZagBold;
-    --window-header-title-font-size: 1.3rem;
-    --window-header-title-font-weight: normal;
-    --window-header-title-color: #f5f5f5;
-
-    --major-button-font-family: ZagBold;
-    --major-button-font-size: 1.05rem;
-    --major-button-font-weight: normal;
-    --major-button-color: #dadada;
-
-    --tab-header-font-family: ZagBold;
-    --tab-header-font-size: 1.0rem;
-    --tab-header-font-weight: 700;
-    --tab-header-color: #403f3e;
-    --tab-header-color-active: #4a0404;
-
-    --actor-input-font-family: ZagRegular;
-    --actor-input-font-size: 1.0rem;
-    --actor-input-font-weight: 500;
-    --actor-input-color: black;
-
-    --actor-label-font-family: ZagRegular;
-    --actor-label-font-size: 1.0rem;
-    --actor-label-font-weight: 700;
-    --actor-label-color: #464331c4;
-
-  /* =================== 2. DEBUGGING HIGHLIGHTERS ============ */ 
-    --debug-background-color-red: #ff000054;
-    --debug-background-color-blue: #1d00ff54;
-    --debug-background-color-green: #54ff0054;
-
-    --debug-box-shadow-red: inset 0 0 2px red;
-    --debug-box-shadow-blue: inset 0 0 2px blue;
-    --debug-box-shadow-green: inset 0 0 2px green;
-  }
-
-.window-app {
-  font-family: ZagRegular;
-  text-align: justify;
-  font-size: 16px;
-  letter-spacing: 1px;
+@font-face {
+  font-family: "MiddleSaxonyText";
+  src: url('../fonts/middlesaxonytext.ttf') format("truetype");
 }
+@font-face {
+  font-family: "ZagRegular";
+  src: url('../fonts/zag_regular.otf');
+}
+@font-face {
+  font-family: "ZagBold";
+  src: url('../fonts/zag_bold.otf');
+}
+
+/* ============================================================
+   Section B: Design Tokens (Custom Properties)
+   ============================================================ */
+
+:root {
+  /* B.1: Color Primitives (Tier 1) */
+  --fe2-black: rgb(0, 0, 0);
+  --fe2-off-white: rgb(253, 253, 253);
+  --fe2-gray-text: rgb(88, 89, 91);
+  --fe2-green: rgb(141, 198, 63);
+  --fe2-red: rgb(167, 45, 50);
+  --fe2-blue: rgb(135, 171, 196);
+  --fe2-green-light: rgb(223, 237, 197);
+
+  /* B.2: Semantic Colors (Tier 2) */
+  --fe2-bg: var(--fe2-off-white);
+  --fe2-text: var(--fe2-gray-text);
+  --fe2-text-heading: var(--fe2-off-white);
+  --fe2-text-value: var(--fe2-black);
+  --fe2-alert: var(--fe2-red);
+  --fe2-accent: var(--fe2-blue);
+  --fe2-highlight: var(--fe2-green);
+  --fe2-header-bg: var(--fe2-black);
+  --fe2-row-alt: var(--fe2-green-light);
+  --fe2-border: rgba(0, 0, 0, 0.15);
+
+  /* B.3: Component Colors (Tier 3) */
+  --fe2-tab-bg: var(--fe2-header-bg);
+  --fe2-tab-text: var(--fe2-text-heading);
+  --fe2-tab-active-bg: var(--fe2-highlight);
+  --fe2-tab-active-text: var(--fe2-text-heading);
+  --fe2-btn-primary-bg: var(--fe2-highlight);
+  --fe2-btn-primary-text: var(--fe2-text-heading);
+  --fe2-input-bg: transparent;
+  --fe2-input-border: var(--fe2-border);
+
+  /* B.4: Spacing Scale */
+  --fe2-space-xs: 0.25rem;
+  --fe2-space-sm: 0.5rem;
+  --fe2-space-md: 0.75rem;
+  --fe2-space-lg: 1rem;
+  --fe2-space-xl: 1.5rem;
+
+  /* B.5: Typography */
+  --fe2-font-heading: ZagBold, sans-serif;
+  --fe2-font-body: ZagRegular, sans-serif;
+  --fe2-font-size-lg: 1.2rem;
+  --fe2-font-size-md: 1rem;
+  --fe2-font-size-sm: 0.875rem;
+  --fe2-font-size-xs: 0.75rem;
+
+  /* B.6: Layout */
+  --fe2-input-compact-width: 2rem;
+  --fe2-input-compact-height: 1.75rem;
+  --fe2-input-height: 3rem;
+  --fe2-icon-sm: 24px;
+  --fe2-icon-md: 48px;
+  --fe2-icon-lg: 64px;
+  --fe2-profile-size: 100px;
+  --fe2-border-radius: 2px;
+}
+
+/* ============================================================
+   Section C: Base Styles & Resets
+   ============================================================ */
 
 h1, h2, h3, h4 {
   font-weight: bold;
 }
 
 ul, ol {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 }
 ul, li {
   list-style-type: none;
@@ -75,6 +99,663 @@ ul, li {
   flex-grow: 0;
   margin-right: 0.25rem;
 }
+
+/* ============================================================
+   Section D: Application Shell (V2)
+   - Sheet header, sheet body, sheet tabs
+   ============================================================ */
+
+/* Apply base font and colors to V2 application frames */
+.application.foundry-fe2 {
+  font-family: var(--fe2-font-body);
+  text-align: justify;
+  font-size: var(--fe2-font-size-md);
+  letter-spacing: 1px;
+  color: var(--fe2-text);
+  min-width: 400px;
+}
+
+/*
+ * Direct property overrides for ALL Foundry form elements.
+ * Foundry uses CSS @layer + element selectors (input[type=text], button, etc.)
+ * with CSS variables. Neither container-level variable overrides nor
+ * element-level variable overrides reliably work across all layer/specificity
+ * combinations. The only reliable approach is to set the actual CSS properties
+ * directly with high specificity.
+ */
+
+/* All text inputs, number inputs, selects, textareas */
+.application.foundry-fe2 input[type="text"],
+.application.foundry-fe2 input[type="number"],
+.application.foundry-fe2 input[type="password"],
+.application.foundry-fe2 input[type="search"],
+.application.foundry-fe2 select,
+.application.foundry-fe2 textarea {
+  background: var(--fe2-input-bg);
+  border: 1px solid var(--fe2-input-border);
+  border-radius: var(--fe2-border-radius);
+  color: var(--fe2-text-value);
+  font-family: var(--fe2-font-body);
+  font-size: inherit;
+  height: var(--fe2-input-compact-height);
+  box-shadow: none;
+  outline: none;
+}
+
+.application.foundry-fe2 input[type="text"]:focus,
+.application.foundry-fe2 input[type="number"]:focus,
+.application.foundry-fe2 select:focus,
+.application.foundry-fe2 textarea:focus {
+  color: var(--fe2-text-value);
+  outline: 2px solid var(--fe2-highlight);
+  outline-offset: -2px;
+}
+
+.application.foundry-fe2 input:disabled,
+.application.foundry-fe2 select:disabled,
+.application.foundry-fe2 textarea:disabled {
+  background: rgba(0, 0, 0, 0.03);
+  color: var(--fe2-text);
+}
+
+.application.foundry-fe2 input[readonly] {
+  background: rgba(0, 0, 0, 0.03);
+  color: var(--fe2-text);
+}
+
+/* Checkboxes */
+.application.foundry-fe2 input[type="checkbox"] {
+  color: var(--fe2-bg);
+  accent-color: var(--fe2-highlight);
+}
+.application.foundry-fe2 input[type="checkbox"]::before {
+  color: var(--fe2-highlight);
+}
+
+/* Buttons inside sheet content (excludes Foundry window-header buttons) */
+.application.foundry-fe2 .window-content button,
+.application.foundry-fe2 .window-content a.button {
+  background: var(--fe2-bg);
+  border: 1px solid var(--fe2-border);
+  color: var(--fe2-text-value);
+  font-family: var(--fe2-font-body);
+}
+
+.application.foundry-fe2 .window-content button:hover,
+.application.foundry-fe2 .window-content a.button:hover {
+  background: var(--fe2-highlight);
+  border-color: var(--fe2-highlight);
+  color: var(--fe2-text-heading);
+}
+
+.application.foundry-fe2 .window-content button:focus,
+.application.foundry-fe2 .window-content a.button:focus {
+  outline: 2px solid var(--fe2-highlight);
+  box-shadow: none;
+}
+
+/* ProseMirror editors */
+.application.foundry-fe2 .prosemirror,
+.application.foundry-fe2 prose-mirror {
+  background: var(--fe2-bg);
+  color: var(--fe2-text-value);
+}
+.application.foundry-fe2 .prosemirror menu {
+  background: var(--fe2-bg);
+  border-bottom: 1px solid var(--fe2-border);
+}
+.application.foundry-fe2 .prosemirror .prosemirror-dropdown-menu {
+  background: var(--fe2-bg);
+  border: 1px solid var(--fe2-border);
+}
+
+/* Remove Foundry backdrop-filter blur */
+.application.foundry-fe2 .window-content {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Template part fills window-content area */
+.foundry-fe2 [data-application-part] {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Sheet header: fixed, flex row, system colors */
+.foundry-fe2 .sheet-header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  background: var(--fe2-bg);
+  padding: var(--fe2-space-sm);
+}
+
+.foundry-fe2 .sheet-header .header-fields {
+  flex: 1;
+}
+
+/* Profile image: constrained size, border from tokens */
+.foundry-fe2 .profile-img {
+  flex: 0 0 var(--fe2-profile-size);
+  width: var(--fe2-profile-size);
+  height: var(--fe2-profile-size);
+  object-fit: cover;
+  border: 2px solid var(--fe2-border);
+  border-radius: var(--fe2-border-radius);
+  margin-right: var(--fe2-space-sm);
+}
+
+/* Character name input fills remaining space */
+.foundry-fe2 .charname {
+  flex: 1;
+  margin: 0;
+  border-bottom: none;
+}
+
+.foundry-fe2 .charname input[type="text"] {
+  height: var(--fe2-input-height);
+}
+
+.foundry-fe2 .charname input {
+  height: auto;
+  line-height: 1.4;
+  padding: var(--fe2-space-xs) var(--fe2-space-sm);
+  margin: 0;
+  width: 100%;
+  font-family: var(--fe2-font-heading);
+  color: var(--fe2-text-value);
+  font-size: var(--fe2-font-size-lg);
+}
+
+/* Lock/unlock button in sheet header */
+.foundry-fe2 .fe2-lock-btn {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  cursor: pointer;
+  color: var(--fe2-text);
+  font-size: var(--fe2-font-size-md);
+  margin-left: var(--fe2-space-sm);
+}
+
+.foundry-fe2 .fe2-lock-btn:hover {
+  color: var(--fe2-highlight);
+}
+
+/* Tab navigation: fixed height, colors from tokens */
+.foundry-fe2 .sheet-tabs {
+  flex: 0 0 auto;
+  background: var(--fe2-tab-bg);
+  display: flex;
+  gap: 0;
+  border: none;
+}
+
+.foundry-fe2 nav.tabs[data-group] [data-tab] {
+  color: var(--fe2-tab-text);
+  font-family: var(--fe2-font-heading);
+  font-size: var(--fe2-font-size-sm);
+  padding: var(--fe2-space-xs) var(--fe2-space-sm);
+  text-decoration: none;
+  text-shadow: none;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.foundry-fe2 nav.tabs[data-group] [data-tab]:hover {
+  color: var(--fe2-tab-text);
+  background: rgba(255, 255, 255, 0.1);
+  text-shadow: none;
+}
+
+.foundry-fe2 nav.tabs[data-group] [data-tab].active {
+  background: var(--fe2-tab-active-bg);
+  color: var(--fe2-tab-active-text);
+  text-shadow: none;
+}
+
+/* Sheet body: fills remaining space, scrolls */
+.foundry-fe2 .sheet-body {
+  flex: 1;
+  overflow: auto;
+  background: var(--fe2-bg);
+  padding: var(--fe2-space-sm);
+}
+
+/* V1 window-app fallback */
+.window-app {
+  font-family: ZagRegular;
+  text-align: justify;
+  font-size: 16px;
+  letter-spacing: 1px;
+}
+
+/* ============================================================
+   Section E: Sheet Components
+   - Section headers, sub-headers
+   - Item lists (alternating rows)
+   - Stat inputs (compact numeric)
+   - Stat tables
+   - Prose-mirror editors
+   ============================================================ */
+
+/* Section headers: clean text with bottom border */
+.fe2-section-header {
+  background: none;
+  color: var(--fe2-text-value);
+  padding: var(--fe2-space-xs) 0;
+  font-family: var(--fe2-font-heading);
+  font-size: var(--fe2-font-size-md);
+  font-weight: bold;
+  margin: var(--fe2-space-sm) 0 var(--fe2-space-xs);
+  border-bottom: 2px solid var(--fe2-border);
+}
+
+/* Sub-headers: accent blue bg, off-white text */
+.fe2-sub-header {
+  background: var(--fe2-accent);
+  color: var(--fe2-text-heading);
+  padding: var(--fe2-space-xs) var(--fe2-space-sm);
+  font-family: var(--fe2-font-heading);
+  font-size: var(--fe2-font-size-md);
+  margin: var(--fe2-space-xs) 0;
+  border-radius: var(--fe2-border-radius);
+}
+
+/* Item lists: alternating row colors */
+.fe2-item-list .item:nth-child(even),
+.fe2-item-list .effect-entry:nth-child(even),
+.fe2-item-list li:nth-child(even) {
+  background: var(--fe2-row-alt);
+}
+
+/* Compact stat inputs for numeric values (specificity 0,2,1 beats Foundry's 0,1,1) */
+.foundry-fe2 input.fe2-stat-input,
+.foundry-fe2 select.fe2-stat-input {
+  width: var(--fe2-input-compact-width);
+  height: var(--fe2-input-compact-height);
+  text-align: center;
+  color: var(--fe2-text-value);
+  font-family: var(--fe2-font-body);
+  border: 1px solid var(--fe2-input-border);
+  border-radius: var(--fe2-border-radius);
+  background: var(--fe2-input-bg);
+}
+
+/* Stat tables: header styling + alternating rows */
+.fe2-stat-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.fe2-stat-table thead th,
+.fe2-stat-table tr:first-child td {
+  background: var(--fe2-header-bg);
+  color: var(--fe2-text-heading);
+  padding: var(--fe2-space-xs) var(--fe2-space-sm);
+  font-family: var(--fe2-font-heading);
+  font-size: var(--fe2-font-size-sm);
+}
+
+.fe2-stat-table tbody tr:nth-child(even),
+.fe2-stat-table tr:nth-child(even) {
+  background: var(--fe2-row-alt);
+}
+
+.fe2-stat-table td {
+  padding: var(--fe2-space-xs) var(--fe2-space-sm);
+  text-align: center;
+}
+
+/* Weapon table in fight tab: compact single-row-per-weapon layout */
+.fe2-weapon-table {
+  font-size: var(--fe2-font-size-sm);
+}
+
+.fe2-weapon-table thead th {
+  font-size: var(--fe2-font-size-xs);
+  white-space: nowrap;
+}
+
+.fe2-weapon-table .weapon-label {
+  text-align: left;
+  white-space: nowrap;
+}
+
+.fe2-weapon-table .weapon-label a {
+  color: var(--fe2-text-value);
+}
+
+.fe2-weapon-table .weapon-label a:hover {
+  color: var(--fe2-highlight);
+}
+
+.fe2-weapon-table .sheet-competence-img {
+  vertical-align: middle;
+}
+
+.fe2-weapon-table tbody tr:nth-child(even) {
+  background: var(--fe2-row-alt);
+}
+
+/* Prose-mirror editor block display */
+.foundry-fe2 .small-editor {
+  display: block;
+}
+.foundry-fe2 prose-mirror {
+  display: block;
+  margin: var(--fe2-space-xs) 0;
+}
+
+/* Alternating row colors for ALL lists in the sheet body */
+.foundry-fe2 .sheet-body ul > li:nth-child(even) {
+  background: var(--fe2-row-alt);
+}
+
+.foundry-fe2 .item-list .item,
+.foundry-fe2 .alternate-list .item,
+.foundry-fe2 .alterne-list .item {
+  color: var(--fe2-text);
+  padding: var(--fe2-space-xs) var(--fe2-space-sm);
+}
+
+.foundry-fe2 .item-list .item .stat-label,
+.foundry-fe2 .item-list .item .competence-label,
+.foundry-fe2 .item-list .item .equipement-label {
+  color: var(--fe2-text);
+}
+
+.foundry-fe2 .generic-label {
+  color: var(--fe2-text-value);
+}
+
+.foundry-fe2 .specialisation-label {
+  color: var(--fe2-text-value);
+  text-align: center;
+}
+
+/* Form element spacing */
+.foundry-fe2 .flexrow {
+  gap: var(--fe2-space-sm);
+}
+
+.foundry-fe2 .grid-2col {
+  gap: var(--fe2-space-md);
+}
+
+.foundry-fe2 .grid-3col {
+  gap: var(--fe2-space-md);
+}
+
+/* List row padding */
+.foundry-fe2 .list-item {
+  padding: var(--fe2-space-xs) var(--fe2-space-sm);
+}
+
+/* Existing input-numeric-short: compact sizing via tokens */
+.foundry-fe2 .input-numeric-short {
+  width: var(--fe2-input-compact-width);
+  height: var(--fe2-input-compact-height);
+  text-align: center;
+  color: var(--fe2-text-value);
+}
+
+/* Text inputs: stretch to fill remaining space */
+.foundry-fe2 .competence-label,
+.foundry-fe2 .equipement-label {
+  flex: 1;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Typography hierarchy */
+.foundry-fe2 h3 {
+  font-family: var(--fe2-font-heading);
+  font-size: var(--fe2-font-size-lg);
+  color: var(--fe2-text-value);
+  margin: 0;
+}
+
+.foundry-fe2 h4 {
+  font-family: var(--fe2-font-heading);
+  font-size: var(--fe2-font-size-md);
+  color: var(--fe2-text-value);
+}
+
+.foundry-fe2 .stat-label {
+  font-size: var(--fe2-font-size-sm);
+}
+
+/* Item names in lists: truncate with ellipsis */
+.foundry-fe2 .weapon-label,
+.foundry-fe2 .spacecraft-weapon-label,
+.foundry-fe2 .outfit-label,
+.foundry-fe2 .competence-label {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   Section F: Actor Sheets (Character, NPC, Spacecraft)
+   - Sheet-type-specific overrides
+   ============================================================ */
+
+/* NPC stat labels */
+.foundry-fe2 .npc-stat-label {
+  font-family: var(--fe2-font-heading);
+  color: var(--fe2-text-value);
+}
+
+/* Weapon and outfit labels */
+.foundry-fe2 .weapon-label,
+.foundry-fe2 .spacecraft-weapon-label,
+.foundry-fe2 .outfit-label {
+  color: var(--fe2-text-value);
+  font-family: var(--fe2-font-body);
+}
+
+.foundry-fe2 .weapon-label a,
+.foundry-fe2 .spacecraft-weapon-label a,
+.foundry-fe2 .npc-fight a,
+.foundry-fe2 .competence-label a,
+.foundry-fe2 .carac-roll {
+  color: var(--fe2-text-value);
+}
+
+.foundry-fe2 .weapon-label a:hover,
+.foundry-fe2 .spacecraft-weapon-label a:hover,
+.foundry-fe2 .npc-fight a:hover,
+.foundry-fe2 .competence-label a:hover,
+.foundry-fe2 .carac-roll:hover {
+  color: var(--fe2-highlight);
+}
+
+/* ============================================================
+   Section G: Item Sheets
+   - Item tabs, item-type-specific rules
+   ============================================================ */
+
+/* Item sheet tab navigation */
+.foundry-fe2 .item-sheet-tabs {
+  display: flex;
+  background: var(--fe2-tab-bg);
+  margin-bottom: var(--fe2-space-sm);
+  border-bottom: none;
+}
+
+.foundry-fe2 .item-sheet-tabs a {
+  padding: var(--fe2-space-xs) var(--fe2-space-sm);
+  cursor: pointer;
+  font-family: var(--fe2-font-heading);
+  font-size: var(--fe2-font-size-sm);
+  color: var(--fe2-tab-text);
+  text-decoration: none;
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.foundry-fe2 .item-sheet-tabs a:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.foundry-fe2 .item-sheet-tabs a.active {
+  background: var(--fe2-tab-active-bg);
+  color: var(--fe2-tab-active-text);
+  border-bottom: none;
+}
+
+/* Item sheet body inherits system colors */
+.foundry-fe2 .sheet-body {
+  color: var(--fe2-text);
+}
+
+/* Label-input rows inside item sheet detail tabs */
+.foundry-fe2 .tab ul > li.flexrow {
+  gap: var(--fe2-space-sm);
+  padding: var(--fe2-space-xs) var(--fe2-space-sm);
+}
+.foundry-fe2 .tab ul > li.flexrow > label {
+  flex: 0 0 auto;
+  min-width: 8rem;
+}
+.foundry-fe2 .tab ul > li.flexrow > input[type="text"],
+.foundry-fe2 .tab ul > li.flexrow > input[type="number"] {
+  flex: 1;
+  max-width: 12rem;
+}
+.foundry-fe2 .tab ul > li.flexrow > select {
+  flex: 1;
+  max-width: 16rem;
+}
+
+/* Standalone h3+select pairs in item sheets */
+.foundry-fe2 .tab > h3 + select {
+  max-width: 16rem;
+  margin-bottom: var(--fe2-space-sm);
+}
+
+/* ============================================================
+   Section H: Roll Dialogs
+   ============================================================ */
+
+/* Direct property overrides for roll dialogs */
+.fraggedempiredialog input[type="text"],
+.fraggedempiredialog input[type="number"],
+.fraggedempiredialog select {
+  background: var(--fe2-input-bg);
+  border: 1px solid var(--fe2-input-border);
+  color: var(--fe2-text-value);
+  height: var(--fe2-input-compact-height);
+  box-shadow: none;
+}
+.fraggedempiredialog input[type="text"]:focus,
+.fraggedempiredialog input[type="number"]:focus,
+.fraggedempiredialog select:focus {
+  outline: 2px solid var(--fe2-highlight);
+  outline-offset: -2px;
+}
+.fraggedempiredialog button {
+  background: var(--fe2-bg);
+  border: 1px solid var(--fe2-border);
+  color: var(--fe2-text-value);
+}
+.fraggedempiredialog button:hover {
+  background: var(--fe2-highlight);
+  color: var(--fe2-text-heading);
+}
+
+/* DialogV2 form fills available space */
+.fraggedempiredialog .dialog-form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Content area scrolls */
+.fraggedempiredialog .dialog-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--fe2-space-sm);
+}
+
+/* Button footer stays pinned at bottom */
+.fraggedempiredialog .form-footer {
+  flex: 0 0 auto;
+}
+
+/* Roll dialog system styling */
+.fe2-roll-dialog {
+  background: var(--fe2-bg);
+  padding: var(--fe2-space-md);
+  font-family: var(--fe2-font-body);
+  color: var(--fe2-text);
+}
+
+.fe2-roll-dialog h2 {
+  font-family: var(--fe2-font-heading);
+  font-size: var(--fe2-font-size-lg);
+  color: var(--fe2-text-value);
+  margin-bottom: var(--fe2-space-sm);
+}
+
+.fe2-roll-dialog h3 {
+  font-family: var(--fe2-font-heading);
+  font-size: var(--fe2-font-size-md);
+  color: var(--fe2-text-value);
+  margin: var(--fe2-space-sm) 0 var(--fe2-space-xs);
+  border-bottom: 1px solid var(--fe2-border);
+  padding-bottom: var(--fe2-space-xs);
+}
+
+.fe2-roll-dialog .flexrow {
+  align-items: center;
+  gap: var(--fe2-space-sm);
+  margin-bottom: var(--fe2-space-xs);
+}
+
+.fe2-roll-dialog select {
+  background: var(--fe2-input-bg);
+  border: 1px solid var(--fe2-input-border);
+  border-radius: var(--fe2-border-radius);
+  color: var(--fe2-text-value);
+  height: var(--fe2-input-compact-height);
+  max-width: 16rem;
+}
+
+.fe2-roll-dialog .competence-base {
+  font-size: var(--fe2-font-size-sm);
+  color: var(--fe2-text);
+}
+
+/* Roll/submit button */
+.fraggedempiredialog .form-footer button,
+.fe2-roll-dialog button[type="submit"] {
+  background: var(--fe2-btn-primary-bg);
+  color: var(--fe2-btn-primary-text);
+  font-family: var(--fe2-font-heading);
+  border: none;
+  padding: var(--fe2-space-xs) var(--fe2-space-md);
+  border-radius: var(--fe2-border-radius);
+  cursor: pointer;
+}
+
+.fraggedempiredialog .form-footer button:hover {
+  filter: brightness(1.1);
+}
+
+/* ============================================================
+   Section I: Chat Cards
+   ============================================================ */
+
 .chat-message-header {
   background: rgba(220,220,210,0.5);
   font-size: 1.1rem;
@@ -82,25 +763,27 @@ ul, li {
   text-align: center;
   vertical-align: middle;
   display: flex;
-  align-items: center; 
+  align-items: center;
 }
 
-.chat-message .message-header .flavor-text, .chat-message .message-header .whisper-to { 
+.chat-message .message-header .flavor-text,
+.chat-message .message-header .whisper-to {
   font-size: 0.9rem;
 }
+
 .chat-actor-name {
   padding: 4px;
 }
 
 .chat-img {
-  width: 64px;
-  height: 64px;
+  width: var(--fe2-icon-lg);
+  height: var(--fe2-icon-lg);
 }
 
 .actor-icon {
   float: left;
-  width: 48px;
-  height: 48px;
+  width: var(--fe2-icon-md);
+  height: var(--fe2-icon-md);
   padding: 2px 6px 2px 2px;
 }
 
@@ -117,7 +800,7 @@ ul, li {
 }
 
 .dice-image-reroll {
-  background-color:rgba(115, 224, 115, 0.25);
+  background-color: rgba(115, 224, 115, 0.25);
   border-color: #011d33;
   box-sizing: border-box;
   border: 1px;
@@ -130,7 +813,6 @@ ul, li {
   height: 15%;
   font-size: 15px;
   padding: 10px;
-  padding-bottom: 20px;
   padding-top: .2rem;
   padding-bottom: .2rem;
 }
@@ -144,110 +826,69 @@ ul, li {
   background: rgba(220,220,210,0.75);
   border: 2px solid #545469;
 }
+
 .chat-message .chat-icon {
   border: 0;
   padding: 2px 6px 2px 2px;
   float: left;
-  width: 64px;
-  height: 64px;
+  width: var(--fe2-icon-lg);
+  height: var(--fe2-icon-lg);
 }
 
-/* ==================== (B) V2 Sheet Layout ==================== */
-
-/* Apply base font to V2 application frames */
-.application.fragged-empire,
-.application.foundry-fe2 {
-  font-family: ZagRegular;
-  text-align: justify;
-  font-size: 16px;
-  letter-spacing: 1px;
+/* System-styled chat cards */
+.fe2-chat-card {
+  background: var(--fe2-bg);
+  padding: var(--fe2-space-sm);
+  font-family: var(--fe2-font-body);
+  color: var(--fe2-text);
+  border-radius: var(--fe2-border-radius);
 }
 
-/* Template part fills window-content area */
-.fragged-empire [data-application-part],
-.foundry-fe2 [data-application-part] {
+.fe2-chat-card .chat-message-header {
+  background: var(--fe2-header-bg);
+  color: var(--fe2-text-heading);
+  border-radius: var(--fe2-border-radius);
+  padding: var(--fe2-space-xs) var(--fe2-space-sm);
+}
+
+.fe2-chat-card .chat-actor-name {
+  color: var(--fe2-text-heading);
+  font-family: var(--fe2-font-heading);
+}
+
+.fe2-chat-card h4 {
+  color: var(--fe2-text-value);
+  font-family: var(--fe2-font-heading);
+  font-size: var(--fe2-font-size-md);
+}
+
+.fe2-chat-card ul {
+  padding-left: var(--fe2-space-sm);
+}
+
+.fe2-chat-card li {
+  padding: var(--fe2-space-xs) 0;
+  color: var(--fe2-text);
+}
+
+/* Alert color for damage/critical values */
+.fe2-alert {
+  color: var(--fe2-alert);
+  font-weight: bold;
+}
+
+/* fe2-row utility */
+.fe2-row {
   display: flex;
-  flex-direction: column;
-  flex: 1;
-  overflow: hidden;
-}
-
-/* Sheet header: fixed, flex row */
-.fragged-empire .sheet-header,
-.foundry-fe2 .sheet-header {
-  flex: 0 0 auto;
-  display: flex;
+  flex-direction: row;
+  gap: var(--fe2-space-sm);
   align-items: center;
 }
 
-.fragged-empire .sheet-header .header-fields,
-.foundry-fe2 .sheet-header .header-fields {
-  flex: 1;
-}
-
-/* Profile image: constrained size (override .flexrow > * { flex: 1 }) */
-.fragged-empire .profile-img,
-.foundry-fe2 .profile-img {
-  flex: 0 0 100px;
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-  border: none;
-  margin-right: 8px;
-}
-
-/* Character name input fills remaining space */
-.fragged-empire .charname,
-.foundry-fe2 .charname {
-  flex: 1;
-  margin: 0;
-  border-bottom: none;
-}
-
-.fragged-empire .charname input,
-.foundry-fe2 .charname input {
-  height: 48px;
-  line-height: 48px;
-  margin: 0;
-  width: 100%;
-}
-
-/* Tab navigation: fixed height, no grow */
-.fragged-empire .sheet-tabs,
-.foundry-fe2 .sheet-tabs {
-  flex: 0 0 auto;
-}
-
-/* Sheet body: fills remaining space, scrolls */
-.fragged-empire .sheet-body,
-.foundry-fe2 .sheet-body {
-  flex: 1;
-  overflow: hidden auto;
-}
-
-/* ==================== (C) Roll Dialog Layout ==================== */
-
-/* DialogV2 form fills available space */
-.fraggedempiredialog .dialog-form {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
-
-/* Content area scrolls */
-.fraggedempiredialog .dialog-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0.5rem;
-}
-
-/* Button footer stays pinned at bottom */
-.fraggedempiredialog .form-footer {
-  flex: 0 0 auto;
-}
-
-/* ==================== (D) Effects System ==================== */
+/* ============================================================
+   Section J: Active Effects
+   - Effects section, effect config sheet
+   ============================================================ */
 
 /* Effects list */
 .effects-list {
@@ -259,9 +900,9 @@ ul, li {
 .effect-entry {
   display: flex;
   align-items: center;
-  padding: 2px 4px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  gap: 4px;
+  padding: var(--fe2-space-xs) var(--fe2-space-sm);
+  border-bottom: 1px solid var(--fe2-border);
+  gap: var(--fe2-space-xs);
 }
 
 .effect-entry:hover {
@@ -269,9 +910,9 @@ ul, li {
 }
 
 .effect-icon {
-  flex: 0 0 24px;
-  width: 24px;
-  height: 24px;
+  flex: 0 0 var(--fe2-icon-sm);
+  width: var(--fe2-icon-sm);
+  height: var(--fe2-icon-sm);
   border: none;
   object-fit: cover;
 }
@@ -283,24 +924,24 @@ ul, li {
 
 .effect-source {
   flex: 0 0 auto;
-  font-size: 0.85em;
-  color: #666;
+  font-size: var(--fe2-font-size-xs);
+  color: var(--fe2-text);
   font-style: italic;
 }
 
 .effect-controls {
   flex: 0 0 auto;
   display: flex;
-  gap: 4px;
+  gap: var(--fe2-space-xs);
 }
 
 .effect-control {
   cursor: pointer;
-  color: #555;
+  color: var(--fe2-text);
 }
 
 .effect-control:hover {
-  color: #000;
+  color: var(--fe2-text-value);
 }
 
 /* Effect states */
@@ -315,33 +956,38 @@ ul, li {
 
 /* Effect category headers */
 .effect-category-header {
-  margin: 8px 0 4px;
-  padding: 2px 4px;
-  border-bottom: 2px solid #4a0404;
-  font-size: 0.95em;
+  margin: var(--fe2-space-sm) 0 var(--fe2-space-xs);
+  padding: var(--fe2-space-xs) var(--fe2-space-sm);
+  background: var(--fe2-header-bg);
+  color: var(--fe2-text-heading);
+  font-family: var(--fe2-font-heading);
+  font-size: var(--fe2-font-size-sm);
+  border-bottom: none;
+  border-radius: var(--fe2-border-radius);
 }
 
 /* Add effect button */
 .effect-add {
-  padding: 4px;
+  padding: var(--fe2-space-xs);
   text-align: center;
+  margin-top: var(--fe2-space-sm);
 }
 
 .effect-add a {
   cursor: pointer;
-  color: #555;
+  color: var(--fe2-text);
 }
 
 .effect-add a:hover {
-  color: #000;
+  color: var(--fe2-text-value);
 }
 
 /* No effects message */
 .effects-empty {
   text-align: center;
-  color: #999;
+  color: var(--fe2-text);
   font-style: italic;
-  padding: 8px;
+  padding: var(--fe2-space-sm);
 }
 
 /* Modifier indicators */
@@ -364,37 +1010,12 @@ ul, li {
 }
 
 .attribute-max-label {
-  font-size: 0.8em;
-  color: #666;
-  margin-left: 2px;
+  font-size: var(--fe2-font-size-xs);
+  color: var(--fe2-text);
+  margin-left: var(--fe2-space-xs);
 }
 
-/* Item sheet tab navigation */
-.item-sheet-tabs {
-  display: flex;
-  border-bottom: 2px solid #4a0404;
-  margin-bottom: 8px;
-}
-
-.item-sheet-tabs a {
-  padding: 4px 12px;
-  cursor: pointer;
-  font-family: var(--tab-header-font-family);
-  font-size: var(--tab-header-font-size);
-  color: var(--tab-header-color);
-  text-decoration: none;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
-}
-
-.item-sheet-tabs a.active {
-  color: var(--tab-header-color-active);
-  border-bottom-color: var(--tab-header-color-active);
-}
-
-/* ==================== (G) Active Effect Config Sheet ==================== */
-
-/* The standard-form (on window-content) must fill the window and be a flex column */
+/* Active Effect Config Sheet */
 .foundry-fe2.active-effect .standard-form {
   display: flex;
   flex-direction: column;
@@ -402,43 +1023,38 @@ ul, li {
   overflow: hidden;
 }
 
-/* Header: fixed height */
 .foundry-fe2.active-effect .standard-form > header {
   flex: 0 0 auto;
 }
 
-/* Tab navigation: horizontal row, fixed height */
 .foundry-fe2.active-effect .sheet-tabs.tabs {
   display: flex;
   flex-flow: row nowrap;
   justify-content: space-evenly;
   align-items: center;
-  gap: 1rem;
+  gap: var(--fe2-space-lg);
   line-height: 2.5;
   flex: 0 0 auto;
 }
 
-/* Tab content: hide all by default */
 .foundry-fe2.active-effect .tab[data-group="sheet"] {
   display: none;
 }
 
-/* Active tab: visible, fills remaining space, scrolls */
 .foundry-fe2.active-effect .tab[data-group="sheet"].active {
   display: flex;
   flex-direction: column;
   flex: 1;
   overflow-y: auto;
-  gap: 0.5rem;
-  padding: 0.5rem;
+  gap: var(--fe2-space-sm);
+  padding: var(--fe2-space-sm);
 }
 
-/* Footer: fixed at bottom */
 .foundry-fe2.active-effect .form-footer {
   flex: 0 0 auto;
 }
 
-/* Effect changes tab — override core grid layout from .active-effect-config */
+/* Effect changes tab */
 .foundry-fe2.active-effect .tab.changes {
   overflow-y: auto;
 }
@@ -456,25 +1072,23 @@ ul, li {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
-  padding: 8px;
-  margin-bottom: 6px;
-  background: rgba(0, 0, 0, 0.03);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
+  gap: var(--fe2-space-xs);
+  padding: var(--fe2-space-sm);
+  margin-bottom: var(--fe2-space-xs);
+  background: var(--fe2-row-alt);
+  border: 1px solid var(--fe2-border);
+  border-radius: var(--fe2-border-radius);
 }
 
 .effect-change-entry select,
 .effect-change-entry input {
-  height: var(--input-height, 28px);
+  height: var(--fe2-input-compact-height);
 }
 
-/* First row: target type fills the line */
 .effect-field-target {
   flex: 1 1 100%;
 }
 
-/* Second row: subtype, mode, value, delete side by side */
 .effect-field-skill,
 .effect-field-attribute {
   flex: 1 1 40%;
@@ -485,18 +1099,17 @@ ul, li {
 }
 
 .effect-field-value {
-  flex: 0 0 55px;
+  flex: 0 0 var(--fe2-input-compact-width);
 }
 
 .effect-field-delete {
-  flex: 0 0 24px;
+  flex: 0 0 var(--fe2-icon-sm);
   background: none;
   border: none;
   cursor: pointer;
-  padding: 4px;
+  padding: var(--fe2-space-xs);
 }
 
-.effect-add {
-  margin-top: 8px;
-}
-
+/* ============================================================
+   Section K: Utility Classes
+   ============================================================ */

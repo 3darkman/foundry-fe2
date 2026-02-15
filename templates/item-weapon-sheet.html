@@ -42,13 +42,13 @@
                   <input type="checkbox" name="system.keywords.{{keyword.key}}.flag" {{checked keyword.flag}}/>
                   <label class="generic-label keyword-label packed-left">{{localize keyword.label}}</label>
                   {{#if keyword.X}}
-                    <input type="text" class="input-numeric-short padd-right" name="system.keywords.{{keyword.key}}.X" value="{{keyword.X}}" data-dtype="String"/>
+                    <input type="text" class="input-numeric-short fe2-stat-input padd-right" name="system.keywords.{{keyword.key}}.X" value="{{keyword.X}}" data-dtype="String"/>
                   {{/if}}
                   {{#if keyword.Y}}
                     {{#if keyword.labelY}}
                     <label class="generic-label keyword-label  packed-left">{{localize keyword.labelY}}</label>
                     {{/if}}
-                    <input type="text" class="input-numeric-short padd-right" name="system.keywords.{{keyword.key}}.Y" value="{{keyword.Y}}" data-dtype="String"/>
+                    <input type="text" class="input-numeric-short fe2-stat-input padd-right" name="system.keywords.{{keyword.key}}.Y" value="{{keyword.Y}}" data-dtype="String"/>
                   {{/if}}
                 </li>
                 {{/each}}

@@ -1,5 +1,6 @@
 
-<div class="chat-message-header">
+<div class="fe2-chat-card">
+<div class="chat-message-header fe2-section-header">
   <img class="actor-icon" src="{{actorImg}}" alt="{{alias}}" />
   <h4 class=chat-actor-name>{{alias}}</h4>
 </div>
@@ -52,19 +53,19 @@
     {{/if}}
     
     {{#if (eq mode "weapon")}}
-    <li>{{localize "FE2.Chat.Stats.EndDamage"}} : {{totalEndDmg}}</li>
-    <li>{{localize "FE2.Chat.Stats.CritDamage"}} : {{critDmg}} ({{weapon.system.statstotal.crit.value}} {{localize "FE2.Chat.Stats.Versus"}} {{targetArmor}})</li>
+    <li class="fe2-alert">{{localize "FE2.Chat.Stats.EndDamage"}} : {{totalEndDmg}}</li>
+    <li class="fe2-alert">{{localize "FE2.Chat.Stats.CritDamage"}} : {{critDmg}} ({{weapon.system.statstotal.crit.value}} {{localize "FE2.Chat.Stats.Versus"}} {{targetArmor}})</li>
     {{/if}}
     {{#if (eq mode "spacecraftweapon")}}
-    <li>{{localize "FE2.Chat.Stats.ShieldDamage"}} : {{totalEndDmg}}</li>
-    <li>{{localize "FE2.Chat.Stats.CritDamage"}} : {{critDmg}} ({{weapon.system.statstotal.crit.value}} {{localize "FE2.Chat.Stats.Versus"}} {{targetArmor}})</li>
+    <li class="fe2-alert">{{localize "FE2.Chat.Stats.ShieldDamage"}} : {{totalEndDmg}}</li>
+    <li class="fe2-alert">{{localize "FE2.Chat.Stats.CritDamage"}} : {{critDmg}} ({{weapon.system.statstotal.crit.value}} {{localize "FE2.Chat.Stats.Versus"}} {{targetArmor}})</li>
     {{/if}}
 
     <li><strong>{{localize "FE2.Chat.Stats.TotalRoll"}} : {{rollTotal}}</strong></li>
     {{#if target}}
     <li><strong>{{localize "FE2.Chat.Stats.TargetDefense"}}: {{targetDefence}}</strong></li>
     {{#if (gt rollTotal targetDefence)}}<li><strong>{{localize "FE2.Chat.Results.AttackLands"}}</strong></li>
-      {{#if (gt totalEndDmg targetEnd)}}<li><strong>{{localize "FE2.Chat.Results.CriticalHitOrBoost"}}</strong></li>{{/if}}
+      {{#if (gt totalEndDmg targetEnd)}}<li class="fe2-alert"><strong>{{localize "FE2.Chat.Results.CriticalHitOrBoost"}}</strong></li>{{/if}}
     {{/if}}
     {{/if}}
     {{#if gritRerollsMax}}
@@ -73,6 +74,6 @@
     {{#if nbStrongHit}}
     <li><strong>{{localize "FE2.Chat.Stats.StrongHitsUsed"}}: {{nbStrongHitUsed}} / {{nbStrongHit}}</strong></li>
     {{/if}}
-  </ul>  
+  </ul>
 </div>
 </div>

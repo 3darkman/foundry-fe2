@@ -32,7 +32,7 @@
           <div class="grid grid-2col">
             <div class="">
               
-              <span class="generic-label"><h3>{{localize "FE2.Sheet.Common.Type"}}</h3>
+              <span class="generic-label fe2-section-header"><h3>{{localize "FE2.Sheet.Common.Type"}}</h3>
               <select class="competence-base flexrow" type="text" name="system.npctype" value="{{system.npctype}}" data-dtype="String" {{#unless @root.editScore}}disabled{{/unless}}>
                 {{selectOptions npcTypeChoices selected=system.npctype}}
               </select> </span>
@@ -40,24 +40,24 @@
               {{!-- <button class="npc-fight-roll">Fight roll</button> --}}
               <button data-action="rollGenericSkill">{{localize "FE2.Dialog.GenericSkillRoll"}}</button>
 
-              <span class="generic-label"><h3>{{localize "FE2.Sheet.NPC.KeyStats"}}</h3></span>
+              <span class="generic-label fe2-section-header"><h3>{{localize "FE2.Sheet.NPC.KeyStats"}}</h3></span>
               <ul>
                 {{#each system.stats as |stat key|}}
                 <li class="item flexrow list-item stack-left" data-attr-key="{{key}}">
                   <span class="stat-label padd-right npc-stat-label" name="{{key}}"><a class="carac-roll">{{localize stat.label}}</a></span>
-                  <input type="text" class="input-numeric-short padd-right" name="system.stats.{{key}}.value" value="{{stat.value}}" data-dtype="Number" {{#unless @root.editScore}}disabled{{/unless}}>
+                  <input type="text" class="input-numeric-short fe2-stat-input padd-right" name="system.stats.{{key}}.value" value="{{stat.value}}" data-dtype="Number" {{#unless @root.editScore}}disabled{{/unless}}>
                 </li>
                 {{/each}}
               </ul>  
             </div>
 
             <div class="">
-              <span class="generic-label"><h3>{{localize "FE2.Sheet.NPC.OtherDatas"}}</h3></span>
+              <span class="generic-label fe2-section-header"><h3>{{localize "FE2.Sheet.NPC.OtherDatas"}}</h3></span>
               <ul>
                 {{#each system.spec as |spec key|}}
                 <li class="item flexrow list-item stack-left" data-attr-key="{{key}}">
                   <span class="stat-label padd-right npc-stat-label" name="{{key}}">{{localize spec.label}}</span>
-                  <input type="text" class="input-numeric-short padd-right" name="system.spec.{{key}}.value" value="{{spec.value}}" data-dtype="Number" {{#unless @root.editScore}}disabled{{/unless}}/>
+                  <input type="text" class="input-numeric-short fe2-stat-input padd-right" name="system.spec.{{key}}.value" value="{{spec.value}}" data-dtype="Number" {{#unless @root.editScore}}disabled{{/unless}}/>
                 </li>
                 {{/each}}
               </ul>    
@@ -76,21 +76,21 @@
             <ul>
               <li class="item flexrow list-item stack-left">
                 <span class="stat-label padd-right"><strong>{{localize fight.label}}</strong></span>                
-                <input type="text" class="input-numeric-short padd-right" name="system.fight.{{key}}.value" value="{{fight.value}}" data-dtype="Number"/>
+                <input type="text" class="input-numeric-short fe2-stat-input padd-right" name="system.fight.{{key}}.value" value="{{fight.value}}" data-dtype="Number"/>
                 {{modIndicator (lookup @root.computed key) fight.value}}
               </li>
               {{#each fight.derivated as |derivated keydev|}}   
               <li class="item flexrow list-item">
                 <span class="stat-label flexrow ">{{localize derivated.label}}</span>
-                <input type="text" class="input-numeric-short padd-right"  name="system.fight.{{key}}.derivated.{{keydev}}.value" value="{{derivated.value}}" data-dtype="Number"/>
+                <input type="text" class="input-numeric-short fe2-stat-input padd-right"  name="system.fight.{{key}}.derivated.{{keydev}}.value" value="{{derivated.value}}" data-dtype="Number"/>
               </li>
               {{/each}}
             </ul>    
             {{/each}}
           </div>
 
-          <span class="generic-label"><h3>{{localize "FE2.Sheet.Common.Weapons"}}</h3></span>
-          <ul class="stat-list alternate-list">
+          <span class="generic-label fe2-section-header"><h3>{{localize "FE2.Sheet.Common.Weapons"}}</h3></span>
+          <ul class="stat-list alternate-list fe2-item-list">
             {{#each weapons as |weapon key|}}
             <li class="item stat flexrow list-item" data-arme-id="{{arme.id}}" data-item-id="{{weapon.id}}">
               <img class="sheet-competence-img" src="{{weapon.img}}"/>
@@ -113,7 +113,7 @@
       {{!-- Traits Tab --}}
       <div class="tab traits" data-group="primary" data-tab="traits">
 
-        <span class="generic-label"><h3>{{localize "FE2.Sheet.NPC.TraitsList"}}</h3></span>
+        <span class="generic-label fe2-section-header"><h3>{{localize "FE2.Sheet.NPC.TraitsList"}}</h3></span>
         <ul>
           {{#each traits as |trait key|}}
           <li class="item flexrow list-item" data-item-id="{{trait.id}}">
@@ -135,7 +135,7 @@
         <div class="flexcol">
 
           <div><h4>{{localize "FE2.Sheet.Common.Equipment"}}</h4></div>
-          <ul class="item-list alternate-list">
+          <ul class="item-list alternate-list fe2-item-list">
             <li class="item flexrow list-item">
               <span class="equipement-label">{{localize "FE2.Sheet.Common.Name"}}</span>
               <span class="equipement-label">{{localize "FE2.Sheet.Common.Type"}}</span>
