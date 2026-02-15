@@ -491,6 +491,11 @@
         "Add": "Add",
         "Multiply": "Multiply"
       },
+      "ConfigTabs": {
+        "Details": "Details",
+        "Duration": "Duration",
+        "Changes": "Changes"
+      },
       "UI": {
         "TabLabel": "Effects",
         "AddEffect": "Add Effect",

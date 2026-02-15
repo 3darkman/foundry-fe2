@@ -1,4 +1,7 @@
 {
+  "SHEETS": {
+    "Save": "Salvar"
+  },
   "FE2": {
     "Tabs": {
       "Attributes": "Atributos",
@@ -490,6 +493,11 @@
       "Modes": {
         "Add": "Adicionar",
         "Multiply": "Multiplicar"
+      },
+      "ConfigTabs": {
+        "Details": "Detalhes",
+        "Duration": "Duração",
+        "Changes": "Alterações"
       },
       "UI": {
         "TabLabel": "Efeitos",

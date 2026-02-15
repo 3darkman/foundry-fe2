@@ -6,14 +6,12 @@
 import { EFFECT_CATEGORIES, EFFECT_TARGET_TYPES, CHARACTER_ATTRIBUTES, SPACECRAFT_ATTRIBUTES, parseEffectKey, buildEffectKey } from "./fragged-empire-effect-types.js";
 import { FraggedEmpireUtility } from "../fragged-empire-utility.js";
 
-const { HandlebarsApplicationMixin } = foundry.applications.api;
-
 export class FraggedEmpireEffectSheet extends foundry.applications.sheets.ActiveEffectConfig {
 
   /* -------------------------------------------- */
   static DEFAULT_OPTIONS = {
-    classes: ["foundry-fe2", "sheet", "active-effect"],
-    position: { width: 560, height: 500 },
+    classes: ["foundry-fe2", "active-effect"],
+    position: { width: 620, height: 520 },
     actions: {
       addChange: FraggedEmpireEffectSheet.#onAddChange,
       deleteChange: FraggedEmpireEffectSheet.#onDeleteChange
@@ -23,8 +21,75 @@ export class FraggedEmpireEffectSheet extends foundry.applications.sheets.Active
   /* -------------------------------------------- */
   static PARTS = {
     ...super.PARTS,
-    changes: { template: "systems/foundry-fe2/templates/effects/effect-changes-tab.html" }
+    changes: {
+      template: "systems/foundry-fe2/templates/effects/effect-changes-tab.html",
+      scrollable: [".effect-changes-list"]
+    }
   };
+
+  /* -------------------------------------------- */
+  static TABS = {
+    sheet: {
+      tabs: [
+        { id: "details", icon: "fa-solid fa-book", label: "FE2.Effects.ConfigTabs.Details" },
+        { id: "duration", icon: "fa-solid fa-clock", label: "FE2.Effects.ConfigTabs.Duration" },
+        { id: "changes", icon: "fa-solid fa-gears", label: "FE2.Effects.ConfigTabs.Changes" }
+      ],
+      initial: "details"
+    }
+  };
+
+  /* -------------------------------------------- */
+  /** @override */
+  _onRender(context, options) {
+    super._onRender(context, options);
+
+    // Manually sync tab active states (core V2 layer CSS may not apply reliably)
+    const activeTab = this.tabGroups?.sheet ?? "details";
+    this.element.querySelectorAll('.sheet-tabs [data-tab]')
+      .forEach(el => el.classList.toggle("active", el.dataset.tab === activeTab));
+    this.element.querySelectorAll('.tab[data-group="sheet"]')
+      .forEach(el => el.classList.toggle("active", el.dataset.tab === activeTab));
+
+    // Restore subtype selections from data attributes after render
+    this.element.querySelectorAll(".effect-change-entry").forEach(row => {
+      const targetId = row.dataset.targetId;
+      if (!targetId) return;
+      const skillSel = row.querySelector(".effect-field-skill");
+      const attrSel = row.querySelector(".effect-field-attribute");
+      if (skillSel) skillSel.value = targetId;
+      if (attrSel) attrSel.value = targetId;
+    });
+  }
+
+  /* -------------------------------------------- */
+  /** @override */
+  _onChangeForm(formConfig, event) {
+    super._onChangeForm(formConfig, event);
+
+    const target = event.target;
+    if (!target?.matches(".effect-field-target")) return;
+
+    const targetType = target.value;
+    const row = target.closest(".effect-change-entry");
+    if (!row) return;
+
+    const skillSel = row.querySelector(".effect-field-skill");
+    const attrSel = row.querySelector(".effect-field-attribute");
+
+    // Show skill dropdown only for "skill" type
+    if (skillSel) {
+      skillSel.style.display = (targetType === EFFECT_TARGET_TYPES.skill) ? "" : "none";
+      if (targetType !== EFFECT_TARGET_TYPES.skill) skillSel.value = "";
+    }
+
+    // Show attribute dropdown for "attribute" and "attributeMax" types
+    if (attrSel) {
+      const showAttr = (targetType === EFFECT_TARGET_TYPES.attribute || targetType === EFFECT_TARGET_TYPES.attributeMax);
+      attrSel.style.display = showAttr ? "" : "none";
+      if (!showAttr) attrSel.value = "";
+    }
+  }
 
   /* -------------------------------------------- */
   async _preparePartContext(partId, context, options) {
@@ -32,6 +97,8 @@ export class FraggedEmpireEffectSheet extends foundry.applications.sheets.Active
 
     if (partId === "changes") {
       context.targetTypeOptions = EFFECT_CATEGORIES;
+      context.skillOptions = this._getSkillOptions();
+      context.attributeOptions = this._getAttributeOptions();
       context.changes = this._prepareChangesContext();
     }
 
@@ -47,28 +114,13 @@ export class FraggedEmpireEffectSheet extends foundry.applications.sheets.Active
     const changes = this.document.changes || [];
     return changes.map((change, idx) => {
       const parsed = parseEffectKey(change.key);
-      const entry = {
+      return {
         key: change.key,
         value: change.value,
         mode: change.mode,
         targetType: parsed?.targetType ?? "",
-        targetId: parsed?.targetId ?? "",
-        hasSubtype: false,
-        subtypeOptions: []
+        targetId: parsed?.targetId ?? ""
       };
-
-      // Determine if this target type needs a subtype dropdown
-      if (parsed) {
-        if (parsed.targetType === EFFECT_TARGET_TYPES.skill) {
-          entry.hasSubtype = true;
-          entry.subtypeOptions = this._getSkillOptions();
-        } else if (parsed.targetType === EFFECT_TARGET_TYPES.attribute || parsed.targetType === EFFECT_TARGET_TYPES.attributeMax) {
-          entry.hasSubtype = true;
-          entry.subtypeOptions = this._getAttributeOptions();
-        }
-      }
-
-      return entry;
     });
   }
 
@@ -108,15 +160,17 @@ export class FraggedEmpireEffectSheet extends foundry.applications.sheets.Active
     const changes = [];
 
     for (const el of changesEls) {
-      const targetTypeSelect = el.querySelector("[data-field='targetType']");
-      const targetIdSelect = el.querySelector("[data-field='targetId']");
-      const modeSelect = el.querySelector("[data-field='mode']");
-      const valueInput = el.querySelector("[data-field='value']");
+      const targetType = el.querySelector("[data-field='targetType']")?.value || "";
+      const mode = Number(el.querySelector("[data-field='mode']")?.value) || 2;
+      const value = el.querySelector("[data-field='value']")?.value || "0";
 
-      const targetType = targetTypeSelect?.value || "";
-      const targetId = targetIdSelect?.value || null;
-      const mode = Number(modeSelect?.value) || 2;
-      const value = valueInput?.value || "0";
+      // Get the appropriate target ID based on target type
+      let targetId = null;
+      if (targetType === EFFECT_TARGET_TYPES.skill) {
+        targetId = el.querySelector("[data-field='skillId']")?.value || null;
+      } else if (targetType === EFFECT_TARGET_TYPES.attribute || targetType === EFFECT_TARGET_TYPES.attributeMax) {
+        targetId = el.querySelector("[data-field='attributeId']")?.value || null;
+      }
 
       if (targetType) {
         const key = buildEffectKey(targetType, targetId);

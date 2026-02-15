@@ -392,44 +392,111 @@ ul, li {
   border-bottom-color: var(--tab-header-color-active);
 }
 
-/* Effect changes tab */
-.effect-changes-list {
+/* ==================== (G) Active Effect Config Sheet ==================== */
+
+/* The standard-form (on window-content) must fill the window and be a flex column */
+.foundry-fe2.active-effect .standard-form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Header: fixed height */
+.foundry-fe2.active-effect .standard-form > header {
+  flex: 0 0 auto;
+}
+
+/* Tab navigation: horizontal row, fixed height */
+.foundry-fe2.active-effect .sheet-tabs.tabs {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-evenly;
+  align-items: center;
+  gap: 1rem;
+  line-height: 2.5;
+  flex: 0 0 auto;
+}
+
+/* Tab content: hide all by default */
+.foundry-fe2.active-effect .tab[data-group="sheet"] {
+  display: none;
+}
+
+/* Active tab: visible, fills remaining space, scrolls */
+.foundry-fe2.active-effect .tab[data-group="sheet"].active {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+
+/* Footer: fixed at bottom */
+.foundry-fe2.active-effect .form-footer {
+  flex: 0 0 auto;
+}
+
+/* Effect changes tab — override core grid layout from .active-effect-config */
+.foundry-fe2.active-effect .tab.changes {
+  overflow-y: auto;
+}
+
+.foundry-fe2.active-effect .tab.changes ol.effect-changes-list {
+  display: flex;
+  flex-direction: column;
+  grid-template-columns: none;
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.effect-change-entry {
+.foundry-fe2.active-effect .tab.changes ol.effect-changes-list li.effect-change-entry {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 4px;
-  padding: 4px 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  gap: 6px;
+  padding: 8px;
+  margin-bottom: 6px;
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
 }
 
 .effect-change-entry select,
 .effect-change-entry input {
-  font-size: 0.9em;
+  height: var(--input-height, 28px);
 }
 
-.effect-change-target {
-  flex: 2;
+/* First row: target type fills the line */
+.effect-field-target {
+  flex: 1 1 100%;
 }
 
-.effect-change-subtype {
-  flex: 1.5;
+/* Second row: subtype, mode, value, delete side by side */
+.effect-field-skill,
+.effect-field-attribute {
+  flex: 1 1 40%;
 }
 
-.effect-change-mode {
-  flex: 1;
+.effect-field-mode {
+  flex: 1 1 20%;
 }
 
-.effect-change-value {
-  flex: 0 0 60px;
+.effect-field-value {
+  flex: 0 0 55px;
 }
 
-.effect-change-delete {
+.effect-field-delete {
   flex: 0 0 24px;
-  text-align: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.effect-add {
+  margin-top: 8px;
 }
 
