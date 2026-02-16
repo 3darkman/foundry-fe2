@@ -119,6 +119,8 @@ ul, li {
   /* Application-level */
   --background: var(--fe2-bg);
   --color-header-background: rgba(0, 0, 0, 0.5);
+  --color-scrollbar: rgba(0, 0, 0, 0.2);
+  --color-scrollbar-track: transparent;
   --color-border: var(--fe2-border);
   --color-tabs-border: var(--fe2-border);
   --color-fieldset-border: var(--fe2-border);
@@ -260,20 +262,20 @@ ul, li {
 }
 
 /* Scrollbar: FE2 design token colors (Chromium/Electron only) */
-.application.foundry-fe2 .sheet-body::-webkit-scrollbar {
+.application.foundry-fe2 ::-webkit-scrollbar {
   width: 8px;
 }
 
-.application.foundry-fe2 .sheet-body::-webkit-scrollbar-track {
+.application.foundry-fe2 ::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.application.foundry-fe2 .sheet-body::-webkit-scrollbar-thumb {
+.application.foundry-fe2 ::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.2);
   border-radius: 4px;
 }
 
-.application.foundry-fe2 .sheet-body::-webkit-scrollbar-thumb:hover {
+.application.foundry-fe2 ::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.35);
 }
 
@@ -360,6 +362,7 @@ ul, li {
   align-items: center;
   gap: var(--fe2-space-sm);
   padding: 0 var(--fe2-space-sm);
+  margin-top: 2px;
   min-height: 1.5rem;
 }
 
