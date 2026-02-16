@@ -353,6 +353,7 @@
                 <span class="specialisation-label">{{localize "FE2.Sheet.Character.Munitions"}}</span>
               </li>
               {{#each weapons as |weapon key|}}
+              {{#if weapon.system.equipped}}
               <li class="item flexrow list-item" data-item-id="{{weapon.id}}">
                 <img class="sheet-competence-img" src="{{weapon.img}}"/>
                 <span class="competence-label weapon-label"><a data-action="rollWeapon" name="{{weapon.name}}">{{weapon.name}}</a></span>
@@ -363,8 +364,9 @@
                 <span class="specialisation-label">{{weapon.system.statstotal.range.value}}</span>
                 <span class="specialisation-label"><input type="text" class="fe2-stat-input" name="{{weapon.id}}" value="{{weapon.system.munitions}}" data-dtype="Number"/></span>
               </li>
+              {{/if}}
               {{/each}}
-            </ul>          
+            </ul>
 
             <h3 class="fe2-section-header">{{localize "FE2.Sheet.Character.DronesCompanions"}}</h3>
             <ul>
