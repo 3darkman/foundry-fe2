@@ -12,6 +12,7 @@ export class FraggedEmpireEffectSheet extends foundry.applications.sheets.Active
   static DEFAULT_OPTIONS = {
     classes: ["foundry-fe2", "active-effect"],
     position: { width: 620, height: 520 },
+    form: { submitOnChange: true, closeOnSubmit: false },
     actions: {
       addChange: FraggedEmpireEffectSheet.#onAddChange,
       deleteChange: FraggedEmpireEffectSheet.#onDeleteChange
@@ -21,6 +22,10 @@ export class FraggedEmpireEffectSheet extends foundry.applications.sheets.Active
   /* -------------------------------------------- */
   static PARTS = {
     ...super.PARTS,
+    details: {
+      template: "systems/foundry-fe2/templates/effects/effect-details-tab.html",
+      scrollable: [""]
+    },
     changes: {
       template: "systems/foundry-fe2/templates/effects/effect-changes-tab.html",
       scrollable: [".effect-changes-list"]
@@ -51,15 +56,6 @@ export class FraggedEmpireEffectSheet extends foundry.applications.sheets.Active
     this.element.querySelectorAll('.tab[data-group="sheet"]')
       .forEach(el => el.classList.toggle("active", el.dataset.tab === activeTab));
 
-    // Restore subtype selections from data attributes after render
-    this.element.querySelectorAll(".effect-change-entry").forEach(row => {
-      const targetId = row.dataset.targetId;
-      if (!targetId) return;
-      const skillSel = row.querySelector(".effect-field-skill");
-      const attrSel = row.querySelector(".effect-field-attribute");
-      if (skillSel) skillSel.value = targetId;
-      if (attrSel) attrSel.value = targetId;
-    });
   }
 
   /* -------------------------------------------- */
@@ -94,6 +90,13 @@ export class FraggedEmpireEffectSheet extends foundry.applications.sheets.Active
   /* -------------------------------------------- */
   async _preparePartContext(partId, context, options) {
     context = await super._preparePartContext(partId, context, options);
+
+    if (partId === "details") {
+      const enrichOptions = { async: true, relativeTo: this.document };
+      context.enrichedDescription = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+        this.document.description ?? "", enrichOptions
+      );
+    }
 
     if (partId === "changes") {
       context.targetTypeOptions = EFFECT_CATEGORIES;
@@ -152,8 +155,8 @@ export class FraggedEmpireEffectSheet extends foundry.applications.sheets.Active
   }
 
   /* -------------------------------------------- */
-  async _prepareSubmitData(event, form, formData) {
-    const data = await super._prepareSubmitData(event, form, formData);
+  _prepareSubmitData(event, form, formData) {
+    const data = super._prepareSubmitData(event, form, formData);
 
     // Convert our custom form fields back into standard changes array
     const changesEls = this.element.querySelectorAll(".effect-change-entry");

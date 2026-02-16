@@ -1122,18 +1122,71 @@ ul, li {
   overflow: hidden;
 }
 
+/* Header: matches character sheet .sheet-header + .profile-img + .charname pattern */
 .foundry-fe2.active-effect .standard-form > header {
   flex: 0 0 auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  overflow: visible;
+  background: var(--fe2-bg);
+  padding: var(--fe2-space-sm);
 }
 
+.foundry-fe2.active-effect .standard-form > header img {
+  flex: 0 0 var(--fe2-profile-size);
+  width: var(--fe2-profile-size);
+  height: var(--fe2-profile-size);
+  object-fit: cover;
+  border: 2px solid var(--fe2-border);
+  border-radius: var(--fe2-border-radius);
+  margin-right: var(--fe2-space-sm);
+}
+
+.foundry-fe2.active-effect .standard-form > header input[type="text"] {
+  flex: 1;
+  height: var(--fe2-input-height);
+  line-height: var(--fe2-input-height);
+  padding: 0 var(--fe2-space-sm);
+  margin: 0;
+  width: 100%;
+  font-family: var(--fe2-font-heading);
+  color: var(--fe2-text-value);
+  font-size: 3rem;
+}
+
+/* Tab bar: matches character sheet tab navigation (Section D) */
 .foundry-fe2.active-effect .sheet-tabs.tabs {
+  flex: 0 0 auto;
   display: flex;
   flex-flow: row nowrap;
-  justify-content: space-evenly;
-  align-items: center;
-  gap: var(--fe2-space-lg);
-  line-height: 2.5;
-  flex: 0 0 auto;
+  gap: 0;
+  border: none;
+  background: var(--fe2-tab-bg);
+}
+
+.foundry-fe2.active-effect .sheet-tabs.tabs [data-tab] {
+  color: var(--fe2-tab-text);
+  font-family: var(--fe2-font-heading);
+  font-size: var(--fe2-font-size-sm);
+  padding: var(--fe2-space-xs) var(--fe2-space-sm);
+  text-decoration: none;
+  text-shadow: none;
+  border: none;
+  background: none;
+  cursor: pointer;
+  flex: 1;
+}
+
+.foundry-fe2.active-effect .sheet-tabs.tabs [data-tab]:hover {
+  background: rgba(255, 255, 255, 0.1);
+  text-shadow: none;
+}
+
+.foundry-fe2.active-effect .sheet-tabs.tabs [data-tab].active {
+  background: var(--fe2-tab-active-bg);
+  color: var(--fe2-tab-active-text);
+  text-shadow: none;
 }
 
 .foundry-fe2.active-effect .tab[data-group="sheet"] {
@@ -1149,8 +1202,31 @@ ul, li {
   padding: var(--fe2-space-sm);
 }
 
+/* Prose-mirror in effect details: restore Foundry flex layout
+   (our global `prose-mirror { display: block }` breaks the internal
+   editor-container/editor-content flex structure) */
+.foundry-fe2.active-effect prose-mirror {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Footer: submit button uses primary action styling */
 .foundry-fe2.active-effect .form-footer {
   flex: 0 0 auto;
+}
+
+.foundry-fe2.active-effect .form-footer button {
+  background: var(--fe2-btn-primary-bg);
+  color: var(--fe2-btn-primary-text);
+  font-family: var(--fe2-font-heading);
+  border: none;
+  padding: var(--fe2-space-xs) var(--fe2-space-md);
+  border-radius: var(--fe2-border-radius);
+  cursor: pointer;
+}
+
+.foundry-fe2.active-effect .form-footer button:hover {
+  filter: brightness(1.1);
 }
 
 /* Effect changes tab */
@@ -1165,6 +1241,7 @@ ul, li {
   list-style: none;
   margin: 0;
   padding: 0;
+  gap: 0;
 }
 
 .foundry-fe2.active-effect .tab.changes ol.effect-changes-list li.effect-change-entry {
@@ -1172,16 +1249,33 @@ ul, li {
   flex-wrap: wrap;
   align-items: center;
   gap: var(--fe2-space-xs);
-  padding: var(--fe2-space-sm);
-  margin-bottom: var(--fe2-space-xs);
+  padding: var(--fe2-space-xs) var(--fe2-space-sm);
+  border-bottom: 1px solid var(--fe2-border);
+  width: 100%;
+  margin-bottom: 0;
+}
+
+/* Alternating row backgrounds for change entries */
+.foundry-fe2.active-effect .effect-change-entry:nth-child(even) {
   background: var(--fe2-row-alt);
-  border: 1px solid var(--fe2-border);
+}
+
+/* Change entry form controls: consistent with character sheet inputs */
+.foundry-fe2.active-effect .effect-change-entry select,
+.foundry-fe2.active-effect .effect-change-entry input {
+  height: var(--fe2-input-compact-height);
+  border: 1px solid var(--fe2-input-border);
+  background: var(--fe2-input-bg);
+  color: var(--fe2-text-value);
+  font-family: var(--fe2-font-body);
+  font-size: var(--fe2-font-size-sm);
   border-radius: var(--fe2-border-radius);
 }
 
-.effect-change-entry select,
-.effect-change-entry input {
-  height: var(--fe2-input-compact-height);
+.foundry-fe2.active-effect .effect-change-entry select:focus,
+.foundry-fe2.active-effect .effect-change-entry input:focus {
+  outline: 2px solid var(--fe2-highlight);
+  outline-offset: -1px;
 }
 
 .effect-field-target {
@@ -1198,15 +1292,40 @@ ul, li {
 }
 
 .effect-field-value {
-  flex: 0 0 var(--fe2-input-compact-width);
+  flex: 1 1 var(--fe2-input-compact-width);
 }
 
+/* Delete button: matches character sheet control styling */
 .effect-field-delete {
   flex: 0 0 var(--fe2-icon-sm);
-  background: none;
-  border: none;
+  background: var(--fe2-bg);
+  border: 1px solid var(--fe2-border);
+  border-radius: var(--fe2-border-radius);
   cursor: pointer;
   padding: var(--fe2-space-xs);
+  color: var(--fe2-text);
+}
+
+.effect-field-delete:hover {
+  background: var(--fe2-highlight);
+  color: var(--fe2-text-heading);
+}
+
+/* Add change button: matches character sheet action button styling */
+.foundry-fe2.active-effect .effect-add button {
+  background: var(--fe2-bg);
+  border: 1px solid var(--fe2-border);
+  border-radius: var(--fe2-border-radius);
+  padding: var(--fe2-space-xs) var(--fe2-space-sm);
+  cursor: pointer;
+  color: var(--fe2-text);
+  font-family: var(--fe2-font-body);
+  font-size: var(--fe2-font-size-sm);
+}
+
+.foundry-fe2.active-effect .effect-add button:hover {
+  background: var(--fe2-highlight);
+  color: var(--fe2-text-heading);
 }
 
 /* ============================================================

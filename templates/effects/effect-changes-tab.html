@@ -11,7 +11,7 @@
         {{#each ../targetTypeOptions as |category catKey|}}
         <optgroup label="{{localize category.label}}">
           {{#each category.types as |type tKey|}}
-          <option value="{{type.type}}" {{#if (eq type.type ../change.targetType)}}selected{{/if}}>{{localize type.label}}</option>
+          <option value="{{type.type}}" {{#if (eq type.type change.targetType)}}selected{{/if}}>{{localize type.label}}</option>
           {{/each}}
         </optgroup>
         {{/each}}
@@ -22,7 +22,7 @@
         style="{{#unless (eq change.targetType 'skill')}}display:none{{/unless}}">
         <option value="">{{localize "FE2.Effects.UI.SelectSubtype"}}</option>
         {{#each ../skillOptions as |opt oKey|}}
-        <option value="{{opt.value}}" {{#if (eq opt.value ../change.targetId)}}selected{{/if}}>{{opt.label}}</option>
+        <option value="{{opt.value}}" {{#if (eq opt.value change.targetId)}}selected{{/if}}>{{opt.label}}</option>
         {{/each}}
       </select>
 
@@ -31,7 +31,7 @@
         style="{{#unless (or (eq change.targetType 'attribute') (eq change.targetType 'attributeMax'))}}display:none{{/unless}}">
         <option value="">{{localize "FE2.Effects.UI.SelectSubtype"}}</option>
         {{#each ../attributeOptions as |opt oKey|}}
-        <option value="{{opt.value}}" {{#if (eq opt.value ../change.targetId)}}selected{{/if}}>{{opt.label}}</option>
+        <option value="{{opt.value}}" {{#if (eq opt.value change.targetId)}}selected{{/if}}>{{opt.label}}</option>
         {{/each}}
       </select>
 
