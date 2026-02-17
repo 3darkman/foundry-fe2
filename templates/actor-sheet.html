@@ -472,16 +472,13 @@
 
         {{!-- Equipement Tab --}}
         <div class="tab equipment" data-group="primary" data-tab="equipment">
-          <div><h4>{{localize "FE2.Sheet.Character.Slots"}}</h4></div>
-          <ul class="item-list alternate-list fe2-item-list">
-            <li class="item flexrow list-item stack-left">
-              <span class="fe2-field"><span class="stat-label">{{localize "FE2.Sheet.Common.Base"}} : {{equipmentsSlotsBase}}</span></span>
-              <span class="fe2-field"><span class="stat-label">{{localize "FE2.Sheet.Common.Total"}} : <span class="{{modColor equipmentsSlotsTotal equipmentsSlotsBase}}">{{equipmentsSlotsTotal}}</span></span></span>
-              <span class="fe2-field"><span class="stat-label">{{localize "FE2.Sheet.Common.Current"}} :</span>
-              <input type="text" class="input-numeric-short fe2-stat-input" name="system.equipmentslots.current" value="{{system.equipmentslots.current}}" data-dtype="Number"/></span>
-            </li>
-            <li class="item flexrow list-item stack-left"></li>
-              <span class="equipement-label packed-left padd-right">{{localize "FE2.Sheet.Common.Used"}} : {{equipmentsSlotsUsed}}</span>
+          <h3 class="fe2-section-header">{{localize "FE2.Sheet.Character.Slots"}}</h3>
+            <ul>
+              <li class="item flexrow list-item packed-left">
+                <span class="fe2-field"><span class="stat-label">{{localize "FE2.Sheet.Common.Current"}} : {{equipmentsSlotsCurrent}}</span></span>
+                <span class="fe2-field"><span class="stat-label">{{localize "FE2.Sheet.Common.Used"}} : {{equipmentsSlotsUsed}}</span></span>
+                <span class="fe2-field"><span class="stat-label">{{localize "FE2.Sheet.Common.Max"}} : <span class="{{modColor equipmentsSlotsMax equipmentsSlotsBase}}">{{equipmentsSlotsMax}}</span></span></span>
+              </li>
             </ul>
 
             <div class="fe2-section-header" style="display:flex; align-items:center; justify-content:space-between;">
