@@ -164,6 +164,10 @@ export class FraggedEmpireActor extends Actor {
       this.update({ 'system.resources.total': restotal });
     }
 
+    // Resources allotted (sum from embedded equipment) and current (max - allotted)
+    this._computed.resourcesAllotted = this.getResourcesAllotted();
+    this._computed.resourcesCurrent = restotal - this._computed.resourcesAllotted;
+
     // Influence total
     let inftotal = this.system.level.value + 3;
     this._baseValues.influenceTotal = inftotal;
@@ -359,17 +363,11 @@ export class FraggedEmpireActor extends Actor {
   /* -------------------------------------------- */
   _preUpdate(changed, options, user) {
 
-    if ( changed.system?.resources?.value ) {
-      if ( changed.system.resources.value < 0 ) 
-        changed.system.resources.value = 0;
-      if ( changed.system.resources.value > this.system.resources.total ) 
-        changed.system.resources.value = this.system.resources.total; 
-    }
     if ( changed.system?.influence?.value ) {
-      if ( changed.system.influence.value < 0 ) 
+      if ( changed.system.influence.value < 0 )
         changed.system.influence.value = 0;
-      if ( changed.system.influence.value > this.system.influence.total ) 
-        changed.system.influence.value = this.system.influence.total; 
+      if ( changed.system.influence.value > this.system.influence.total )
+        changed.system.influence.value = this.system.influence.total;
     }
 
     super._preUpdate(changed, options, user);
@@ -545,7 +543,28 @@ export class FraggedEmpireActor extends Actor {
   }
 
   /* -------------------------------------------- */
-  getSkillsTraits() { 
+  getResourcesAllotted() {
+    let allotted = 0;
+    const equipItems = this.items.filter(item =>
+      item.type === 'weapon' || item.type === 'outfit' || item.type === 'utility' || item.type === 'equipment'
+    );
+    for (const item of equipItems) {
+      let cost = 0;
+      if (item.type === 'equipment') {
+        cost = Number(item.system.cost) || 0;
+      } else if (item.type === 'utility') {
+        cost = Number(item.system.statstotal?.cost?.value || item.system.stats?.cost?.value) || 0;
+      } else {
+        // weapon, outfit — use statstotal.resources (includes mods/variations)
+        cost = Number(item.system.statstotal?.resources?.value || item.system.stats?.resources?.value) || 0;
+      }
+      allotted += cost;
+    }
+    return allotted;
+  }
+
+  /* -------------------------------------------- */
+  getSkillsTraits() {
     let skills = this.getSkills();
     let skillsTraits = [];
     for( let skill of skills) {

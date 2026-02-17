@@ -68,25 +68,6 @@
 
             <div class="">
 
-              <div class="fe2-section-header" style="display:flex; align-items:center; justify-content:space-between;">
-                <h3>{{localize "FE2.Sheet.Character.Resources"}}</h3>
-                <button data-action="rollAcquisition" class="small-button">{{localize "FE2.Dialog.AcquisitionRoll"}}</button>
-              </div>
-              <ul>
-                <li class="item flexrow list-item packed-left" data-attr-key="fate" data-item-id="{{system.resources.traitId}}">
-                  <span class="fe2-field"><span class="stat-label">{{localize "FE2.Sheet.Common.Current"}} :</span>
-                  <input type="text" class="input-numeric-short fe2-stat-input" name="system.resources.value" value="{{system.resources.value}}" data-dtype="Number"/></span>
-                  <span class="fe2-field"><span class="stat-label">{{localize "FE2.Sheet.Common.Alloted"}} :</span>
-                  <input type="text" class="input-numeric-short fe2-stat-input" name="system.resources.alloted" value="{{system.resources.alloted}}" data-dtype="Number"/></span>
-                  <span class="fe2-field"><span class="stat-label">{{localize "FE2.Sheet.Common.Max"}} : <span class="{{modColor system.resources.total baseValues.resourcesTotal}}">{{system.resources.total}}</span></span></span>
-                  <div class="item-controls">
-                    {{#if (ne system.resources.traitId "")}}
-                    <a class="item-control" data-action="editItem" title="{{localize "FE2.Sheet.Common.EditItem"}}"><i class="fas fa-edit"></i></a>
-                    {{/if}}
-                  </div>
-              </li>
-            </ul>
-
               <h3 class="fe2-section-header">{{localize "FE2.Sheet.Common.Influence"}}</h3>
               <ul>
                 <li class="item flexrow list-item stack-left" data-attr-key="fate" data-item-id="{{system.influence.traitId}}">
@@ -501,6 +482,23 @@
             </li>
             <li class="item flexrow list-item stack-left"></li>
               <span class="equipement-label packed-left padd-right">{{localize "FE2.Sheet.Common.Used"}} : {{equipmentsSlotsUsed}}</span>
+            </ul>
+
+            <div class="fe2-section-header" style="display:flex; align-items:center; justify-content:space-between;">
+              <h3>{{localize "FE2.Sheet.Character.Resources"}}</h3>
+              <button data-action="rollAcquisition" class="small-button">{{localize "FE2.Dialog.AcquisitionRoll"}}</button>
+            </div>
+            <ul>
+              <li class="item flexrow list-item packed-left" data-attr-key="fate" data-item-id="{{system.resources.traitId}}">
+                <span class="fe2-field"><span class="stat-label">{{localize "FE2.Sheet.Common.Current"}} : {{computed.resourcesCurrent}}</span></span>
+                <span class="fe2-field"><span class="stat-label">{{localize "FE2.Sheet.Common.Alloted"}} : {{computed.resourcesAllotted}}</span></span>
+                <span class="fe2-field"><span class="stat-label">{{localize "FE2.Sheet.Common.Max"}} : <span class="{{modColor system.resources.total baseValues.resourcesTotal}}">{{system.resources.total}}</span></span></span>
+                <div class="item-controls">
+                  {{#if (ne system.resources.traitId "")}}
+                  <a class="item-control" data-action="editItem" title="{{localize "FE2.Sheet.Common.EditItem"}}"><i class="fas fa-edit"></i></a>
+                  {{/if}}
+                </div>
+              </li>
             </ul>
 
             <h3 class="fe2-section-header">{{localize "FE2.Sheet.Character.EquipmentModifiers"}}</h3>
