@@ -607,6 +607,12 @@ ul, li {
   grid-template-columns: 1fr 1fr;
 }
 
+.foundry-fe2 .fe2-equip-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--fe2-space-md);
+}
+
 /* List row padding */
 .foundry-fe2 .list-item {
   padding: var(--fe2-space-xs) var(--fe2-space-sm);
