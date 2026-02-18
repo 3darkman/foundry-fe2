@@ -1,38 +1,38 @@
-
 <div class="{{cssClass}}" autocomplete="off">
-  <header class="sheet-header">
-      <img class="profile-img" src="{{img}}" data-edit="img" title="{{name}}"/>
-      <div class="header-fields">
-          <h1 class="charname"><input name="name" type="text" value="{{name}}" placeholder="{{localize "FE2.Sheet.Common.Name"}}"/></h1>
-      </div>
-  </header>
+    <header class="sheet-header">
+        <img class="profile-img" src="{{img}}" data-edit="img" title="{{name}}"/>
+        <div class="header-fields">
+            <h1 class="charname"><input name="name" type="text" value="{{name}}" placeholder="{{localize "FE2.Sheet.Common.Name"}}"/></h1>
+        </div>
+    </header>
 
-  {{!-- Sheet Body --}}
-  <section class="sheet-body">
+    {{!-- Sheet Body --}}
+    <section class="sheet-body">
 
-        <nav class="item-sheet-tabs tabs" data-group="primary">
-          <a data-tab="details" data-group="primary" data-action="tab">{{localize "FE2.Tabs.Details"}}</a>
-          <a data-tab="effects" data-group="primary" data-action="tab">{{localize "FE2.Effects.UI.TabLabel"}}</a>
-        </nav>
+        {{> "systems/foundry-fe2/templates/partial-item-tabs-nav.html"}}
 
-    <div class="tab" data-group="primary" data-tab="details">
-      <span class="generic-label"><h3>{{localize "FE2.Items.Common.Requirements"}}</h3></span>
-      <div class="small-editor item-text-long-line">
-        <prose-mirror button="true" toggled="true" name="system.requirements" value="{{system.requirements}}">{{{enrichedRequirements}}}</prose-mirror>
-      </div>
-      <span class="generic-label"><h3>{{localize "FE2.Items.Common.Benefits"}}</h3></span>
-      <div class="small-editor item-text-long-line">
-        <prose-mirror button="true" toggled="true" name="system.benefits" value="{{system.benefits}}">{{{enrichedBenefits}}}</prose-mirror>
-      </div>
-      <span class="generic-label"><h3>{{localize "FE2.Items.Common.Disadvantages"}}</h3></span>
-      <div class="small-editor item-text-long-line">
-        <prose-mirror button="true" toggled="true" name="system.disadvantages" value="{{system.disadvantages}}">{{{enrichedDisadvantages}}}</prose-mirror>
-      </div>
-    </div>
+        <div class="tab" data-group="primary" data-tab="details">
+          <h3 class="fe2-section-header">{{localize "FE2.Items.Common.Requirements"}}</h3>
+          <div class="small-editor item-text-long-line">
+            <prose-mirror button="true" toggled="true" name="system.requirements" value="{{system.requirements}}">{{{enrichedRequirements}}}</prose-mirror>
+          </div>
+          <h3 class="fe2-section-header">{{localize "FE2.Items.Common.Benefits"}}</h3>
+          <div class="small-editor item-text-long-line">
+            <prose-mirror button="true" toggled="true" name="system.benefits" value="{{system.benefits}}">{{{enrichedBenefits}}}</prose-mirror>
+          </div>
+          <h3 class="fe2-section-header">{{localize "FE2.Items.Common.Disadvantages"}}</h3>
+          <div class="small-editor item-text-long-line">
+            <prose-mirror button="true" toggled="true" name="system.disadvantages" value="{{system.disadvantages}}">{{{enrichedDisadvantages}}}</prose-mirror>
+          </div>
+        </div>
+
+        <div class="tab" data-group="primary" data-tab="system">
+          <p class="fe2-no-system-props">{{localize "FE2.Items.Common.NoSystemProperties"}}</p>
+        </div>
 
         <div class="tab" data-group="primary" data-tab="effects">
           {{> "systems/foundry-fe2/templates/effects-section.html"}}
         </div>
 
-  </section>
+    </section>
 </div>

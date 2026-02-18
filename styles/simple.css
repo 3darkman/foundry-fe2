@@ -303,6 +303,14 @@ ul, li {
   overflow: hidden;
 }
 
+/* Template root div must participate in flex layout for scroll preservation */
+.foundry-fe2 [data-application-part] > div {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
 /* Sheet header: fixed, flex row, system colors */
 .foundry-fe2 .sheet-header {
   flex: 0 0 auto;
@@ -430,6 +438,7 @@ ul, li {
 .foundry-fe2 .sheet-body {
   flex: 1;
   overflow: auto;
+  min-height: 0;
   background: var(--fe2-bg);
   padding: var(--fe2-space-sm);
 }
@@ -500,9 +509,11 @@ ul, li {
   background: var(--fe2-row-alt);
 }
 
-/* Compact stat inputs for numeric values (specificity 0,2,1 beats Foundry's 0,1,1) */
+/* Compact stat inputs for numeric values — flex: 0 0 auto prevents flex stretching
+   from the generic .tab ul > li.flexrow > input rule (which sets flex: 1). */
 .foundry-fe2 input.fe2-stat-input,
 .foundry-fe2 select.fe2-stat-input {
+  flex: 0 0 auto;
   width: var(--fe2-input-compact-width);
   height: var(--fe2-input-compact-height);
   text-align: center;
@@ -538,6 +549,15 @@ ul, li {
   text-align: center;
 }
 
+/* Computed total value in dual-mode stat rows */
+.foundry-fe2 .fe2-stat-total {
+  flex: 0 0 auto;
+  min-width: 2.5rem;
+  text-align: center;
+  font-weight: bold;
+  color: var(--fe2-text-value);
+}
+
 /* Label+input field group: keeps label and input together in flex rows */
 .fe2-field {
   display: inline-flex;
@@ -558,7 +578,8 @@ ul, li {
   display: block;
 }
 .foundry-fe2 prose-mirror {
-  display: block;
+  display: flex;
+  flex-direction: column;
   margin: var(--fe2-space-xs) 0;
 }
 
@@ -650,6 +671,7 @@ ul, li {
 }
 
 .foundry-fe2 .stat-label {
+  flex: 1;
   font-size: var(--fe2-font-size-sm);
 }
 
@@ -766,6 +788,48 @@ ul, li {
 .foundry-fe2 .tab > h3 + select {
   max-width: 16rem;
   margin-bottom: var(--fe2-space-sm);
+}
+
+/* System tab: vertical single-column layout */
+.foundry-fe2 .fe2-system-fields {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.foundry-fe2 .fe2-system-fields > li.flexrow {
+  display: flex;
+  align-items: center;
+  gap: var(--fe2-space-sm);
+  padding: var(--fe2-space-xs) var(--fe2-space-sm);
+}
+
+.foundry-fe2 .fe2-system-fields > li.flexrow > label {
+  flex: 0 0 auto;
+  min-width: 8rem;
+  font-family: var(--fe2-font-heading);
+  font-size: var(--fe2-font-size-sm);
+  color: var(--fe2-text-value);
+}
+
+.foundry-fe2 .fe2-system-fields > li.flexrow > input,
+.foundry-fe2 .fe2-system-fields > li.flexrow > select {
+  flex: 1;
+  max-width: 16rem;
+}
+/* Stat inputs stay compact inside system-fields rows */
+.foundry-fe2 .fe2-system-fields > li.flexrow > input.fe2-stat-input {
+  flex: 0 0 auto;
+  width: var(--fe2-input-compact-width);
+  max-width: var(--fe2-input-compact-width);
+}
+
+/* "No system properties" placeholder message */
+.foundry-fe2 .fe2-no-system-props {
+  text-align: center;
+  color: var(--fe2-text);
+  font-style: italic;
+  padding: var(--fe2-space-lg);
 }
 
 /* ============================================================

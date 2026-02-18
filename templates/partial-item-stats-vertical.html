@@ -1,0 +1,16 @@
+{{#if title}}
+<h3 class="fe2-section-header">{{title}} {{subtitle}}</h3>
+{{/if}}
+
+<ul class="fe2-system-fields">
+  {{#each stats as |stat key|}}
+  <li class="flexrow">
+    <label class="generic-label">{{localize stat.label}}</label>
+    <input type="text" class="input-numeric-short fe2-stat-input" value="{{stat.value}}" data-dtype="String"
+      {{#if ../readonly}}disabled{{else}}name="system.stats.{{key}}.value"{{/if}} />
+    {{#if ../dualMode}}
+    <span class="fe2-stat-total">{{lookup (lookup ../statstotal key) "value"}}</span>
+    {{/if}}
+  </li>
+  {{/each}}
+</ul>

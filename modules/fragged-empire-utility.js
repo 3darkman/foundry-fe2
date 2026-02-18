@@ -57,7 +57,9 @@ export class FraggedEmpireUtility  {
       'systems/foundry-fe2/templates/post-item.html',
       'systems/foundry-fe2/templates/effects-section.html',
       'systems/foundry-fe2/templates/effects/effect-changes-tab.html',
-      'systems/foundry-fe2/templates/partial-keywords-section.html'
+      'systems/foundry-fe2/templates/partial-keywords-section.html',
+      'systems/foundry-fe2/templates/partial-item-tabs-nav.html',
+      'systems/foundry-fe2/templates/partial-item-stats-vertical.html'
     ]
     return foundry.applications.handlebars.loadTemplates(templatePaths);    
   }
@@ -661,6 +663,57 @@ export class FraggedEmpireUtility  {
       temporary: { label: "FE2.Effects.Categories.Temporary", effects: temporary },
       inactive: { label: "FE2.Effects.Categories.Inactive", effects: inactive }
     };
+  }
+
+  /* -------------------------------------------- */
+  /**
+   * Compute statstotal for an item from its base stats + variation + modification stats.
+   * Returns a flat update object like { "system.statstotal.hitdice.value": "3", ... }.
+   * @param {Item} item             The item document (weapon, outfit, spacecraftweapon, or utility)
+   * @param {Object} pendingChanges Optional flat object of pending form changes (e.g. {"system.stats.hitdice.value": "3"})
+   * @returns {Object}              Flat update data for item.update()
+   */
+  static computeItemStatsTotals(item, pendingChanges = {}) {
+    const stats = item.system.stats;
+    if (!stats) return {};
+
+    const variations = item.system.variations ?? [];
+    const modifications = item.system.modifications ?? [];
+    const updates = {};
+
+    // Regex for strictly numeric values (integers and decimals, optionally negative).
+    // parseFloat("3d6") returns 3, so we must NOT rely on it for detection.
+    const isNumeric = (v) => /^-?\d+(\.\d+)?$/.test(String(v).trim());
+
+    for (const key of Object.keys(stats)) {
+      // Use pending form value if available, otherwise current value
+      const pendingKey = `system.stats.${key}.value`;
+      const baseVal = pendingChanges[pendingKey] ?? stats[key]?.value;
+
+      // Non-numeric fields (outfittype, weapontype, mount, hitdice "3d6") pass through unchanged
+      if (!isNumeric(baseVal)) {
+        updates[`system.statstotal.${key}.value`] = baseVal ?? "";
+        continue;
+      }
+
+      let total = Number(baseVal);
+
+      // Add variation stats (max 1 variation, but iterate safely)
+      for (const variation of variations) {
+        const varVal = variation?.system?.stats?.[key]?.value;
+        if (isNumeric(varVal)) total += Number(varVal);
+      }
+
+      // Add modification stats
+      for (const mod of modifications) {
+        const modVal = mod?.system?.stats?.[key]?.value;
+        if (isNumeric(modVal)) total += Number(modVal);
+      }
+
+      updates[`system.statstotal.${key}.value`] = String(total);
+    }
+
+    return updates;
   }
 
   /* -------------------------------------------- */

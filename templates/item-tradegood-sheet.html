@@ -9,20 +9,21 @@
     {{!-- Sheet Body --}}
     <section class="sheet-body">
 
-        <nav class="item-sheet-tabs tabs" data-group="primary">
-          <a data-tab="details" data-group="primary" data-action="tab">{{localize "FE2.Tabs.Details"}}</a>
-          <a data-tab="effects" data-group="primary" data-action="tab">{{localize "FE2.Effects.UI.TabLabel"}}</a>
-        </nav>
+        {{> "systems/foundry-fe2/templates/partial-item-tabs-nav.html"}}
 
         <div class="tab" data-group="primary" data-tab="details">
-          <ul>
-            <li class="flexrow"><label class="generic-label">{{localize "FE2.Sheet.Common.Type"}}</label>
-            <select class="competence-base" name="system.type" value="{{system.type}}" data-dtype="String">
-              {{selectOptions tradeGoodTypeChoices selected=system.type}}
-            </select></li>
-          </ul>
-          <h3>{{localize "FE2.Sheet.Common.Description"}}</h3>
+          <h3 class="fe2-section-header">{{localize "FE2.Sheet.Common.Description"}}</h3>
           <prose-mirror button="true" toggled="true" name="system.description" value="{{system.description}}">{{{enrichedDescription}}}</prose-mirror>
+        </div>
+
+        <div class="tab" data-group="primary" data-tab="system">
+          <ul class="fe2-system-fields">
+            <li class="flexrow"><label class="generic-label">{{localize "FE2.Sheet.Common.Type"}}</label>
+              <select class="competence-base" name="system.type" value="{{system.type}}" data-dtype="String">
+                {{selectOptions tradeGoodTypeChoices selected=system.type}}
+              </select>
+            </li>
+          </ul>
         </div>
 
         <div class="tab" data-group="primary" data-tab="effects">

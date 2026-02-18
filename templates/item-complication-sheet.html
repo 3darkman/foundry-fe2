@@ -1,4 +1,3 @@
-
 <div class="{{cssClass}}" autocomplete="off">
     <header class="sheet-header">
         <img class="profile-img" src="{{img}}" data-edit="img" title="{{name}}"/>
@@ -10,18 +9,18 @@
     {{!-- Sheet Body --}}
     <section class="sheet-body">
 
-        <nav class="item-sheet-tabs tabs" data-group="primary">
-          <a data-tab="details" data-group="primary" data-action="tab">{{localize "FE2.Tabs.Details"}}</a>
-          <a data-tab="effects" data-group="primary" data-action="tab">{{localize "FE2.Effects.UI.TabLabel"}}</a>
-        </nav>
+        {{> "systems/foundry-fe2/templates/partial-item-tabs-nav.html"}}
 
         <div class="tab" data-group="primary" data-tab="details">
-          <ul>
+        </div>
+
+        <div class="tab" data-group="primary" data-tab="system">
+          <ul class="fe2-system-fields">
             <li class="flexrow"><label class="generic-label">{{localize "FE2.Sheet.Common.Type"}}</label>
-              <select class="competence-base flexrow" type="text" name="system.type" value="{{system.type}}" data-dtype="String">
+              <select class="competence-base" name="system.type" value="{{system.type}}" data-dtype="String">
                 {{selectOptions complicationTypeChoices selected=system.type}}
               </select>
-              </li>
+            </li>
             <li class="flexrow"><label class="generic-label">{{localize "FE2.Items.Complication.InfluenceLevel"}}</label>
               <input type="text" name="system.influence" value="{{system.influence}}" data-dtype="String"/>
             </li>

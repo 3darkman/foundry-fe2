@@ -1,4 +1,3 @@
-
 <div class="{{cssClass}}" autocomplete="off">
     <header class="sheet-header">
         <img class="profile-img" src="{{img}}" data-edit="img" title="{{name}}"/>
@@ -10,12 +9,13 @@
     {{!-- Sheet Body --}}
     <section class="sheet-body">
 
-        <nav class="item-sheet-tabs tabs" data-group="primary">
-          <a data-tab="details" data-group="primary" data-action="tab">{{localize "FE2.Tabs.Details"}}</a>
-          <a data-tab="effects" data-group="primary" data-action="tab">{{localize "FE2.Effects.UI.TabLabel"}}</a>
-        </nav>
+        {{> "systems/foundry-fe2/templates/partial-item-tabs-nav.html"}}
 
         <div class="tab" data-group="primary" data-tab="details">
+        </div>
+
+        <div class="tab" data-group="primary" data-tab="system">
+          <p class="fe2-no-system-props">{{localize "FE2.Items.Common.NoSystemProperties"}}</p>
         </div>
 
         <div class="tab" data-group="primary" data-tab="effects">

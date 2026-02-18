@@ -36,12 +36,14 @@ export class FraggedEmpireItemSheet extends HandlebarsApplicationMixin(foundry.a
       deleteEffect: FraggedEmpireItemSheet.#onDeleteEffect,
       removeKeyword: FraggedEmpireItemSheet.#onRemoveKeyword
     },
-    dragDrop: [{ dragSelector: null, dropSelector: null }]
   };
 
   /* -------------------------------------------- */
   static PARTS = {
-    body: { template: "systems/foundry-fe2/templates/item-skill-sheet.html" }
+    body: {
+      template: "systems/foundry-fe2/templates/item-skill-sheet.html",
+      scrollable: [".sheet-body"]
+    }
   };
 
   /* -------------------------------------------- */
@@ -172,14 +174,50 @@ export class FraggedEmpireItemSheet extends HandlebarsApplicationMixin(foundry.a
   }
 
   /* -------------------------------------------- */
+  _canDragDrop() {
+    return this.isEditable;
+  }
+
+  /* -------------------------------------------- */
+  /**
+   * Save scroll position before re-render so we can restore it after.
+   * The V2 scrollable mechanism sometimes loses position due to tab activation
+   * and layout recalculation in _onRender.
+   */
+  async _preRender(context, options) {
+    await super._preRender(context, options);
+    const sheetBody = this.element?.querySelector('.sheet-body');
+    this._savedScrollTop = sheetBody?.scrollTop ?? 0;
+  }
+
+  /* -------------------------------------------- */
   _onRender(context, options) {
     super._onRender(context, options);
+
+    // V2 DragDrop: manually create and bind (V2 has no built-in dragDrop infrastructure)
+    new DragDrop.implementation({
+      dropSelector: null,
+      permissions: {
+        drop: this._canDragDrop.bind(this)
+      },
+      callbacks: {
+        drop: this._onDrop.bind(this)
+      }
+    }).bind(this.element);
+
     // Activate tabs after render (V2 does not auto-activate from tabGroups)
     for (const [group, tab] of Object.entries(this.tabGroups)) {
       if (!tab) continue;
-      const tabElement = this.element?.querySelector(`[data-tab="${tab}"][data-group="${group}"]`);
-      if (tabElement) this.changeTab(tab, group, {force: true});
+      this.changeTab(tab, group, {force: true});
     }
+
+    // Restore scroll position after layout is complete
+    requestAnimationFrame(() => {
+      const sheetBody = this.element?.querySelector('.sheet-body');
+      if (sheetBody && this._savedScrollTop) {
+        sheetBody.scrollTop = this._savedScrollTop;
+      }
+    });
 
     // Keyword add dropdown listener
     const addSelect = this.element?.querySelector('.fe2-keyword-add-select');
@@ -232,14 +270,19 @@ export class FraggedEmpireItemSheet extends HandlebarsApplicationMixin(foundry.a
   }
 
   /* -------------------------------------------- */
-  static #onDeleteEmbedded(event, target) {
+  static async #onDeleteEmbedded(event, target) {
     const itemRow = target.closest("[data-item-id]");
     if (!itemRow) return;
     const itemId = itemRow.dataset.itemId;
     const itemType = itemRow.dataset.itemType;
     const array = foundry.utils.deepClone(this.document.system[itemType]);
     const newArray = array.filter(item => item._id !== itemId);
-    this.document.update({ [`system.${itemType}`]: newArray });
+    await this.document.update({ [`system.${itemType}`]: newArray });
+    // Recompute statstotal after removing a variation/modification
+    if (itemType === "variations" || itemType === "modifications") {
+      const statUpdates = FraggedEmpireUtility.computeItemStatsTotals(this.document);
+      if (Object.keys(statUpdates).length) await this.document.update(statUpdates);
+    }
   }
 
   /* -------------------------------------------- */
@@ -377,31 +420,62 @@ export class FraggedEmpireItemSheet extends HandlebarsApplicationMixin(foundry.a
   /*  Form Submission                             */
   /* -------------------------------------------- */
 
-  async _onChangeForm(formConfig, event) {
-    const form = this.form;
-    if (!form) return;
-    const formData = new foundry.applications.ux.FormDataExtended(form);
-    const data = foundry.utils.expandObject(formData.object);
-    await this.document.update(data);
+  /**
+   * Skip schema validation in _prepareSubmitData — our item data model
+   * handles validation at the document level. This lets the base V2 flow
+   * handle prose-mirror and all form elements correctly.
+   * Also merges statstotal computation into the same update to avoid
+   * double-render (which would break scroll position preservation).
+   */
+  _prepareSubmitData(event, form, formData, updateData) {
+    const submitData = this._processFormData(event, form, formData);
+    if (updateData) {
+      foundry.utils.mergeObject(submitData, updateData, {performDeletions: true});
+      foundry.utils.mergeObject(submitData, updateData, {performDeletions: false});
+    }
+    // Merge statstotal computation into the same update (single render cycle).
+    // submitData is nested (from expandObject), but computeItemStatsTotals expects
+    // flat dot-notation keys — flatten before passing.
+    if (this.document.system.stats) {
+      const flatData = foundry.utils.flattenObject(submitData);
+      const statUpdates = FraggedEmpireUtility.computeItemStatsTotals(this.document, flatData);
+      Object.assign(submitData, statUpdates);
+    }
+    return submitData;
   }
 
   /* -------------------------------------------- */
   /*  Drag and Drop                               */
   /* -------------------------------------------- */
 
+  /** Type-correct variation/modification mapping per parent item type */
+  static VARIATION_TYPES = {
+    weapon: { variation: "variation", modification: "modification" },
+    outfit: { variation: "variationoutfit", modification: "modificationoutfit" },
+    spacecraftweapon: { variation: "spacecraftweaponvariation", modification: "spacecraftweaponmodification" }
+  };
+
   async _onDrop(event) {
     const item = this.document;
+    let data;
+    try {
+      data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
+    } catch (e) {
+      console.error("FE2 | _onDrop: failed to parse drag event data", e);
+      return;
+    }
+    if (!data?.uuid) return;
+    let droppedItem;
+    try {
+      droppedItem = await fromUuid(data.uuid);
+    } catch (e) {
+      console.error("FE2 | _onDrop: failed to resolve UUID", data.uuid, e);
+      return;
+    }
+    if (!droppedItem) return;
 
+    // Skill: accept trait drops
     if (item.type === "skill") {
-      let data;
-      try {
-        data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
-      } catch (e) {
-        return;
-      }
-      if (!data?.uuid) return;
-      const droppedItem = await fromUuid(data.uuid);
-      if (!droppedItem) return;
       if (droppedItem.type === "trait") {
         const traitArray = foundry.utils.deepClone(item.system.traits);
         const newItem = foundry.utils.deepClone(droppedItem.toObject());
@@ -412,32 +486,39 @@ export class FraggedEmpireItemSheet extends HandlebarsApplicationMixin(foundry.a
       return;
     }
 
-    if (item.type === "weapon" || item.type === "spacecraftweapon" || item.type === "outfit") {
-      let data;
+    // Stat items: accept type-correct variations/modifications
+    const typeMap = FraggedEmpireItemSheet.VARIATION_TYPES[item.type];
+    if (typeMap) {
       try {
-        data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
+        if (droppedItem.type === typeMap.variation) {
+          // Enforce max 1 variation
+          if (item.system.variations.length >= 1) {
+            ui.notifications.warn(game.i18n.localize("FE2.Items.Common.VariationLimitReached"));
+            return;
+          }
+          const variationsArray = foundry.utils.deepClone(item.system.variations);
+          const newItem = foundry.utils.deepClone(droppedItem.toObject());
+          newItem._id = foundry.utils.randomID();
+          variationsArray.push(newItem);
+          await item.update({ "system.variations": variationsArray });
+          // Recompute statstotal
+          const statUpdates = FraggedEmpireUtility.computeItemStatsTotals(item);
+          if (Object.keys(statUpdates).length) await item.update(statUpdates);
+        } else if (droppedItem.type === typeMap.modification) {
+          const modsArray = foundry.utils.deepClone(item.system.modifications);
+          const newItem = foundry.utils.deepClone(droppedItem.toObject());
+          newItem._id = foundry.utils.randomID();
+          modsArray.push(newItem);
+          await item.update({ "system.modifications": modsArray });
+          // Recompute statstotal
+          const statUpdates = FraggedEmpireUtility.computeItemStatsTotals(item);
+          if (Object.keys(statUpdates).length) await item.update(statUpdates);
+        }
       } catch (e) {
-        return;
-      }
-      if (!data?.uuid) return;
-      const droppedItem = await fromUuid(data.uuid);
-      if (!droppedItem) return;
-      if (droppedItem.type.includes("variation")) {
-        const variationsArray = foundry.utils.deepClone(item.system.variations);
-        const newItem = foundry.utils.deepClone(droppedItem.toObject());
-        newItem._id = foundry.utils.randomID();
-        variationsArray.push(newItem);
-        await item.update({ "system.variations": variationsArray });
-      } else if (droppedItem.type.includes("modification")) {
-        const modsArray = foundry.utils.deepClone(item.system.modifications);
-        const newItem = foundry.utils.deepClone(droppedItem.toObject());
-        newItem._id = foundry.utils.randomID();
-        modsArray.push(newItem);
-        await item.update({ "system.modifications": modsArray });
+        console.error("FE2 | _onDrop: error processing drop", e);
+        ui.notifications.error("Failed to add item: " + e.message);
       }
       return;
     }
-
-    super._onDrop(event);
   }
 }

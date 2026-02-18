@@ -9,43 +9,33 @@
     {{!-- Sheet Body --}}
     <section class="sheet-body">
 
-        <nav class="item-sheet-tabs tabs" data-group="primary">
-          <a data-tab="details" data-group="primary" data-action="tab">{{localize "FE2.Tabs.Details"}}</a>
-          <a data-tab="effects" data-group="primary" data-action="tab">{{localize "FE2.Effects.UI.TabLabel"}}</a>
-        </nav>
+        {{> "systems/foundry-fe2/templates/partial-item-tabs-nav.html"}}
 
         <div class="tab" data-group="primary" data-tab="details">
-          <span class="flexrow">
-            <h3>{{localize "FE2.Sheet.Common.Type"}}</h3>
-              <select class="competence-base flexrow" type="text" name="system.type" value="{{system.type}}" data-dtype="String">
+          <h3 class="fe2-section-header">{{localize "FE2.Sheet.Common.Description"}}</h3>
+          <prose-mirror button="true" toggled="true" name="system.description" value="{{system.description}}">{{{enrichedDescription}}}</prose-mirror>
+        </div>
+
+        <div class="tab" data-group="primary" data-tab="system">
+          <ul class="fe2-system-fields">
+            <li class="flexrow"><label class="generic-label">{{localize "FE2.Sheet.Common.Type"}}</label>
+              <select class="competence-base" name="system.type" value="{{system.type}}" data-dtype="String">
                 {{selectOptions weaponTypeChoices selected=system.type}}
-              </select> 
-          </span>
-
-          <span class="flexrow">
-            <h3>{{localize "FE2.Items.Common.DefaultSkill"}}</h3>
-              <select class="competence-base flexrow" type="text" name="system.defaultskill" value="{{system.defaultskill}}" data-dtype="String">
+              </select>
+            </li>
+            <li class="flexrow"><label class="generic-label">{{localize "FE2.Items.Common.DefaultSkill"}}</label>
+              <select class="competence-base" name="system.defaultskill" value="{{system.defaultskill}}" data-dtype="String">
                 {{selectOptions defaultSkillChoices selected=system.defaultskill}}
-              </select> 
-          </span>
+              </select>
+            </li>
+          </ul>
 
-          {{> "systems/foundry-fe2/templates/variations-section.html"}}
-          {{> "systems/foundry-fe2/templates/modifications-section.html"}}
+          {{> "systems/foundry-fe2/templates/partial-item-stats-vertical.html" stats=system.stats statstotal=system.statstotal dualMode=true title=(localize "FE2.Items.Common.Stats")}}
 
           {{> "systems/foundry-fe2/templates/partial-keywords-section.html"}}
 
-          <h3>{{localize "FE2.Items.Common.Stats"}}</h3>
-          {{> "systems/foundry-fe2/templates/weapon-stats-section.html" stats=system.statstotal isfinal=true title=(localize "FE2.Items.Common.FinalStats") header=true}}
-          {{> "systems/foundry-fe2/templates/weapon-stats-section.html" stats=system.stats  isbase=true title=(localize "FE2.Items.Common.WeaponStats")}}
-          {{#each system.variations as |variation key|}}
-          {{> "systems/foundry-fe2/templates/weapon-stats-section.html" stats=variation.system.stats  isfinal=false title=(localize "FE2.Items.Common.Variation") subtitle=variation.name}}
-          {{/each}}
-          {{#each system.modifications as |modification key|}}
-          {{> "systems/foundry-fe2/templates/weapon-stats-section.html" stats=modification.system.stats  isfinal=false title=(localize "FE2.Items.Common.Modification") subtitle=modification.name}}
-          {{/each}}
-        
-          <h3>{{localize "FE2.Sheet.Common.Description"}}</h3>
-          <prose-mirror button="true" toggled="true" name="system.description" value="{{system.description}}">{{{enrichedDescription}}}</prose-mirror>
+          {{> "systems/foundry-fe2/templates/variations-section.html"}}
+          {{> "systems/foundry-fe2/templates/modifications-section.html"}}
         </div>
 
         <div class="tab" data-group="primary" data-tab="effects">

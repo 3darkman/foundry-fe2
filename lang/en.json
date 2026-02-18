@@ -11,6 +11,7 @@
       "Main": "Main",
       "DefenceWeapons": "Defence/Weapons",
       "Details": "Details",
+      "System": "System",
       "Effects": "Effects"
     },
     "Attributes": {
@@ -150,7 +151,11 @@
         "Weight": "Weight",
         "Cost": "Cost",
         "FinalStatsReminder": "Final stats reminder",
-        "WeaponType": "Weapon Type"
+        "WeaponType": "Weapon Type",
+        "NoSystemProperties": "No system properties",
+        "BaseStats": "Base Stats",
+        "ComputedTotal": "Total",
+        "VariationLimitReached": "This item already has a variation. Remove the existing one first."
       },
       "Skill": {
         "Trained": "Trained ?",
