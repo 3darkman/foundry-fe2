@@ -205,8 +205,9 @@ export class FraggedEmpireActor extends Actor {
       this.update({ 'system.defensebonus.total': defTotal });
     }
 
-    // Recovery (uses effective grit)
-    let recovery = ea.grit.value;
+    // Recovery (uses current grit)
+    let recovery = ea.grit.current;
+    console.log(ea.grit);
     this._baseValues.recovery = recovery;
     if (mods) recovery = Math.round(applyModifiers(recovery, mods.recovery));
     if (recovery != this.system.endurance.recovery) {
@@ -423,20 +424,16 @@ export class FraggedEmpireActor extends Actor {
   }
 
   /* -------------------------------------------- */
-  prepareSkill(item, type) {
+  prepareSkill(item, type, effectiveAttributes) {
     if (item.type == 'skill' && item.system.type == type) {
       item.system.trainedValue = (item.system.trained) ? 1 : -2
       if (item.system.attribute != "") {
-        for( let key in this.system.attributes) {
-          if (key == item.system.attribute) { 
-            if (this.system.attributes[key].value >= 4) {
-              item.system.bonus = 1
-            }
-            if (this.system.attributes[key].value <= 1) {
-              item.system.bonus = -1
-            }
+          if (effectiveAttributes[item.system.attribute].value >= 4) {
+            item.system.bonus = 1
           }
-        }
+          if (effectiveAttributes[item.system.attribute].value <= 1) {
+            item.system.bonus = -1
+          }
       }
       item.system.total = item.system.trainedValue + item.system.bonus;
       if (item.system.staticmod) {item.system.total = item.system.total + item.system.staticmod}
@@ -499,9 +496,13 @@ export class FraggedEmpireActor extends Actor {
   /* -------------------------------------------- */
   getSortedSkills() {
     let comp = {};
-    comp['primary'] = this.items.filter( item => this.prepareSkill(item, 'primary') );
-    comp['personalcombat'] = this.items.filter( item => this.prepareSkill(item, 'personalcombat') );
-    comp['spaceshipcombat'] = this.items.filter( item => this.prepareSkill(item, 'spaceshipcombat') );
+    const defaultMaxes = this.system.attributemax || {};
+    const mods = this._effectModifiers;
+    this._effectiveAttributes = this._computeEffectiveAttributes(CHARACTER_ATTRIBUTES, mods, defaultMaxes);
+    const ea = this._effectiveAttributes;
+    comp['primary'] = this.items.filter( item => this.prepareSkill(item, 'primary', ea) );
+    comp['personalcombat'] = this.items.filter( item => this.prepareSkill(item, 'personalcombat', ea) );
+    comp['spaceshipcombat'] = this.items.filter( item => this.prepareSkill(item, 'spaceshipcombat', ea) );
     return comp;
   }
  
@@ -548,7 +549,13 @@ export class FraggedEmpireActor extends Actor {
     let activeGear = this.items.filter(item =>
       (item.type === 'outfit' || item.type === 'utility') && item.system.carryState !== "carried"
     );
-    let equipmentSlots = 6 + this.system.attributes.strength.value;
+
+    const defaultMaxes = this.system.attributemax || {};
+    const mods = this._effectModifiers;
+    this._effectiveAttributes = this._computeEffectiveAttributes(CHARACTER_ATTRIBUTES, mods, defaultMaxes);
+    const ea = this._effectiveAttributes;
+
+    let equipmentSlots = 6 + ea.strength.value;
     for (let equip of activeGear) {
       if (equip.system.statstotal?.equipmentslots?.value && !isNaN(equip.system.statstotal.equipmentslots.value)) {
         equipmentSlots += Number(equip.system.statstotal.equipmentslots.value);

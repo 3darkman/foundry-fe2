@@ -334,6 +334,7 @@ ul, li {
   border-radius: var(--fe2-border-radius);
   margin-right: var(--fe2-space-sm);
   background: var(--fe2-img-bg);
+  cursor: pointer;
 }
 
 /* Character name input fills remaining space */
