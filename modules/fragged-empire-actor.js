@@ -3,7 +3,7 @@ import { FraggedEmpireUtility } from "./fragged-empire-utility.js";
 import { FraggedEmpireRoll } from "./fragged-empire-roll-dialog.js";
 import { createEmptyModifiers, addModifier, applyModifiers, isEquipSuppressed } from "./effects/fragged-empire-effect-helpers.js";
 import { parseEffectKey, CHARACTER_ATTRIBUTES, SPACECRAFT_ATTRIBUTES } from "./effects/fragged-empire-effect-types.js";
-import { computeEffectiveItemStats } from "./keyword-config.js";
+import { computeEffectiveItemStats, findKeywordOnItem } from "./keyword-config.js";
 
 /* -------------------------------------------- */
 const coverBonusTable = { "nocover": 0, "lightcover": 1, "heavycover": 2, "entrenchedcover": 3};
@@ -567,8 +567,7 @@ export class FraggedEmpireActor extends Actor {
       const state = item.system.carryState || "carried";
       if (state === "inHand" || state === "active") continue;
       // Check for Trinket keyword — counted separately
-      const keywords = Array.isArray(item.system.keywords) ? item.system.keywords : [];
-      if (keywords.some(k => k.id === "trinket")) {
+      if (findKeywordOnItem(item, "trinket")) {
         trinketCount++;
         continue;
       }

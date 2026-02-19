@@ -212,6 +212,7 @@
         "SpacecraftWeaponVar": "Spacecraft Weapon Variation",
         "VariationOutfit": "Outfit Variation",
         "ModificationOutfit": "Outfit Modification",
+        "Keyword": "Keyword",
         "Gun": "Gun",
         "Shell": "Shell",
         "Melee": "Melee",
@@ -291,6 +292,28 @@
       "Add": "Add Keyword",
       "Remove": "Remove",
       "NoKeywords": "No keywords",
+      "NotApplicable": "N/A",
+      "Categories": {
+        "Narrative": "Narrative",
+        "ItemProperty": "Item Property",
+        "RollModifier": "Roll Modifier",
+        "Munition": "Munition",
+        "Complex": "Complex"
+      },
+      "Fields": {
+        "Category": "Category",
+        "ItemTypes": "Applicable Item Types",
+        "Params": "Parameters",
+        "StatModifiers": "Stat Modifiers",
+        "Description": "Description",
+        "KeywordId": "Keyword ID"
+      },
+      "StatMod": {
+        "Mode": "Mode",
+        "Value": "Value",
+        "Set": "Set",
+        "Add": "Add"
+      },
 
       "Small": { "Label": "Small", "Desc": "This item takes up less space (1 slot)." },
       "Large": { "Label": "Large", "Desc": "This item takes up more space (3 slots)." },

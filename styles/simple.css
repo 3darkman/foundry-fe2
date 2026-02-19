@@ -1516,15 +1516,6 @@ ul, li {
   font-size: 0.85rem;
 }
 
-.foundry-fe2 .fe2-keywords-add {
-  margin-top: 4px;
-}
-
-.foundry-fe2 .fe2-keyword-add-select {
-  width: 100%;
-  height: var(--fe2-input-height);
-}
-
 /* Propagated items visual distinction */
 .foundry-fe2 .fe2-keyword-tag--propagated {
   background: var(--fe2-bg, #e8e8e8);
@@ -1561,6 +1552,78 @@ ul, li {
   display: none;
 }
 
+
+/* ============================================================
+   Section L.2: Keyword Item Sheet
+   ============================================================ */
+
+.foundry-fe2 .fe2-keyword-field-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.foundry-fe2 .fe2-keyword-field-row > label {
+  flex: 0 0 140px;
+  font-weight: bold;
+  color: var(--fe2-text);
+}
+.foundry-fe2 .fe2-keyword-field-row > input,
+.foundry-fe2 .fe2-keyword-field-row > select {
+  flex: 1;
+}
+
+.foundry-fe2 .fe2-keyword-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+}
+.foundry-fe2 .fe2-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.foundry-fe2 .fe2-keyword-params-grid {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+.foundry-fe2 .fe2-keyword-params-grid label {
+  font-weight: bold;
+  color: var(--fe2-text);
+}
+.foundry-fe2 .fe2-keyword-params-grid input {
+  flex: 1;
+  max-width: 100px;
+}
+
+.foundry-fe2 .fe2-keyword-statmod-grid {
+  display: grid;
+  grid-template-columns: 100px 1fr 80px;
+  gap: 0.25rem 0.5rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+.foundry-fe2 .fe2-keyword-statmod-header {
+  display: contents;
+  font-weight: bold;
+  font-size: 0.85rem;
+  color: var(--fe2-text);
+}
+.foundry-fe2 .fe2-keyword-statmod-header > span {
+  font-weight: bold;
+}
+.foundry-fe2 .fe2-keyword-statmod-row {
+  display: contents;
+}
+.foundry-fe2 .fe2-keyword-statmod-row label {
+  font-weight: bold;
+  color: var(--fe2-text);
+}
 
 /* ============================================================
    Section M: Utility Classes

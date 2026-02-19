@@ -95,6 +95,23 @@ Hooks.once("init", async function () {
   foundry.documents.collections.Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
   foundry.documents.collections.Items.registerSheet("foundry-fe2", FraggedEmpireItemSheet, { makeDefault: true });
 
+  // Auto-generate keywordId from name for keyword items
+  Hooks.on("preCreateItem", (item, data) => {
+    if (data.type !== "keyword") return;
+    if (!data.system?.keywordId && data.name) {
+      item.updateSource({ "system.keywordId": data.name.toLowerCase().replace(/[^a-z0-9]/g, "") });
+    }
+  });
+  Hooks.on("preUpdateItem", (item, changes) => {
+    if (item.type !== "keyword") return;
+    const newName = changes.name;
+    const currentKwId = item.system.keywordId ?? "";
+    const incomingKwId = changes.system?.keywordId;
+    if (!currentKwId && incomingKwId === undefined && newName) {
+      foundry.utils.setProperty(changes, "system.keywordId", newName.toLowerCase().replace(/[^a-z0-9]/g, ""));
+    }
+  });
+
   FraggedEmpireUtility.init();
 
   // Localize actor and item type names
@@ -125,7 +142,8 @@ Hooks.once("init", async function () {
     "spacecraftweaponmodification": "FE2.Items.Types.SpacecraftWeaponMod",
     "spacecraftweaponvariation": "FE2.Items.Types.SpacecraftWeaponVar",
     "variationoutfit": "FE2.Items.Types.VariationOutfit",
-    "modificationoutfit": "FE2.Items.Types.ModificationOutfit"
+    "modificationoutfit": "FE2.Items.Types.ModificationOutfit",
+    "keyword": "FE2.Items.Types.Keyword"
   };
 
 });

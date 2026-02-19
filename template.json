@@ -392,7 +392,8 @@
       "spacecraftweapon",
       "spacecraftweaponvariation",
       "spacecraftweaponmodification",
-      "stronghit"
+      "stronghit",
+      "keyword"
     ],
     "race": {
       "requirements": "",
@@ -401,6 +402,24 @@
     },
     "stronghit": {
       "requirements": "",
+      "description": ""
+    },
+    "keyword": {
+      "keywordId": "",
+      "category": "",
+      "itemTypes": [],
+      "useParamX": false,
+      "useParamY": false,
+      "params": {
+        "X": "",
+        "Y": ""
+      },
+      "statModifiers": {
+        "slots": { "mode": "", "value": "" },
+        "hands": { "mode": "", "value": "" },
+        "draw": { "mode": "", "value": "" },
+        "reload": { "mode": "", "value": "" }
+      },
       "description": ""
     },
     "language": {},

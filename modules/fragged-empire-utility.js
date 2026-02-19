@@ -1,5 +1,6 @@
 /* -------------------------------------------- */
 import { applyModifiers } from "./effects/fragged-empire-effect-helpers.js";
+import { findKeywordOnItem, getKeywordParam } from "./keyword-config.js";
 
 /* -------------------------------------------- */
 export class FraggedEmpireUtility  {
@@ -60,7 +61,8 @@ export class FraggedEmpireUtility  {
       'systems/foundry-fe2/templates/partial-keywords-section.html',
       'systems/foundry-fe2/templates/partial-item-tabs-nav.html',
       'systems/foundry-fe2/templates/partial-item-stats-vertical.html',
-      'systems/foundry-fe2/templates/partial-stronghits-section.html'
+      'systems/foundry-fe2/templates/partial-stronghits-section.html',
+      'systems/foundry-fe2/templates/item-keyword-sheet.html'
     ]
     return foundry.applications.handlebars.loadTemplates(templatePaths);    
   }
@@ -367,11 +369,10 @@ export class FraggedEmpireUtility  {
     let minStrongHit = 6;
     let maxStrongHit = 6;
     if (rollData.weapon) {
-      const keywords = Array.isArray(rollData.weapon.system.keywords) ? rollData.weapon.system.keywords : [];
-      const strongHit = keywords.find(k => k.id === "stronghit");
+      const strongHit = findKeywordOnItem(rollData.weapon, "stronghit");
       if (strongHit) {
-        minStrongHit = Number(strongHit.X) || 6;
-        maxStrongHit = Number(strongHit.Y) || 6;
+        minStrongHit = Number(getKeywordParam(strongHit, "X")) || 6;
+        maxStrongHit = Number(getKeywordParam(strongHit, "Y")) || 6;
       }
     }
     rollData.diceResults = [];
@@ -729,10 +730,13 @@ export class FraggedEmpireUtility  {
    * @returns {{ keywords: object[], stronghits: object[] }}
    */
   static buildPropagationData(varModData, varModId) {
-    const keywords = (varModData.system?.keywords ?? []).map(kw => ({
-      ...foundry.utils.deepClone(kw),
-      sourceId: varModId
-    }));
+    const keywords = (varModData.system?.keywords ?? []).map(kw => {
+      const cloned = foundry.utils.deepClone(kw);
+      // Assign new _id to avoid collisions; new-format keywords always have _id
+      if (cloned._id || cloned.system) cloned._id = foundry.utils.randomID();
+      cloned.sourceId = varModId;
+      return cloned;
+    });
     const stronghits = (varModData.system?.stronghits ?? []).map(sh => ({
       ...foundry.utils.deepClone(sh),
       _id: foundry.utils.randomID(),
@@ -762,15 +766,51 @@ export class FraggedEmpireUtility  {
    * @param {Item} sourceItem - The source Item document (the dropped var/mod)
    * @param {string} varModId - The _id of the var/mod in the parent's array
    */
-  static async propagateActiveEffects(parentItem, sourceItem, varModId) {
+  static async propagateActiveEffects(parentItem, sourceItem, varModId, params) {
     if (!sourceItem.effects.size) return;
     const clonedEffects = sourceItem.effects.map(e => {
       const data = e.toObject();
       delete data._id;
       foundry.utils.setProperty(data, "flags.foundry-fe2.sourceId", varModId);
+      // Store original change templates for later param resolution
+      if (params && data.changes?.some(c => /\{[XY]\}/.test(c.value))) {
+        foundry.utils.setProperty(data, "flags.foundry-fe2.changeTemplates", data.changes.map(c => c.value));
+        // Resolve current param values
+        data.changes = data.changes.map(c => ({
+          ...c,
+          value: String(c.value ?? "").replace(/\{([XY])\}/g, (_, key) => params[key] ?? "")
+        }));
+      }
       return data;
     });
     await parentItem.createEmbeddedDocuments("ActiveEffect", clonedEffects);
+  }
+
+  /**
+   * Update propagated ActiveEffects to resolve {X}/{Y} parameter references.
+   * Called when a keyword's param value changes on the parent item.
+   * @param {Item} parentItem - The item owning the keyword
+   * @param {string} sourceId - The _id of the keyword entry
+   * @param {object} params - The keyword's current params {X: "2", Y: ""}
+   */
+  static async updatePropagatedEffectParams(parentItem, sourceId, params) {
+    const effects = parentItem.effects.filter(e => e.flags?.["foundry-fe2"]?.sourceId === sourceId);
+    if (!effects.length) return;
+    const updates = [];
+    for (const effect of effects) {
+      const templates = effect.flags?.["foundry-fe2"]?.changeTemplates;
+      if (!templates) continue;
+      const changes = effect.changes.map((c, i) => {
+        const template = templates[i] ?? c.value;
+        const resolved = String(template).replace(/\{([XY])\}/g, (_, key) => params[key] ?? "");
+        return { ...c, value: resolved };
+      });
+      const changed = changes.some((c, i) => c.value !== effect.changes[i].value);
+      if (changed) updates.push({ _id: effect.id, changes });
+    }
+    if (updates.length) {
+      await parentItem.updateEmbeddedDocuments("ActiveEffect", updates);
+    }
   }
 
   /**

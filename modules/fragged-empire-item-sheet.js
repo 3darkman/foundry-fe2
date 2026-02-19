@@ -1,5 +1,5 @@
 import { FraggedEmpireUtility } from "./fragged-empire-utility.js";
-import { getKeywordsForType, getKeywordById } from "./keyword-config.js";
+import { getKeywordId, KEYWORD_CATEGORIES, VAR_MOD_PARENT_MAP } from "./keyword-config.js";
 
 /**
  * Item sheet using Application V2.
@@ -86,33 +86,38 @@ export class FraggedEmpireItemSheet extends HandlebarsApplicationMixin(foundry.a
     const KEYWORD_ITEM_TYPES = new Set(["weapon", "outfit", "utility", "equipment", "spacecraftweapon", "variation", "modification", "variationoutfit", "modificationoutfit", "spacecraftweaponvariation", "spacecraftweaponmodification"]);
     if (KEYWORD_ITEM_TYPES.has(item.type)) {
       const activeKeywords = Array.isArray(itemData.system.keywords) ? itemData.system.keywords : [];
-      const activeIds = new Set(activeKeywords.map(k => k.id));
-      context.keywordsEnriched = activeKeywords.map(kw => {
-        const def = getKeywordById(kw.id);
-        if (!def) return null;
+      context.keywordsEnriched = activeKeywords.map((kw, idx) => {
+        const kwId = getKeywordId(kw);
+
+        // Build enriched display data directly from embedded keyword item
         const enriched = {
-          id: kw.id,
-          label: game.i18n.localize(def.label),
-          description: game.i18n.localize(def.description),
-          params: def.params.map(p => ({
-            key: p.key,
-            label: game.i18n.localize(p.label),
-            value: kw[p.key] ?? ""
-          }))
+          _id: kw._id || null,
+          index: idx,
+          id: kwId,
+          label: kw.name ?? kwId,
+          description: kw.system?.description ?? "",
+          params: []
         };
+
+        // Show params that are enabled via useParamX/useParamY flags
+        const params = kw.system?.params ?? {};
+        if (kw.system?.useParamX) {
+          enriched.params.push({ key: "X", label: "X", value: params.X ?? "" });
+        }
+        if (kw.system?.useParamY) {
+          enriched.params.push({ key: "Y", label: "Y", value: params.Y ?? "" });
+        }
+
+        // Source attribution
         if (kw.sourceId) {
           enriched.sourceId = kw.sourceId;
           const source = (itemData.system.variations ?? []).find(v => v._id === kw.sourceId)
             || (itemData.system.modifications ?? []).find(m => m._id === kw.sourceId);
           enriched.sourceName = source ? game.i18n.format("FE2.Items.Common.PropagatedFrom", { name: source.name }) : "";
         }
+
         return enriched;
-      }).filter(Boolean);
-      context.availableKeywords = getKeywordsForType(item.type)
-        .filter(kw => !activeIds.has(kw.id))
-        .map(kw => ({ id: kw.id, label: game.i18n.localize(kw.label) }))
-        .sort((a, b) => a.label.localeCompare(b.label));
-      context.hasAvailableKeywords = context.availableKeywords.length > 0;
+      });
     }
     context.limited = item.limited;
     context.owner = item.isOwner;
@@ -178,6 +183,28 @@ export class FraggedEmpireItemSheet extends HandlebarsApplicationMixin(foundry.a
         break;
       case "outfit":
         break;
+      case "keyword":
+        context.categoryChoices = {
+          narrative: game.i18n.localize("FE2.Keywords.Categories.Narrative"),
+          itemProperty: game.i18n.localize("FE2.Keywords.Categories.ItemProperty"),
+          rollModifier: game.i18n.localize("FE2.Keywords.Categories.RollModifier"),
+          munition: game.i18n.localize("FE2.Keywords.Categories.Munition"),
+          complex: game.i18n.localize("FE2.Keywords.Categories.Complex")
+        };
+        context.itemTypeOptions = [
+          { value: "weapon", label: game.i18n.localize("FE2.Items.Types.Weapon"), checked: itemData.system.itemTypes?.includes("weapon") },
+          { value: "outfit", label: game.i18n.localize("FE2.Items.Types.Outfit"), checked: itemData.system.itemTypes?.includes("outfit") },
+          { value: "utility", label: game.i18n.localize("FE2.Items.Types.Utility"), checked: itemData.system.itemTypes?.includes("utility") },
+          { value: "equipment", label: game.i18n.localize("FE2.Items.Types.Equipment"), checked: itemData.system.itemTypes?.includes("equipment") },
+          { value: "spacecraftweapon", label: game.i18n.localize("FE2.Items.Types.SpacecraftWeapon"), checked: itemData.system.itemTypes?.includes("spacecraftweapon") }
+        ];
+        context.statModEntries = [
+          { key: "slots", label: game.i18n.localize("FE2.Item.Slots"), mode: itemData.system.statModifiers?.slots?.mode ?? "", value: itemData.system.statModifiers?.slots?.value ?? "" },
+          { key: "hands", label: game.i18n.localize("FE2.Item.Hands"), mode: itemData.system.statModifiers?.hands?.mode ?? "", value: itemData.system.statModifiers?.hands?.value ?? "" },
+          { key: "draw", label: game.i18n.localize("FE2.Item.Draw"), mode: itemData.system.statModifiers?.draw?.mode ?? "", value: itemData.system.statModifiers?.draw?.value ?? "" },
+          { key: "reload", label: game.i18n.localize("FE2.Item.Reload"), mode: itemData.system.statModifiers?.reload?.mode ?? "", value: itemData.system.statModifiers?.reload?.value ?? "" }
+        ];
+        break;
     }
 
     // Enrich HTML for prose-mirror collapsed display
@@ -237,12 +264,21 @@ export class FraggedEmpireItemSheet extends HandlebarsApplicationMixin(foundry.a
       }
     });
 
-    // Keyword add dropdown listener
-    const addSelect = this.element?.querySelector('.fe2-keyword-add-select');
-    if (addSelect) {
-      addSelect.addEventListener('change', (event) => {
-        event.stopPropagation();
-        this.#onAddKeyword(event);
+    // Keyword item sheet: itemTypes checkbox listeners
+    for (const cb of this.element?.querySelectorAll('.fe2-keyword-itemtype-cb') ?? []) {
+      cb.addEventListener('change', () => {
+        const checked = Array.from(this.element.querySelectorAll('.fe2-keyword-itemtype-cb'))
+          .filter(c => c.checked)
+          .map(c => c.dataset.type);
+        this.document.update({ "system.itemTypes": checked });
+      });
+    }
+
+    // Keyword sheet: sanitize keywordId input (lowercase alphanumeric only)
+    const kwIdInput = this.element?.querySelector('input[name="system.keywordId"]');
+    if (kwIdInput) {
+      kwIdInput.addEventListener("input", () => {
+        kwIdInput.value = kwIdInput.value.toLowerCase().replace(/[^a-z0-9]/g, "");
       });
     }
 
@@ -374,34 +410,34 @@ export class FraggedEmpireItemSheet extends HandlebarsApplicationMixin(foundry.a
   /*  Keyword Action Handlers                     */
   /* -------------------------------------------- */
 
-  static #onRemoveKeyword(event, target) {
+  static async #onRemoveKeyword(event, target) {
     const tagEl = target.closest('.fe2-keyword-tag');
     if (!tagEl) return;
     const index = parseInt(tagEl.dataset.keywordIndex);
     const keywords = foundry.utils.deepClone(this.document.system.keywords || []);
+    const removed = keywords[index];
     keywords.splice(index, 1);
-    this.document.update({ "system.keywords": keywords });
+    await this.document.update({ "system.keywords": keywords });
+    // Clean up propagated AEs if the removed keyword was new-format with an _id
+    if (removed?._id) {
+      await FraggedEmpireUtility.cleanupPropagatedEffects(this.document, removed._id);
+    }
   }
 
-  #onAddKeyword(event) {
-    const select = event.currentTarget;
-    const keywordId = select.value;
-    if (!keywordId) return;
-    const keywords = foundry.utils.deepClone(this.document.system.keywords || []);
-    keywords.push({ id: keywordId });
-    this.document.update({ "system.keywords": keywords });
-  }
-
-  #onUpdateKeywordParam(event) {
+  async #onUpdateKeywordParam(event) {
     const input = event.currentTarget;
     const tagEl = input.closest('.fe2-keyword-tag');
     if (!tagEl) return;
     const index = parseInt(tagEl.dataset.keywordIndex);
     const paramKey = input.dataset.paramKey;
     const keywords = foundry.utils.deepClone(this.document.system.keywords || []);
-    if (keywords[index]) {
-      keywords[index][paramKey] = input.value;
-      this.document.update({ "system.keywords": keywords });
+    const kw = keywords[index];
+    if (!kw?.system?.params) return;
+    kw.system.params[paramKey] = input.value;
+    await this.document.update({ "system.keywords": keywords });
+    // Update propagated AEs that reference this parameter
+    if (kw._id) {
+      await FraggedEmpireUtility.updatePropagatedEffectParams(this.document, kw._id, kw.system.params);
     }
   }
 
@@ -544,6 +580,27 @@ export class FraggedEmpireItemSheet extends HandlebarsApplicationMixin(foundry.a
         }
       });
       await item.update({ "system.stronghits": stronghitsArray });
+      return;
+    }
+
+    // Keyword item: embed onto applicable parent items
+    const KEYWORD_PARENT_TYPES = new Set(["weapon", "outfit", "utility", "equipment", "spacecraftweapon", "variation", "modification", "variationoutfit", "modificationoutfit", "spacecraftweaponvariation", "spacecraftweaponmodification"]);
+    if (droppedItem.type === "keyword" && KEYWORD_PARENT_TYPES.has(item.type)) {
+      // Validate applicability: check keyword's itemTypes against resolved parent type
+      const resolvedType = VAR_MOD_PARENT_MAP[item.type] ?? item.type;
+      const kwItemTypes = droppedItem.system.itemTypes ?? [];
+      if (kwItemTypes.length > 0 && !kwItemTypes.includes(resolvedType)) {
+        ui.notifications.warn(`Keyword "${droppedItem.name}" is not applicable to ${resolvedType} items.`);
+        return;
+      }
+      // Clone keyword into system.keywords[]
+      const keywordsArray = foundry.utils.deepClone(item.system.keywords ?? []);
+      const clonedKw = foundry.utils.deepClone(droppedItem.toObject());
+      clonedKw._id = foundry.utils.randomID();
+      keywordsArray.push(clonedKw);
+      await item.update({ "system.keywords": keywordsArray });
+      // Propagate AEs from keyword to parent (pass params for {X}/{Y} resolution)
+      await FraggedEmpireUtility.propagateActiveEffects(item, droppedItem, clonedKw._id, clonedKw.system?.params);
       return;
     }
 

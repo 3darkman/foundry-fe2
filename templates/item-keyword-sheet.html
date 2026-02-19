@@ -1,0 +1,94 @@
+<div class="{{cssClass}}" autocomplete="off">
+    <header class="sheet-header">
+        <img class="profile-img" src="{{img}}" data-edit="img" title="{{name}}"/>
+        <div class="header-fields">
+            <h1 class="charname"><input name="name" type="text" value="{{name}}" placeholder="{{localize 'FE2.Sheet.Common.Name'}}"/></h1>
+        </div>
+    </header>
+
+    {{!-- Sheet Body --}}
+    <section class="sheet-body">
+
+        {{> "systems/foundry-fe2/templates/partial-item-tabs-nav.html"}}
+
+        <div class="tab" data-group="primary" data-tab="details">
+          <h3 class="fe2-section-header">{{localize "FE2.Sheet.Common.Description"}}</h3>
+          <prose-mirror button="true" toggled="true" name="system.description" value="{{system.description}}">{{{enrichedDescription}}}</prose-mirror>
+        </div>
+
+        <div class="tab" data-group="primary" data-tab="system">
+
+          {{!-- Keyword ID --}}
+          <div class="fe2-keyword-field-row">
+            <label>{{localize "FE2.Keywords.Fields.KeywordId"}}</label>
+            <input type="text" name="system.keywordId" value="{{system.keywordId}}" />
+          </div>
+
+          {{!-- Category --}}
+          <div class="fe2-keyword-field-row">
+            <label>{{localize "FE2.Keywords.Fields.Category"}}</label>
+            <select name="system.category">
+              <option value="">---</option>
+              {{#each categoryChoices}}
+                <option value="{{@key}}" {{#if (eq @key ../system.category)}}selected{{/if}}>{{this}}</option>
+              {{/each}}
+            </select>
+          </div>
+
+          {{!-- Applicable Item Types --}}
+          <div class="fe2-keyword-field-row">
+            <label>{{localize "FE2.Keywords.Fields.ItemTypes"}}</label>
+            <div class="fe2-keyword-checkboxes">
+              {{#each itemTypeOptions}}
+                <label class="fe2-checkbox-label">
+                  <input type="checkbox" class="fe2-keyword-itemtype-cb" data-type="{{this.value}}" {{#if this.checked}}checked{{/if}} />
+                  {{this.label}}
+                </label>
+              {{/each}}
+            </div>
+          </div>
+
+          {{!-- Parameters --}}
+          <div class="fe2-keyword-field-row">
+            <label>{{localize "FE2.Keywords.Fields.Params"}}</label>
+            <div class="fe2-keyword-params-grid">
+              <label class="fe2-checkbox-label">
+                <input type="checkbox" name="system.useParamX" {{#if system.useParamX}}checked{{/if}} />
+                X
+              </label>
+              <label class="fe2-checkbox-label">
+                <input type="checkbox" name="system.useParamY" {{#if system.useParamY}}checked{{/if}} />
+                Y
+              </label>
+            </div>
+          </div>
+
+          {{!-- Stat Modifiers --}}
+          <h3 class="fe2-section-header">{{localize "FE2.Keywords.Fields.StatModifiers"}}</h3>
+          <div class="fe2-keyword-statmod-grid">
+            <div class="fe2-keyword-statmod-header">
+              <span></span>
+              <span>{{localize "FE2.Keywords.StatMod.Mode"}}</span>
+              <span>{{localize "FE2.Keywords.StatMod.Value"}}</span>
+            </div>
+            {{#each statModEntries}}
+              <div class="fe2-keyword-statmod-row">
+                <label>{{this.label}}</label>
+                <select name="system.statModifiers.{{this.key}}.mode">
+                  <option value="" {{#if (eq this.mode "")}}selected{{/if}}>---</option>
+                  <option value="set" {{#if (eq this.mode "set")}}selected{{/if}}>{{localize "FE2.Keywords.StatMod.Set"}}</option>
+                  <option value="add" {{#if (eq this.mode "add")}}selected{{/if}}>{{localize "FE2.Keywords.StatMod.Add"}}</option>
+                </select>
+                <input type="text" name="system.statModifiers.{{this.key}}.value" value="{{this.value}}" />
+              </div>
+            {{/each}}
+          </div>
+
+        </div>
+
+        <div class="tab" data-group="primary" data-tab="effects">
+          {{> "systems/foundry-fe2/templates/effects-section.html"}}
+        </div>
+
+    </section>
+</div>

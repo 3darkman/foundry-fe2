@@ -76,6 +76,16 @@
         "pt-br"
       ],
       "type": "Item"
+    },
+    {
+      "label": "Keywords",
+      "name": "keywords",
+      "path": "./packs/keywords",
+      "system": "foundry-fe2",
+      "tags": [
+        "keyword"
+      ],
+      "type": "Item"
     }
   ],
   "primaryTokenAttribute": "endurance.endurance",

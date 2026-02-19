@@ -22,14 +22,4 @@
     <span class="fe2-keywords-empty">{{localize "FE2.Keywords.NoKeywords"}}</span>
     {{/each}}
   </div>
-  {{#if hasAvailableKeywords}}
-  <div class="fe2-keywords-add">
-    <select class="fe2-keyword-add-select">
-      <option value="">— {{localize "FE2.Keywords.Add"}} —</option>
-      {{#each availableKeywords}}
-      <option value="{{this.id}}">{{this.label}}</option>
-      {{/each}}
-    </select>
-  </div>
-  {{/if}}
 </div>
