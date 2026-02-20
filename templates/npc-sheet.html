@@ -2,18 +2,21 @@
 
     {{!-- Sheet Header --}}
     <header class="sheet-header">
+      <img class="profile-img" src="{{img}}" data-action="editImage" data-edit="img" title="{{name}}" />
       <div class="header-fields">
         <div class="flexrow">
-          <img class="profile-img" src="{{img}}" data-action="editImage" data-edit="img" title="{{name}}" />
           <h1 class="charname"><input name="name" type="text" value="{{name}}" placeholder="{{localize "FE2.Sheet.Common.Name"}}"/></h1>
+          <a class="fe2-lock-btn" data-action="lockUnlockSheet" title="{{#if editScore}}{{localize "FE2.Sheet.Common.Unlocked"}}{{else}}{{localize "FE2.Sheet.Common.Locked"}}{{/if}}">
+            <i class="fas {{#if editScore}}fa-lock-open{{else}}fa-lock{{/if}}"></i>
+          </a>
         </div>
       </div>
     </header>
 
     {{!-- Sheet Tab Navigation --}}
     <nav class="sheet-tabs tabs" data-group="primary">
-        <a class="item" data-tab="attribute" data-group="primary" data-action="tab">{{localize "FE2.Tabs.Main"}}</a>
-        <a class="item" data-tab="defence" data-group="primary" data-action="tab">{{localize "FE2.Tabs.DefenceWeapons"}}</a>
+        <a class="item" data-tab="main" data-group="primary" data-action="tab">{{localize "FE2.Tabs.Main"}}</a>
+        <a class="item" data-tab="fight" data-group="primary" data-action="tab">{{localize "FE2.Tabs.Fight"}}</a>
         <a class="item" data-tab="traits" data-group="primary" data-action="tab">{{localize "FE2.Sheet.Common.Traits"}}</a>
         <a class="item" data-tab="equipment" data-group="primary" data-action="tab">{{localize "FE2.Sheet.Common.Equipment"}}</a>
         <a class="item" data-tab="notes" data-group="primary" data-action="tab">{{localize "FE2.Sheet.Common.Notes"}}</a>
@@ -23,167 +26,287 @@
     {{!-- Sheet Body --}}
     <section class="sheet-body">
 
-        {{!-- Carac Tab --}}
-        <div class="tab items" data-group="primary" data-tab="attribute">
-          <span><a data-action="lockUnlockSheet"><img class="small-button-container"
-            src="systems/foundry-fe2/images/icons/{{#if editScore}}unlocked.svg{{else}}locked.svg{{/if}}" alt="{{localize 'FE2.Sheet.Common.Toggle'}}"
-            >{{#if editScore}}{{localize "FE2.Sheet.Common.Unlocked"}}{{else}}{{localize "FE2.Sheet.Common.Locked"}}{{/if}}</a>
-          </span>
+        {{!-- Main Tab --}}
+        <div class="tab items" data-group="primary" data-tab="main">
           <div class="grid grid-2col">
-            <div class="">
-              
-              <span class="generic-label fe2-section-header"><h3>{{localize "FE2.Sheet.Common.Type"}}</h3>
-              <select class="competence-base flexrow" type="text" name="system.npctype" value="{{system.npctype}}" data-dtype="String" {{#unless @root.editScore}}disabled{{/unless}}>
+            <div>
+              <h3 class="fe2-section-header">{{localize "FE2.Sheet.Common.Type"}}</h3>
+              <select class="competence-base" name="system.npctype" value="{{system.npctype}}" data-dtype="String" {{#unless editScore}}disabled{{/unless}}>
                 {{selectOptions npcTypeChoices selected=system.npctype}}
-              </select> </span>
+              </select>
 
-              {{!-- <button class="npc-fight-roll">Fight roll</button> --}}
               <button data-action="rollGenericSkill">{{localize "FE2.Dialog.GenericSkillRoll"}}</button>
 
-              <span class="generic-label fe2-section-header"><h3>{{localize "FE2.Sheet.NPC.KeyStats"}}</h3></span>
-              <ul>
-                {{#each system.stats as |stat key|}}
-                <li class="item flexrow list-item stack-left" data-attr-key="{{key}}">
-                  <span class="stat-label padd-right npc-stat-label" name="{{key}}"><a class="carac-roll">{{localize stat.label}}</a></span>
-                  {{numericStepper name=(concat "system.stats." key ".value") value=stat.value disabled=@root.disableScore}}
-                </li>
-                {{/each}}
-              </ul>  
+              <h3 class="fe2-section-header">{{localize "FE2.Sheet.NPC.KeyStats"}}</h3>
+              {{#if isCompanion}}
+                {{!-- Companion: show controller link --}}
+                <div class="fe2-npc-controller-section">
+                  <label class="stat-label">{{localize "FE2.Sheet.NPC.ControllerLink"}}</label>
+                  <select name="system.controllerId" {{#unless editScore}}disabled{{/unless}}>
+                    <option value="">{{localize "FE2.Sheet.NPC.NoController"}}</option>
+                    {{#each characterActors}}
+                    <option value="{{this.id}}" {{#if (eq this.id @root.system.controllerId)}}selected{{/if}}>{{this.name}}</option>
+                    {{/each}}
+                  </select>
+                  {{#if controllerName}}
+                  <span class="fe2-npc-controller-name">{{controllerName}}</span>
+                  {{/if}}
+                </div>
+                {{#if controllerAttributes}}
+                  <h3 class="fe2-section-header">{{localize "FE2.Sheet.NPC.Controller"}} {{localize "FE2.Tabs.Attributes"}}</h3>
+                  <ul class="fe2-npc-stat-list">
+                    {{#each controllerAttributes as |attr key|}}
+                    <li class="fe2-npc-stat-row">
+                      <span class="fe2-npc-stat-name">{{localize attr.label}}</span>
+                      <span class="fe2-npc-stat-value">{{attr.current}}</span>
+                    </li>
+                    {{/each}}
+                  </ul>
+                {{/if}}
+              {{else}}
+                {{!-- Henchman/Troop: show Attribute + Mobility --}}
+                <ul class="fe2-npc-stat-list">
+                  {{#each system.stats as |stat key|}}
+                  <li class="fe2-npc-stat-row" data-attr-key="{{key}}">
+                    <span class="fe2-npc-stat-name">{{localize stat.label}}</span>
+                    {{numericStepper name=(concat "system.stats." key ".value") value=stat.value disabled=@root.disableScore}}
+                  </li>
+                  {{/each}}
+                </ul>
+              {{/if}}
             </div>
 
-            <div class="">
-              <span class="generic-label fe2-section-header"><h3>{{localize "FE2.Sheet.NPC.OtherDatas"}}</h3></span>
-              <ul>
+            <div>
+              <h3 class="fe2-section-header">{{localize "FE2.Sheet.NPC.OtherDatas"}}</h3>
+              <ul class="fe2-npc-stat-list">
                 {{#each system.spec as |spec key|}}
-                <li class="item flexrow list-item stack-left" data-attr-key="{{key}}">
-                  <span class="stat-label padd-right npc-stat-label" name="{{key}}">{{localize spec.label}}</span>
+                <li class="fe2-npc-stat-row" data-attr-key="{{key}}">
+                  <span class="fe2-npc-stat-name">{{localize spec.label}}</span>
                   {{numericStepper name=(concat "system.spec." key ".value") value=spec.value disabled=@root.disableScore}}
                 </li>
                 {{/each}}
-              </ul>    
-            </div>
+              </ul>
 
+              {{!-- Keywords Section --}}
+              <h3 class="fe2-section-header">{{localize "FE2.Keywords.Title"}}</h3>
+              <div class="fe2-keywords-tags">
+                {{#each keywords}}
+                <div class="fe2-keyword-tag" data-item-id="{{this.id}}" title="{{this.system.description}}">
+                  <span class="fe2-keyword-label">{{this.name}}</span>
+                  {{#if @root.editScore}}
+                  <button type="button" class="fe2-keyword-remove" data-action="deleteItem" title="{{localize 'FE2.Keywords.Remove'}}">
+                    <i class="fas fa-times"></i>
+                  </button>
+                  {{/if}}
+                </div>
+                {{else}}
+                <span class="fe2-keywords-empty">{{localize "FE2.Keywords.NoKeywords"}}</span>
+                {{/each}}
+              </div>
+
+              {{!-- Variation Section (max 1) --}}
+              <h3 class="fe2-section-header">{{localize "FE2.Sheet.Common.Variations"}}</h3>
+              <ul class="fe2-item-list">
+                {{#each variations as |variation key|}}
+                <li class="item flexrow list-item" data-item-id="{{variation.id}}">
+                  <img class="sheet-competence-img" src="{{variation.img}}"/>
+                  <span class="competence-label">{{variation.name}}</span>
+                  <div class="item-controls">
+                    <a class="item-control" data-action="editItem" title="{{localize "FE2.Sheet.Common.EditItem"}}"><i class="fas fa-edit"></i></a>
+                    {{#if @root.editScore}}
+                    <a class="item-control" data-action="deleteItem" title="{{localize "FE2.Sheet.Common.DeleteItem"}}"><i class="fas fa-trash"></i></a>
+                    {{/if}}
+                  </div>
+                </li>
+                {{/each}}
+              </ul>
+
+              {{!-- Modifications Section --}}
+              <h3 class="fe2-section-header">{{localize "FE2.Sheet.Common.Modifications"}}</h3>
+              <ul class="fe2-item-list">
+                {{#each modifications as |modification key|}}
+                <li class="item flexrow list-item" data-item-id="{{modification.id}}">
+                  <img class="sheet-competence-img" src="{{modification.img}}"/>
+                  <span class="competence-label">{{modification.name}}</span>
+                  <div class="item-controls">
+                    <a class="item-control" data-action="editItem" title="{{localize "FE2.Sheet.Common.EditItem"}}"><i class="fas fa-edit"></i></a>
+                    {{#if @root.editScore}}
+                    <a class="item-control" data-action="deleteItem" title="{{localize "FE2.Sheet.Common.DeleteItem"}}"><i class="fas fa-trash"></i></a>
+                    {{/if}}
+                  </div>
+                </li>
+                {{/each}}
+              </ul>
+            </div>
           </div>
         </div>
-        
 
-      {{!-- Defence Tab --}}
-      <div class="tab defence" data-group="primary" data-tab="defence">
-        <div class="flexcol">
+        {{!-- Fight Tab --}}
+        <div class="tab fight" data-group="primary" data-tab="fight">
+          <div class="flexcol">
 
-          <div class="">     
-            {{#each system.fight as |fight key|}}   
-            <ul>
-              <li class="item flexrow list-item stack-left">
-                <span class="stat-label padd-right"><strong>{{localize fight.label}}</strong></span>                
-                {{numericStepper name=(concat "system.fight." key ".value") value=fight.value min=0}}
-                <span class="{{modColor (lookup @root.computed key) fight.value}}">{{lookup @root.computed key}}</span>
+            <div class="grid grid-2col">
+              <div>
+                <h3 class="fe2-section-header">{{localize "FE2.Fight.NPC.Endurance"}}</h3>
+                <ul>
+                  <li class="item flexrow list-item stack-left">
+                    <span class="fe2-field"><span class="stat-label">{{localize "FE2.Sheet.Common.Current"}} :</span>
+                    {{numericStepper name="system.fight.endurance.value" value=system.fight.endurance.value min=0 max=system.fight.endurance.max}}</span>
+                    <span class="fe2-field"><span class="stat-label">{{localize "FE2.Sheet.Common.Max"}} :</span>
+                    {{numericStepper name="system.fight.endurance.max" value=system.fight.endurance.max min=0 disabled=disableScore}}</span>
+                  </li>
+                </ul>
+
+                <h3 class="fe2-section-header">{{localize "FE2.Fight.NPC.Durability"}}</h3>
+                <ul>
+                  <li class="item flexrow list-item stack-left">
+                    <span class="fe2-field"><span class="stat-label">{{localize "FE2.Sheet.Common.Current"}} :</span>
+                    {{numericStepper name="system.fight.durability.value" value=system.fight.durability.value min=0 max=system.fight.durability.max}}</span>
+                    <span class="fe2-field"><span class="stat-label">{{localize "FE2.Sheet.Common.Max"}} :</span>
+                    {{numericStepper name="system.fight.durability.max" value=system.fight.durability.max min=0 disabled=disableScore}}</span>
+                  </li>
+                </ul>
+
+                <h3 class="fe2-section-header">{{localize "FE2.Fight.NPC.Movement"}}</h3>
+                <ul>
+                  <li class="item flexrow list-item stack-left">
+                    <span class="fe2-field"><span class="stat-label">{{localize "FE2.Sheet.Common.Base"}} : {{system.fight.movement.value}}</span></span>
+                    <span class="fe2-field"><span class="stat-label">{{localize "FE2.Sheet.Common.Total"}} : <span class="{{modColor computed.movement system.fight.movement.value}}">{{computed.movement}}</span></span></span>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 class="fe2-section-header">{{localize "FE2.Fight.NPC.Defence"}}</h3>
+                <ul>
+                  <li class="item flexrow list-item stack-left">
+                    <span class="fe2-field"><span class="stat-label">{{localize "FE2.Sheet.Common.Base"}} : {{defenseBase}}</span></span>
+                    <span class="fe2-field"><span class="stat-label">{{localize "FE2.Sheet.Common.Total"}} : <span class="{{modColor defenseTotal defenseBase}}">{{defenseTotal}}</span></span></span>
+                  </li>
+                </ul>
+                {{#each system.fight.defence.derivated as |derivated keydev|}}
+                <ul>
+                  <li class="item flexrow list-item">
+                    <span class="stat-label">{{localize derivated.label}}</span>
+                    {{numericStepper name=(concat "system.fight.defence.derivated." keydev ".value") value=derivated.value min=0 disabled=@root.disableScore}}
+                  </li>
+                </ul>
+                {{/each}}
+
+                <h3 class="fe2-section-header">{{localize "FE2.Fight.NPC.Armour"}}</h3>
+                <ul>
+                  <li class="item flexrow list-item stack-left">
+                    <span class="fe2-field"><span class="stat-label">{{localize "FE2.Sheet.Common.Base"}} : {{armourBase}}</span></span>
+                    <span class="fe2-field"><span class="stat-label">{{localize "FE2.Sheet.Common.Total"}} : <span class="{{modColor armourTotal armourBase}}">{{armourTotal}}</span></span></span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <h3 class="fe2-section-header">{{localize "FE2.Sheet.Common.Weapons"}}</h3>
+            <ul class="fe2-item-list">
+              <li class="item flexrow fe2-list-header">
+                <span class="fe2-icon-spacer"></span>
+                <span class="competence-label">{{localize "FE2.Sheet.Common.Name"}}</span>
+                <span class="specialisation-label">{{localize "FE2.Stats.Weapon.HitDice"}}</span>
+                <span class="specialisation-label">{{localize "FE2.Stats.Weapon.HitBonus"}}</span>
+                <span class="specialisation-label">{{localize "FE2.Stats.Weapon.EnduranceDamage"}}</span>
+                <span class="specialisation-label">{{localize "FE2.Stats.Weapon.CriticalDamage"}}</span>
+                <span class="specialisation-label">{{localize "FE2.Stats.Weapon.RangeIncrement"}}</span>
+                <span class="specialisation-label">{{localize "FE2.Sheet.Character.Munitions"}}</span>
               </li>
-              {{#each fight.derivated as |derivated keydev|}}   
-              <li class="item flexrow list-item">
-                <span class="stat-label flexrow ">{{localize derivated.label}}</span>
-                {{numericStepper name=(concat "system.fight." key ".derivated." keydev ".value") value=derivated.value min=0}}
+              {{#each weapons as |weapon key|}}
+              <li class="item flexrow list-item" data-item-id="{{weapon.id}}">
+                <img class="sheet-competence-img" src="{{weapon.img}}"/>
+                <span class="competence-label weapon-label"><a data-action="rollWeapon" name="{{weapon.name}}">{{weapon.name}}</a></span>
+                <span class="specialisation-label">{{weapon.system.statstotal.hitdice.value}}</span>
+                <span class="specialisation-label">{{weapon.system.statstotal.hit.value}}</span>
+                <span class="specialisation-label">{{weapon.system.statstotal.enddmg.value}}</span>
+                <span class="specialisation-label">{{weapon.system.statstotal.crit.value}}</span>
+                <span class="specialisation-label">{{weapon.system.statstotal.range.value}}</span>
+                <span class="specialisation-label weapon-munitions-label">{{numericStepper name=weapon.id value=weapon.system.munitions min=0}}</span>
               </li>
               {{/each}}
-            </ul>    
+            </ul>
+
+          </div>
+        </div>
+
+        {{!-- Traits Tab --}}
+        <div class="tab traits" data-group="primary" data-tab="traits">
+          <h3 class="fe2-section-header">{{localize "FE2.Sheet.NPC.TraitsList"}}</h3>
+          <ul>
+            {{#each traits as |trait key|}}
+            <li class="item flexrow list-item" data-item-id="{{trait.id}}">
+              <img class="sheet-competence-img" src="{{trait.img}}"/>
+              <span class="competence-label">{{trait.name}}</span>
+              <span class="competence-label">{{trait.system.type}}</span>
+              <div class="item-controls">
+                <a class="item-control" data-action="editItem" title="{{localize "FE2.Sheet.Common.EditItem"}}"><i class="fas fa-edit"></i></a>
+                <a class="item-control" data-action="deleteItem" title="{{localize "FE2.Sheet.Common.DeleteItem"}}"><i class="fas fa-trash"></i></a>
+              </div>
+            </li>
             {{/each}}
-          </div>
-
-          <span class="generic-label fe2-section-header"><h3>{{localize "FE2.Sheet.Common.Weapons"}}</h3></span>
-          <ul class="stat-list alternate-list fe2-item-list">
-            {{#each weapons as |weapon key|}}
-            <li class="item stat flexrow list-item" data-arme-id="{{arme.id}}" data-item-id="{{weapon.id}}">
-              <img class="sheet-competence-img" src="{{weapon.img}}"/>
-              <span class="stat-label weapon-label"><a data-action="rollWeapon" name="{{weapon.name}}">{{weapon.name}}</a></span>
-              <div class="item-controls">
-                <a class="item-control" data-action="equipItem" title="{{localize "FE2.Sheet.Common.Worn"}}">{{#if weapon.system.equipped}}<i class="fas fa-circle"></i>{{else}}<i class="fas fa-genderless"></i>{{/if}}</a>
-                <a class="item-control" data-action="editItem" title="{{localize "FE2.Sheet.Common.EditItem"}}"><i class="fas fa-edit"></i></a>
-                <a class="item-control" data-action="deleteItem" title="{{localize "FE2.Sheet.Common.DeleteItem"}}"><i class="fas fa-trash"></i></a>
-              </div>
-            </li>
-            <li class="item stat flexrow list-item stats-table" data-armure-id="{{outfit.id}}" data-item-id="{{outfit.id}}">
-              {{> "systems/foundry-fe2/templates/weapon-stats-section.html" stats=weapon.system.statstotal isfinal=false header=true}}
-            </li>
-            {{/each}}                
-          </ul>          
-
-        </div>
-      </div>
-
-      {{!-- Traits Tab --}}
-      <div class="tab traits" data-group="primary" data-tab="traits">
-
-        <span class="generic-label fe2-section-header"><h3>{{localize "FE2.Sheet.NPC.TraitsList"}}</h3></span>
-        <ul>
-          {{#each traits as |trait key|}}
-          <li class="item flexrow list-item" data-item-id="{{trait.id}}">
-            <img class="sheet-competence-img" src="{{trait.img}}"/>
-            <span class="competence-label">{{trait.name}}</span>
-            <span class="competence-label">{{trait.system.type}}</span>
-            <div class="item-controls">
-              <a class="item-control" data-action="editItem" title="{{localize "FE2.Sheet.Common.EditItem"}}"><i class="fas fa-edit"></i></a>
-              <a class="item-control" data-action="deleteItem" title="{{localize "FE2.Sheet.Common.DeleteItem"}}"><i class="fas fa-trash"></i></a>
-            </div>
-          </li>
-          {{/each}}
-        </ul>
-
-    </div>
-
-      {{!-- Features Tab --}}
-      <div class="tab equipment" data-group="primary" data-tab="equipment">
-        <div class="flexcol">
-
-          <div><h4>{{localize "FE2.Sheet.Common.Equipment"}}</h4></div>
-          <ul class="item-list alternate-list fe2-item-list">
-            <li class="item flexrow list-item">
-              <span class="equipement-label">{{localize "FE2.Sheet.Common.Name"}}</span>
-              <span class="equipement-label">{{localize "FE2.Sheet.Common.Type"}}</span>
-              <div class="item-controls">
-                <span class="equipement-label">&nbsp;</span>
-                <span class="equipement-label">&nbsp;</span>
-                <span class="equipement-label">&nbsp;</span>
-              </div>
-            </li>
-            {{#each equipments as |equip key|}}
-            <li class="item flexrow list-item" data-item-id="{{equip.id}}">
-              <img class="sheet-competence-img" src="{{equip.img}}"/>
-              <span class="equipement-label">{{equip.name}}</span>
-              <span class="equipement-label">{{localizeType equip.type}}</span>
-              <div class="item-controls">
-                <a class="item-control" data-action="equipItem" title="{{localize "FE2.Sheet.Common.Worn"}}">{{#if equip.system.equipped}}<i class="fas fa-circle"></i>{{else}}<i class="fas fa-genderless"></i>{{/if}}</a>
-                <a class="item-control" data-action="editItem" title="{{localize "FE2.Sheet.Common.EditItem"}}"><i class="fas fa-edit"></i></a>
-                <a class="item-control" data-action="deleteItem" title="{{localize "FE2.Sheet.Common.DeleteItem"}}"><i class="fas fa-trash"></i></a>
-              </div>
-            </li>                  
-          {{/each}}
           </ul>
-
         </div>
-      </div>
 
-      {{!-- Notes Tab --}}
-      <div class="tab notes" data-group="primary" data-tab="notes">        
-        <article class="flexcol">
-          <h3>{{localize "FE2.Sheet.Common.Description"}} : </h3>
-          <div class="form-group editor">
-            <prose-mirror button="true" toggled="true" name="system.description" value="{{system.description}}">{{{enrichedDescription}}}</prose-mirror>
+        {{!-- Equipment Tab --}}
+        <div class="tab equipment" data-group="primary" data-tab="equipment">
+          <div class="flexcol">
+            <h3 class="fe2-section-header">{{localize "FE2.Sheet.Common.Equipment"}}</h3>
+            <ul class="item-list alternate-list fe2-item-list">
+              <li class="item flexrow fe2-list-header">
+                <span class="fe2-icon-spacer"></span>
+                <span class="equipement-label">{{localize "FE2.Sheet.Common.Name"}}</span>
+                <span class="equipement-label">{{localize "FE2.Sheet.Common.Type"}}</span>
+                <div class="item-controls">
+                  <span class="equipement-label">&nbsp;</span>
+                  <span class="equipement-label">&nbsp;</span>
+                  <span class="equipement-label">&nbsp;</span>
+                </div>
+              </li>
+              {{#each equipments as |equip key|}}
+              <li class="item flexrow list-item" data-item-id="{{equip.id}}">
+                <img class="sheet-competence-img" src="{{equip.img}}"/>
+                <span class="equipement-label">{{equip.name}}</span>
+                <span class="equipement-label">{{localizeType equip.type}}</span>
+                <div class="item-controls">
+                  <a class="item-control" data-action="equipItem" title="{{localize "FE2.Sheet.Common.Worn"}}">{{#if equip.system.equipped}}<i class="fas fa-circle"></i>{{else}}<i class="fas fa-genderless"></i>{{/if}}</a>
+                  <a class="item-control" data-action="editItem" title="{{localize "FE2.Sheet.Common.EditItem"}}"><i class="fas fa-edit"></i></a>
+                  <a class="item-control" data-action="deleteItem" title="{{localize "FE2.Sheet.Common.DeleteItem"}}"><i class="fas fa-trash"></i></a>
+                </div>
+              </li>
+              {{/each}}
+            </ul>
           </div>
-          <hr>
-          <h3>{{localize "FE2.Sheet.Common.Notes"}} : </h3>
-          <div class="form-group editor">
-            <prose-mirror button="true" toggled="true" name="system.notes" value="{{system.notes}}">{{{enrichedNotes}}}</prose-mirror>
-          </div>
-          <hr>
-          {{>"systems/foundry-fe2/templates/editor-notes-gm.html"}}
-        </article>
-      </div>
+        </div>
 
-      {{!-- Effects Tab --}}
-      <div class="tab effects" data-group="primary" data-tab="effects">
-        {{> "systems/foundry-fe2/templates/effects-section.html"}}
-      </div>
+        {{!-- Notes Tab --}}
+        <div class="tab notes" data-group="primary" data-tab="notes">
+          <article class="flexcol">
+            <h3 class="fe2-section-header">{{localize "FE2.Sheet.Common.Description"}}</h3>
+            <div class="small-editor item-text-long-line">
+              <prose-mirror button="true" toggled="true" name="system.description" value="{{system.description}}">{{{enrichedDescription}}}</prose-mirror>
+            </div>
+            <hr>
+            <h3 class="fe2-section-header">{{localize "FE2.Sheet.Common.Notes"}}</h3>
+            <div class="small-editor item-text-long-line">
+              <prose-mirror button="true" toggled="true" name="system.notes" value="{{system.notes}}">{{{enrichedNotes}}}</prose-mirror>
+            </div>
+            <hr>
+            {{#if isGM}}
+            <h3 class="fe2-section-header">{{localize "FE2.Sheet.Common.GMNotes"}}</h3>
+            <div class="small-editor item-text-long-line">
+              <prose-mirror button="true" toggled="true" name="system.gmnotes" value="{{system.gmnotes}}">{{{enrichedGMNotes}}}</prose-mirror>
+            </div>
+            {{/if}}
+          </article>
+        </div>
+
+        {{!-- Effects Tab --}}
+        <div class="tab effects" data-group="primary" data-tab="effects">
+          {{> "systems/foundry-fe2/templates/effects-section.html"}}
+        </div>
 
     </section>
 </div>
-

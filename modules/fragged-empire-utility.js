@@ -101,7 +101,7 @@ export class FraggedEmpireUtility  {
   static buildNPCTypeChoices() {
     return {
       henchman: game.i18n.localize("FE2.Sheet.NPC.Henchman"),
-      drone: game.i18n.localize("FE2.Sheet.NPC.Drone"),
+      troop: game.i18n.localize("FE2.Sheet.NPC.Troop"),
       companion: game.i18n.localize("FE2.Sheet.NPC.Companion")
     };
   }

@@ -17,6 +17,9 @@ import { FraggedEmpireUtility } from "./fragged-empire-utility.js";
 import { FraggedEmpireCombat } from "./fragged-empire-combat.js";
 import { FraggedEmpireEffect } from "./effects/fragged-empire-effect.js";
 import { FraggedEmpireEffectSheet } from "./effects/fragged-empire-effect-sheet.js";
+import { CharacterDataModel } from "./actor-character-model.js";
+import { NPCDataModel } from "./actor-npc-model.js";
+import { SpacecraftDataModel } from "./actor-spacecraft-model.js";
 
 /* -------------------------------------------- */
 /*  Foundry VTT Initialization                  */
@@ -116,6 +119,11 @@ Hooks.once("init", async function () {
   // Define custom Entity classes
   CONFIG.Combat.documentClass = FraggedEmpireCombat;
   CONFIG.Actor.documentClass = FraggedEmpireActor;
+  CONFIG.Actor.dataModels = {
+    character: CharacterDataModel,
+    npc: NPCDataModel,
+    spacecraft: SpacecraftDataModel
+  };
   CONFIG.FraggedEmpire = {
   }
 
@@ -544,6 +552,51 @@ Hooks.once("ready", async function () {
         }
       } catch (error) {
         console.error(`FE2 | Migration 1.07 failed for Item ${item.name}:`, error);
+      }
+    }
+  }
+
+  // Migration 1.08: NPC schema additions (Mobility, endurance/durability max, controllerId, notes, gmnotes, type rename)
+  if (foundry.utils.isNewerVersion("1.08", game.settings.get("foundry-fe2", "systemMigrationVersion"))) {
+    for (let actor of game.actors) {
+      if (actor.type !== "npc") continue;
+      try {
+        const updates = {};
+
+        // Add Mobility attribute (default from current movement value)
+        if (!actor.system.stats?.Mobility) {
+          updates["system.stats.Mobility"] = {
+            value: actor.system.fight?.movement?.value ?? 0,
+            label: "FE2.Attributes.Mobility"
+          };
+        }
+
+        // Add endurance.max and durability.max
+        if (actor.system.fight?.endurance && actor.system.fight.endurance.max === undefined) {
+          updates["system.fight.endurance.max"] = actor.system.fight.endurance.value ?? 0;
+        }
+        if (actor.system.fight?.durability && actor.system.fight.durability.max === undefined) {
+          updates["system.fight.durability.max"] = actor.system.fight.durability.value ?? 0;
+        }
+
+        // Add controllerId
+        if (actor.system.controllerId === undefined) {
+          updates["system.controllerId"] = "";
+        }
+
+        // Add notes/gmnotes (formalize existing usage)
+        if (actor.system.notes === undefined) updates["system.notes"] = "";
+        if (actor.system.gmnotes === undefined) updates["system.gmnotes"] = "";
+
+        // Migrate NPC type values
+        if (actor.system.npctype === "commander") updates["system.npctype"] = "troop";
+        if (actor.system.npctype === "drone") updates["system.npctype"] = "henchman";
+
+        if (Object.keys(updates).length > 0) {
+          await actor.update(updates);
+        }
+      } catch (error) {
+        console.error(`FE2 | Migration 1.08 failed for Actor ${actor.name}:`, error);
       }
     }
   }

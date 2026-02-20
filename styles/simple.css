@@ -768,10 +768,71 @@ ul, li {
    - Sheet-type-specific overrides
    ============================================================ */
 
-/* NPC stat labels */
+/* NPC stat labels (legacy) */
 .foundry-fe2 .npc-stat-label {
   font-family: var(--fe2-font-heading);
   color: var(--fe2-text-value);
+}
+
+/* NPC stat list — attribute/spec rows */
+.foundry-fe2 .fe2-npc-stat-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.foundry-fe2 .fe2-npc-stat-row {
+  display: flex;
+  align-items: center;
+  gap: var(--fe2-space-xs);
+  padding: var(--fe2-space-xs) 0;
+  border-bottom: 1px solid var(--fe2-border);
+}
+
+.foundry-fe2 .fe2-npc-stat-name {
+  font-family: var(--fe2-font-heading);
+  font-weight: bold;
+  min-width: 5rem;
+  color: var(--fe2-text-value);
+}
+
+.foundry-fe2 .fe2-npc-stat-value {
+  font-family: var(--fe2-font-heading);
+  font-weight: bold;
+  color: var(--fe2-text-value);
+}
+
+/* NPC controller section (Companion type) */
+.foundry-fe2 .fe2-npc-controller-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fe2-space-xs);
+  padding: var(--fe2-space-xs) 0;
+}
+
+.foundry-fe2 .fe2-npc-controller-section select {
+  width: 100%;
+}
+
+.foundry-fe2 .fe2-npc-controller-name {
+  font-style: italic;
+  color: var(--fe2-text-label);
+}
+
+/* Stack-left: prevent flex children from spreading in flex rows */
+.foundry-fe2 .stack-left {
+  justify-content: flex-start;
+  gap: var(--fe2-space-sm);
+}
+
+/* NPC fight tab: stat row pairs (base/total, current/max) */
+.foundry-fe2.npc .tab.fight .fe2-field {
+  min-width: 8rem;
+}
+
+/* NPC controller attributes read-only display */
+.foundry-fe2.npc .fe2-npc-stat-list {
+  border-top: 1px solid var(--fe2-border);
 }
 
 /* Weapon and outfit labels */

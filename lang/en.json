@@ -125,7 +125,12 @@
         "Henchman": "Henchman",
         "Drone": "Drone",
         "Companion": "Companion",
-        "Attribute": "Attribute"
+        "Troop": "Troop",
+        "Attribute": "Attribute",
+        "Mobility": "Mobility",
+        "Controller": "Controller",
+        "ControllerLink": "Controller Character",
+        "NoController": "No controller linked"
       }
     },
     "SkillList": {

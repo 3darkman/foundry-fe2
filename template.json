@@ -137,6 +137,9 @@
       "npc": {
         "npctype": "",
         "description": "",
+        "notes": "",
+        "gmnotes": "",
+        "controllerId": "",
         "spec": {
           "bodies": {
             "value": 0,
@@ -152,10 +155,12 @@
         "fight": {
           "endurance": {
             "value": 0,
+            "max": 0,
             "label": "FE2.Fight.NPC.Endurance"
           },
           "durability": {
             "value": 0,
+            "max": 0,
             "label": "FE2.Fight.NPC.Durability"
           },
           "movement": {
@@ -185,6 +190,10 @@
           "Attribute": {
             "value": "",
             "label": "FE2.Sheet.NPC.Attribute"
+          },
+          "Mobility": {
+            "value": "",
+            "label": "FE2.Attributes.Mobility"
           }
         }
       },

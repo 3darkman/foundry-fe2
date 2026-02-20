@@ -243,7 +243,7 @@ export class FraggedEmpireItemSheet extends HandlebarsApplicationMixin(foundry.a
     super._onRender(context, options);
 
     // V2 DragDrop: manually create and bind (V2 has no built-in dragDrop infrastructure)
-    new DragDrop.implementation({
+    new foundry.applications.ux.DragDrop.implementation({
       dropSelector: null,
       permissions: {
         drop: this._canDragDrop.bind(this)

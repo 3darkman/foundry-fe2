@@ -7,7 +7,7 @@ export class FraggedEmpireNPCSheet extends HandlebarsApplicationMixin(foundry.ap
 
   /** @override */
   static DEFAULT_OPTIONS = {
-    classes: ["foundry-fe2", "sheet", "actor"],
+    classes: ["foundry-fe2", "sheet", "actor", "npc"],
     position: { width: 640, height: 720 },
     window: { resizable: true },
     form: { submitOnChange: true },
@@ -38,7 +38,7 @@ export class FraggedEmpireNPCSheet extends HandlebarsApplicationMixin(foundry.ap
     }
   };
 
-  tabGroups = { primary: "attribute" };
+  tabGroups = { primary: "main" };
 
   _editScore = false;
 
@@ -73,6 +73,24 @@ export class FraggedEmpireNPCSheet extends HandlebarsApplicationMixin(foundry.ap
     context.isGM = game.user.isGM;
     context.computed = actor._computed || {};
     context.baseValues = actor._baseValues || {};
+
+    // NPC type flags
+    context.isCompanion = actor.system.npctype === "companion";
+
+    // Companion controller resolution
+    if (context.isCompanion) {
+      context.characterActors = game.actors.filter(a => a.type === "character");
+      const controller = actor.system.getController();
+      if (controller) {
+        context.controllerName = controller.name;
+        context.controllerAttributes = controller.system.attributes;
+      }
+    }
+
+    // Keywords, variations, modifications (owned items)
+    context.keywords = actor.system.getKeywords();
+    context.variations = actor.system.getVariations();
+    context.modifications = actor.system.getModifications();
 
     // Enrich HTML for prose-mirror collapsed display
     const enrichOptions = { async: true, relativeTo: actor };
@@ -116,92 +134,44 @@ export class FraggedEmpireNPCSheet extends HandlebarsApplicationMixin(foundry.ap
   /*  Action Handlers                              */
   /* -------------------------------------------- */
 
-  /**
-   * Open the sheet for an owned item.
-   * @this {FraggedEmpireNPCSheet}
-   * @param {PointerEvent} event
-   * @param {HTMLElement} target
-   */
   static #onEditItem(event, target) {
     const itemId = target.closest("[data-item-id]")?.dataset.itemId;
     if (!itemId) return;
     this.document.items.get(itemId)?.sheet.render(true);
   }
 
-  /**
-   * Delete an owned item after confirmation.
-   * @this {FraggedEmpireNPCSheet}
-   * @param {PointerEvent} event
-   * @param {HTMLElement} target
-   */
   static #onDeleteItem(event, target) {
     const itemId = target.closest("[data-item-id]")?.dataset.itemId;
     if (!itemId) return;
     FraggedEmpireUtility.confirmDelete(this.document, itemId);
   }
 
-  /**
-   * Toggle the equipped state of an item.
-   * @this {FraggedEmpireNPCSheet}
-   * @param {PointerEvent} event
-   * @param {HTMLElement} target
-   */
   static #onEquipItem(event, target) {
     const itemId = target.closest("[data-item-id]")?.dataset.itemId;
     if (!itemId) return;
     this.document.equipItem(itemId);
   }
 
-  /**
-   * Roll a skill check.
-   * @this {FraggedEmpireNPCSheet}
-   * @param {PointerEvent} event
-   * @param {HTMLElement} target
-   */
   static #onRollSkill(event, target) {
     const skillId = target.closest("[data-item-id]")?.dataset.itemId;
     if (!skillId) return;
     this.document.rollSkill(skillId);
   }
 
-  /**
-   * Roll a weapon attack.
-   * @this {FraggedEmpireNPCSheet}
-   * @param {PointerEvent} event
-   * @param {HTMLElement} target
-   */
   static #onRollWeapon(event, target) {
     const weaponId = target.closest("[data-item-id]")?.dataset.itemId;
     if (!weaponId) return;
     this.document.rollWeapon(weaponId);
   }
 
-  /**
-   * Roll the NPC fight action.
-   * @this {FraggedEmpireNPCSheet}
-   * @param {PointerEvent} event
-   * @param {HTMLElement} target
-   */
   static #onRollNPCFight(event, target) {
     this.document.rollNPCFight();
   }
 
-  /**
-   * Roll a generic skill check.
-   * @this {FraggedEmpireNPCSheet}
-   * @param {PointerEvent} event
-   * @param {HTMLElement} target
-   */
   static #onRollGenericSkill(event, target) {
     this.document.rollGenericSkill();
   }
 
-  /**
-   * Toggle the lock/unlock state of the sheet for score editing.
-   * @this {FraggedEmpireNPCSheet}
-   * @param {PointerEvent} event
-   * @param {HTMLElement} target
-   */
   static #onLockUnlockSheet(event, target) {
     this._editScore = !this._editScore;
     this.render();
@@ -257,14 +227,52 @@ export class FraggedEmpireNPCSheet extends HandlebarsApplicationMixin(foundry.ap
   }
 
   /* -------------------------------------------- */
+  /*  Drag and Drop                               */
+  /* -------------------------------------------- */
+
+  async _onDrop(event) {
+    let data;
+    try {
+      data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
+    } catch (e) {
+      return;
+    }
+
+    if (data?.type === "Item") {
+      const item = await fromUuid(data.uuid);
+      if (!item) return super._onDrop(event);
+
+      // Enforce single-variation limit: replace existing variation
+      if (item.type === "variation") {
+        const existing = this.document.items.filter(i => i.type === "variation");
+        if (existing.length > 0) {
+          await this.document.deleteEmbeddedDocuments("Item", existing.map(i => i.id));
+        }
+      }
+    }
+
+    super._onDrop(event);
+  }
+
+  /* -------------------------------------------- */
   /*  Form Submission                             */
   /* -------------------------------------------- */
 
   async _onChangeForm(formConfig, event) {
-    const form = this.form;
-    if (!form) return;
-    const formData = new foundry.applications.ux.FormDataExtended(form);
-    const data = foundry.utils.expandObject(formData.object);
-    await this.document.update(data);
+    const target = event?.target;
+    if (!target?.name) return;
+    // Build update from the single changed field only — collecting the entire form
+    // via FormDataExtended omits disabled fields, which can blank out locked inputs.
+    let value = target.value;
+    if (target.dataset.dtype === "Number") value = Number(value) || 0;
+    const updateData = foundry.utils.expandObject({ [target.name]: value });
+
+    // When NPC type changes away from companion, clear controllerId
+    if (target.name === "system.npctype" && value !== "companion") {
+      updateData.system = updateData.system || {};
+      updateData.system.controllerId = "";
+    }
+
+    await this.document.update(updateData);
   }
 }
