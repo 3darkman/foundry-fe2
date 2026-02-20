@@ -3,7 +3,7 @@
  * Provides factory, collection, application, and suppression functions.
  */
 
-import { EFFECT_TARGET_TYPES, parseEffectKey } from "./fragged-empire-effect-types.js";
+import { EFFECT_TARGET_TYPES, EFFECT_CATEGORIES, parseEffectKey } from "./fragged-empire-effect-types.js";
 
 /* -------------------------------------------- */
 /*  Constants                                   */
@@ -41,6 +41,9 @@ export function createEmptyModifiers() {
     acquisition: [],
     arcane: [],
     untrainedSkill: [],
+    allPrimarySkills: [],
+    allPersonalCombatSkills: [],
+    allSpacecraftSkills: [],
     recovery: [],
     shield: [],
     shieldRegen: [],
@@ -187,4 +190,107 @@ export function isEquipSuppressed(effect, actor) {
   if ("equipped" in item.system) return item.system.equipped === false;
 
   return false;
+}
+
+/* -------------------------------------------- */
+/*  Conditional Effects — Roll Relevance        */
+/* -------------------------------------------- */
+
+/**
+ * Maps roll modes to the set of effect target types relevant for that roll.
+ * Category-specific types are included but dynamically filtered at runtime.
+ */
+export const ROLL_RELEVANCE_MAP = {
+  skill: new Set([
+    "skill", "allSkills", "allPrimarySkills", "allPersonalCombatSkills",
+    "allSpacecraftSkills", "skillToolbox", "skillWorkshop",
+    "untrainedSkill", "arcane"
+  ]),
+  weapon: new Set([
+    "skill", "allSkills", "allPersonalCombatSkills", "hitBonus",
+    "enduranceDamage", "attackTargetArmour", "attackTargetArmourCrit",
+    "attackTargetCover", "attackSelfCover", "skillToolbox",
+    "skillWorkshop", "untrainedSkill"
+  ]),
+  npcfight: new Set([
+    "hitBonus", "enduranceDamage", "npcAttribute", "npcMobility"
+  ]),
+  genericskill: new Set([
+    "allSkills", "allPrimarySkills", "allPersonalCombatSkills",
+    "allSpacecraftSkills", "untrainedSkill", "arcane"
+  ]),
+  spacecraftweapon: new Set([
+    "hitBonus", "enduranceDamage", "attackTargetArmour",
+    "attackTargetArmourCrit", "allSpacecraftSkills"
+  ])
+};
+
+/** Maps skill system.type to the category-specific effect target type. */
+export const SKILL_CATEGORY_TYPES = {
+  primary: "allPrimarySkills",
+  personalcombat: "allPersonalCombatSkills",
+  spaceshipcombat: "allSpacecraftSkills"
+};
+
+const CATEGORY_TYPE_VALUES = new Set(Object.values(SKILL_CATEGORY_TYPES));
+
+/**
+ * Filter conditional effects relevant to a roll type.
+ * @param {Actor} actor
+ * @param {string} rollMode - e.g., "skill", "weapon", "npcfight"
+ * @param {Object} [rollContext={}] - optional context for dynamic filtering
+ * @param {string} [rollContext.skillType] - skill category for category-aware filtering
+ * @returns {Array<Object>} Array of { effectId, name, img, summary, changes }
+ */
+export function getRelevantConditionalEffects(actor, rollMode, rollContext = {}) {
+  if (!actor._conditionalEffects?.length) return [];
+  const relevantTypes = ROLL_RELEVANCE_MAP[rollMode];
+  if (!relevantTypes) return [];
+
+  const matchingCategoryType = rollContext.skillType ? SKILL_CATEGORY_TYPES[rollContext.skillType] : null;
+
+  return actor._conditionalEffects
+    .filter(effect => {
+      return effect.changes.some(change => {
+        const parsed = parseEffectKey(change.key);
+        if (!parsed || !relevantTypes.has(parsed.targetType)) return false;
+        if (CATEGORY_TYPE_VALUES.has(parsed.targetType) && matchingCategoryType && parsed.targetType !== matchingCategoryType) return false;
+        return true;
+      });
+    })
+    .map(effect => ({
+      effectId: effect.id,
+      name: effect.name,
+      img: effect.img,
+      summary: summarizeEffectChanges(effect),
+      changes: effect.changes
+    }));
+}
+
+/**
+ * Build a human-readable summary of an effect's changes.
+ * @param {ActiveEffect} effect
+ * @returns {string}
+ */
+function summarizeEffectChanges(effect) {
+  return effect.changes.map(c => {
+    const parsed = parseEffectKey(c.key);
+    if (!parsed) return null;
+    const sign = Number(c.value) >= 0 ? "+" : "";
+    const label = getTargetTypeLabel(parsed.targetType);
+    return `${sign}${c.value} ${label}`;
+  }).filter(Boolean).join(", ");
+}
+
+/**
+ * Look up a human-readable label for a target type from EFFECT_CATEGORIES.
+ * @param {string} targetType
+ * @returns {string}
+ */
+function getTargetTypeLabel(targetType) {
+  for (const cat of Object.values(EFFECT_CATEGORIES)) {
+    const found = cat.types.find(t => t.type === targetType);
+    if (found) return game.i18n.localize(found.label);
+  }
+  return targetType;
 }

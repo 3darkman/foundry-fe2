@@ -1,5 +1,6 @@
 /* -------------------------------------------- */
-import { applyModifiers } from "./effects/fragged-empire-effect-helpers.js";
+import { applyModifiers, SKILL_CATEGORY_TYPES } from "./effects/fragged-empire-effect-helpers.js";
+import { parseEffectKey } from "./effects/fragged-empire-effect-types.js";
 import { findKeywordOnItem, getKeywordParam } from "./keyword-config.js";
 
 /* -------------------------------------------- */
@@ -63,7 +64,8 @@ export class FraggedEmpireUtility  {
       'systems/foundry-fe2/templates/partial-item-stats-vertical.html',
       'systems/foundry-fe2/templates/partial-stronghits-section.html',
       'systems/foundry-fe2/templates/item-keyword-sheet.html',
-      'systems/foundry-fe2/templates/partial-item-keywords-row.html'
+      'systems/foundry-fe2/templates/partial-item-keywords-row.html',
+      'systems/foundry-fe2/templates/partials/roll-conditional-effects.html'
     ]
     return foundry.applications.handlebars.loadTemplates(templatePaths);    
   }
@@ -331,6 +333,12 @@ export class FraggedEmpireUtility  {
       }
     }
 
+    // Apply selected conditional effects
+    if (rollData.selectedConditionalEffects?.length && rollData.conditionalEffects?.length) {
+      const applied = FraggedEmpireUtility.applySelectedConditionalEffects(rollData);
+      rollData.appliedConditionalEffects = applied;
+    }
+
     // Bonus/Malus total
     rollData.weaponHit = 0;
     rollData.finalBM = rollData.bonusMalus;
@@ -493,6 +501,79 @@ export class FraggedEmpireUtility  {
     }
   }
   /* -------------------------------------------- */
+  /**
+   * Apply selected conditional effects to roll variables.
+   * @param {object} rollData - The roll data with conditionalEffects and selectedConditionalEffects
+   * @returns {Array<{name: string, summary: string}>} Applied effects for chat display
+   */
+  static applySelectedConditionalEffects(rollData) {
+    const applied = [];
+    const skillType = rollData.skill?.system?.type;
+    const CATEGORY_TYPE_VALUES = new Set(Object.values(SKILL_CATEGORY_TYPES));
+
+    for (const effectId of rollData.selectedConditionalEffects) {
+      const ce = rollData.conditionalEffects.find(e => e.effectId === effectId);
+      if (!ce) continue;
+
+      let effectApplied = false;
+      for (const change of ce.changes) {
+        const parsed = parseEffectKey(change.key);
+        if (!parsed) continue;
+        const val = Number(change.value) || 0;
+
+        // Category-specific skill types: only apply if rolled skill's category matches
+        if (CATEGORY_TYPE_VALUES.has(parsed.targetType)) {
+          const matchingType = skillType ? SKILL_CATEGORY_TYPES[skillType] : null;
+          if (matchingType !== parsed.targetType) continue;
+        }
+
+        switch (parsed.targetType) {
+          case "skill":
+          case "allSkills":
+          case "allPrimarySkills":
+          case "allPersonalCombatSkills":
+          case "allSpacecraftSkills":
+          case "untrainedSkill":
+          case "arcane":
+            rollData.bonusMalus = (rollData.bonusMalus || 0) + val;
+            effectApplied = true;
+            break;
+          case "hitBonus":
+            rollData.effectHitBonus = (rollData.effectHitBonus || 0) + val;
+            effectApplied = true;
+            break;
+          case "enduranceDamage":
+            rollData.effectEndDmg = (rollData.effectEndDmg || 0) + val;
+            effectApplied = true;
+            break;
+          case "npcAttribute":
+          case "npcMobility":
+            rollData.bonusMalus = (rollData.bonusMalus || 0) + val;
+            effectApplied = true;
+            break;
+          case "attackTargetArmour":
+          case "attackTargetArmourCrit":
+          case "attackTargetCover":
+          case "attackSelfCover":
+            rollData.bonusMalus = (rollData.bonusMalus || 0) + val;
+            effectApplied = true;
+            break;
+          default:
+            rollData.bonusMalus = (rollData.bonusMalus || 0) + val;
+            effectApplied = true;
+            break;
+        }
+      }
+
+      if (effectApplied) {
+        applied.push({ name: ce.name, summary: ce.summary });
+      }
+    }
+
+    return applied;
+  }
+
+  /* -------------------------------------------- */
   static async rerollDice( actorId, diceIndex=-1 ) {
     let actor = game.actors.get(actorId);
     let rollData = actor.getRollData();
@@ -635,6 +716,7 @@ export class FraggedEmpireUtility  {
    */
   static categorizeEffects(actor) {
     const passive = [];
+    const conditional = [];
     const temporary = [];
     const inactive = [];
 
@@ -648,12 +730,15 @@ export class FraggedEmpireUtility  {
         duration: effect.duration,
         active: !effect.disabled && !effect.isSuppressed,
         isSuppressed: effect.isSuppressed,
+        isConditional: effect.isConditional,
         sourceName: effect.originItem?.name ?? "",
         effect: effect
       };
 
       if (effect.disabled || effect.isSuppressed) {
         inactive.push(d);
+      } else if (effect.isConditional) {
+        conditional.push(d);
       } else if (effect.duration?.rounds || effect.duration?.seconds || effect.duration?.turns) {
         temporary.push(d);
       } else {
@@ -663,6 +748,7 @@ export class FraggedEmpireUtility  {
 
     return {
       passive: { label: "FE2.Effects.Categories.Passive", effects: passive },
+      conditional: { label: "FE2.Effects.Categories.Conditional", effects: conditional },
       temporary: { label: "FE2.Effects.Categories.Temporary", effects: temporary },
       inactive: { label: "FE2.Effects.Categories.Inactive", effects: inactive }
     };

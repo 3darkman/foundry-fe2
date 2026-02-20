@@ -1,7 +1,7 @@
 /* -------------------------------------------- */
 import { FraggedEmpireUtility } from "./fragged-empire-utility.js";
 import { FraggedEmpireRoll } from "./fragged-empire-roll-dialog.js";
-import { applyModifiers } from "./effects/fragged-empire-effect-helpers.js";
+import { applyModifiers, getRelevantConditionalEffects } from "./effects/fragged-empire-effect-helpers.js";
 import { CHARACTER_ATTRIBUTES } from "./effects/fragged-empire-effect-types.js";
 import { computeEffectiveItemStats, findKeywordOnItem } from "./keyword-config.js";
 
@@ -242,6 +242,9 @@ export class CharacterDataModel extends foundry.abstract.TypeDataModel {
     actor._computed.acquisitionMod = mods ? Math.round(applyModifiers(0, mods.acquisition, false)) : 0;
     actor._computed.arcaneMod = mods ? Math.round(applyModifiers(0, mods.arcane, false)) : 0;
     actor._computed.untrainedSkillMod = mods ? Math.round(applyModifiers(0, mods.untrainedSkill, false)) : 0;
+    actor._computed.primarySkillMod = mods ? Math.round(applyModifiers(0, mods.allPrimarySkills, false)) : 0;
+    actor._computed.personalCombatSkillMod = mods ? Math.round(applyModifiers(0, mods.allPersonalCombatSkills, false)) : 0;
+    actor._computed.spacecraftSkillMod = mods ? Math.round(applyModifiers(0, mods.allSpacecraftSkills, false)) : 0;
     actor._computed.combatOrder = mods ? Math.round(applyModifiers(0, mods.combatOrder, false)) : 0;
     // Armour at zero endurance (base from active outfits + AE modifiers)
     let armourZeroEndBase = 0;
@@ -295,6 +298,15 @@ export class CharacterDataModel extends foundry.abstract.TypeDataModel {
       const allSkillMods = actor._effectModifiers?.skills?.all || [];
       const combinedMods = [...skillMods, ...allSkillMods];
       item.system._effectMod = combinedMods.length ? Math.round(applyModifiers(0, combinedMods, false)) : 0;
+      // Apply skill-category modifiers
+      const categoryModKey = {
+        primary: 'primarySkillMod',
+        personalcombat: 'personalCombatSkillMod',
+        spaceshipcombat: 'spacecraftSkillMod'
+      }[type];
+      if (categoryModKey) {
+        item.system._effectMod += actor._computed?.[categoryModKey] || 0;
+      }
       item.system._effectiveStaticMod = (item.system.staticmod || 0) + item.system._effectMod;
       item.system._effectiveTotal = item.system.total + item.system._effectMod;
 
@@ -555,6 +567,8 @@ export class CharacterDataModel extends foundry.abstract.TypeDataModel {
       rollData.effectModifiers = actor._effectModifiers;
       rollData.untrainedSkillMod = actor._computed?.untrainedSkillMod || 0;
       rollData.arcaneMod = actor._computed?.arcaneMod || 0;
+      rollData.conditionalEffects = getRelevantConditionalEffects(actor, rollData.mode, { skillType: skill.system.type });
+      rollData.selectedConditionalEffects = [];
       await FraggedEmpireRoll.create(actor, rollData);
     } else {
       ui.notifications.warn(game.i18n.localize("FE2.Notifications.SkillNotFound"));
@@ -601,6 +615,8 @@ export class CharacterDataModel extends foundry.abstract.TypeDataModel {
     rollData.effectModifiers = actor._effectModifiers;
     rollData.untrainedSkillMod = actor._computed?.untrainedSkillMod || 0;
     rollData.arcaneMod = actor._computed?.arcaneMod || 0;
+    rollData.conditionalEffects = getRelevantConditionalEffects(actor, rollData.mode, { skillType: skill.system.type });
+    rollData.selectedConditionalEffects = [];
     await FraggedEmpireRoll.create(actor, rollData);
   }
 
@@ -622,6 +638,8 @@ export class CharacterDataModel extends foundry.abstract.TypeDataModel {
       difficulty: 0
     };
     rollData.effectModifiers = actor._effectModifiers;
+    rollData.conditionalEffects = getRelevantConditionalEffects(actor, rollData.mode);
+    rollData.selectedConditionalEffects = [];
     await FraggedEmpireRoll.create(actor, rollData);
   }
 
@@ -677,6 +695,8 @@ export class CharacterDataModel extends foundry.abstract.TypeDataModel {
       rollData.effectHitBonus = actor._computed?.hitBonus || 0;
       rollData.effectEndDmg = actor._computed?.enduranceDamage || 0;
       rollData.untrainedSkillMod = actor._computed?.untrainedSkillMod || 0;
+      rollData.conditionalEffects = getRelevantConditionalEffects(actor, rollData.mode, { skillType: 'personalcombat' });
+      rollData.selectedConditionalEffects = [];
       await FraggedEmpireRoll.create(actor, rollData);
     } else {
       ui.notifications.warn(game.i18n.localize("FE2.Notifications.WeaponNotFound"), weaponId);

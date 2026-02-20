@@ -47,9 +47,14 @@ export class FraggedEmpireActor extends Actor {
    */
   applyActiveEffects() {
     this._effectModifiers = createEmptyModifiers();
+    this._conditionalEffects = [];
     for (const effect of this.effects) {
       if (effect.disabled) continue;
       if (isEquipSuppressed(effect, this)) continue;
+      if (effect.isConditional) {
+        this._conditionalEffects.push(effect);
+        continue;
+      }
       for (const change of effect.changes) {
         const parsed = parseEffectKey(change.key);
         if (!parsed) continue;

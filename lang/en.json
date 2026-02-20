@@ -526,7 +526,11 @@
         "Resources": "Resources",
         "Spacecraft": "Spacecraft",
         "NPC": "NPC",
-        "Attack": "Attack"
+        "Attack": "Attack",
+        "Passive": "Passive",
+        "Conditional": "Conditional",
+        "Temporary": "Temporary",
+        "Inactive": "Inactive"
       },
       "TargetTypes": {
         "Skill": "Skill",
@@ -569,7 +573,10 @@
         "AttackTargetCover": "Target Cover (on attack)",
         "AttackSelfCover": "Self Cover (when attacked)",
         "SkillToolbox": "Toolbox",
-        "SkillWorkshop": "Workshop"
+        "SkillWorkshop": "Workshop",
+        "AllPrimarySkills": "All Primary Skills",
+        "AllPersonalCombatSkills": "All Personal Combat Skills",
+        "AllSpacecraftSkills": "All Spacecraft Skills"
       },
       "Modes": {
         "Add": "Add",
@@ -598,7 +605,11 @@
         "AddChange": "Add Change",
         "DeleteChange": "Delete Change",
         "SelectTargetType": "Select target type...",
-        "SelectSubtype": "Select..."
+        "SelectSubtype": "Select...",
+        "Conditional": "Conditional",
+        "ConditionalHint": "Effect does not modify the sheet. Appears in roll dialogs for optional activation.",
+        "ConditionalEffects": "Conditional Effects",
+        "ConditionalApplied": "Conditional"
       },
       "Fields": {
         "HitBonus": "Hit Bonus",

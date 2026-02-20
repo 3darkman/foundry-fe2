@@ -1328,6 +1328,56 @@ ul, li {
   border-radius: var(--fe2-border-radius);
 }
 
+/* Conditional effect category — distinct visual style */
+.foundry-fe2 .effect-category-header[data-category="conditional"] {
+  background: rgba(255, 170, 0, 0.15);
+  border-left: 3px solid var(--fe2-orange, #ffaa00);
+}
+
+/* Conditional effects in roll dialogs */
+.fe2-roll-dialog .conditional-effects-section {
+  margin-top: var(--fe2-space-sm);
+  padding: var(--fe2-space-xs) var(--fe2-space-sm);
+  border: 1px solid var(--fe2-border);
+  border-radius: var(--fe2-border-radius);
+  background: rgba(255, 170, 0, 0.05);
+}
+
+.fe2-roll-dialog .conditional-effects-section h4 {
+  margin: 0 0 var(--fe2-space-xs);
+  font-family: var(--fe2-font-heading);
+  font-size: var(--fe2-font-size-sm);
+  color: var(--fe2-text-heading);
+}
+
+.fe2-roll-dialog .conditional-effect-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: var(--fe2-space-xs);
+  padding: 2px 0;
+  cursor: pointer;
+}
+
+.fe2-roll-dialog .conditional-effect-toggle-label img {
+  border: none;
+  border-radius: 2px;
+}
+
+/* Conditional effects in chat cards */
+.fe2-chat-card .conditional-effects-applied {
+  margin-top: var(--fe2-space-xs);
+  padding: var(--fe2-space-xs) var(--fe2-space-sm);
+  border-left: 3px solid var(--fe2-orange, #ffaa00);
+  background: rgba(255, 170, 0, 0.08);
+  border-radius: 0 var(--fe2-border-radius) var(--fe2-border-radius) 0;
+}
+
+.fe2-chat-card .conditional-effect-tag {
+  display: inline-block;
+  margin-left: var(--fe2-space-xs);
+  font-style: italic;
+}
+
 /* Add effect button */
 .effect-add {
   padding: var(--fe2-space-xs);

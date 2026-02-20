@@ -5,6 +5,15 @@
     {{formGroup fields.disabled value=source.disabled rootId=rootId}}
 
     {{#if isActorEffect}}
+    <div class="form-group">
+        <label>{{localize "FE2.Effects.UI.Conditional"}}</label>
+        <input type="checkbox" name="flags.foundry-fe2.conditional"
+            {{checked source.flags.foundry-fe2.conditional}} />
+        <p class="hint">{{localize "FE2.Effects.UI.ConditionalHint"}}</p>
+    </div>
+    {{/if}}
+
+    {{#if isActorEffect}}
     {{formGroup fields.origin value=source.origin rootId=rootId disabled=true}}
     {{/if}}
     {{#if isItemEffect}}

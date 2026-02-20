@@ -3,7 +3,7 @@
   {{!-- Actor sheet: categorized effects --}}
   {{#each effectCategories as |category catKey|}}
     {{#if category.effects.length}}
-    <h3 class="effect-category-header">{{localize category.label}}</h3>
+    <h3 class="effect-category-header" data-category="{{catKey}}">{{localize category.label}}</h3>
     <ol class="effects-list fe2-item-list">
       {{#each category.effects as |effect idx|}}
       <li class="effect-entry flexrow{{#unless effect.active}} effect-inactive{{/unless}}{{#if effect.isSuppressed}} effect-suppressed{{/if}}" data-effect-id="{{effect._id}}">

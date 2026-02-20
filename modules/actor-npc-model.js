@@ -1,7 +1,7 @@
 /* -------------------------------------------- */
 import { FraggedEmpireUtility } from "./fragged-empire-utility.js";
 import { FraggedEmpireRoll } from "./fragged-empire-roll-dialog.js";
-import { applyModifiers } from "./effects/fragged-empire-effect-helpers.js";
+import { applyModifiers, getRelevantConditionalEffects } from "./effects/fragged-empire-effect-helpers.js";
 
 /* -------------------------------------------- */
 /* Schema Helpers                               */
@@ -223,6 +223,8 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
       optionsDifficulty: FraggedEmpireUtility.buildDifficultyOptions()
     };
     rollData.effectModifiers = actor._effectModifiers;
+    rollData.conditionalEffects = getRelevantConditionalEffects(actor, rollData.mode);
+    rollData.selectedConditionalEffects = [];
     await FraggedEmpireRoll.create(actor, rollData);
   }
 
@@ -285,6 +287,8 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
       rollData.effectHitBonus = controller._computed?.hitBonus || 0;
       rollData.effectEndDmg = controller._computed?.enduranceDamage || 0;
       rollData.untrainedSkillMod = controller._computed?.untrainedSkillMod || 0;
+      rollData.conditionalEffects = getRelevantConditionalEffects(controller, rollData.mode, { skillType: 'personalcombat' });
+      rollData.selectedConditionalEffects = [];
       await FraggedEmpireRoll.create(actor, rollData);
       return;
     }
@@ -327,6 +331,8 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
       rollData.effectHitBonus = actor._computed?.hitBonus || 0;
       rollData.effectEndDmg = actor._computed?.enduranceDamage || 0;
       rollData.untrainedSkillMod = actor._computed?.untrainedSkillMod || 0;
+      rollData.conditionalEffects = getRelevantConditionalEffects(actor, rollData.mode);
+      rollData.selectedConditionalEffects = [];
       await FraggedEmpireRoll.create(actor, rollData);
     } else {
       ui.notifications.warn(game.i18n.localize("FE2.Notifications.WeaponNotFound"), weaponId);
@@ -359,6 +365,8 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
         difficulty: 0
       };
       rollData.effectModifiers = controller._effectModifiers;
+      rollData.conditionalEffects = getRelevantConditionalEffects(controller, rollData.mode);
+      rollData.selectedConditionalEffects = [];
       await FraggedEmpireRoll.create(actor, rollData);
       return;
     }
@@ -378,6 +386,8 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
       difficulty: 0
     };
     rollData.effectModifiers = actor._effectModifiers;
+    rollData.conditionalEffects = getRelevantConditionalEffects(actor, rollData.mode);
+    rollData.selectedConditionalEffects = [];
     await FraggedEmpireRoll.create(actor, rollData);
   }
 }

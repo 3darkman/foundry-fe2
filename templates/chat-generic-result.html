@@ -68,6 +68,14 @@
       {{#if (gt totalEndDmg targetEnd)}}<li class="fe2-alert"><strong>{{localize "FE2.Chat.Results.CriticalHitOrBoost"}}</strong></li>{{/if}}
     {{/if}}
     {{/if}}
+    {{#if appliedConditionalEffects.length}}
+    <li>
+      <strong>{{localize "FE2.Effects.UI.ConditionalApplied"}}:</strong>
+      {{#each appliedConditionalEffects}}
+      <span class="conditional-effect-tag">{{this.name}} ({{this.summary}})</span>
+      {{/each}}
+    </li>
+    {{/if}}
     {{#if gritRerollsMax}}
     <li><strong>{{localize "FE2.Sheet.Character.GritRerolls"}}: {{gritRerollsLeft}} / {{gritRerollsMax}}</strong></li>
     {{/if}}

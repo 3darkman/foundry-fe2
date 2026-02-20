@@ -8,6 +8,14 @@ import { isEquipSuppressed } from "./fragged-empire-effect-helpers.js";
 export class FraggedEmpireEffect extends ActiveEffect {
 
   /**
+   * Whether this effect is conditional (excluded from sheet, shown in roll dialogs).
+   * @type {boolean}
+   */
+  get isConditional() {
+    return !!this.getFlag('foundry-fe2', 'conditional');
+  }
+
+  /**
    * Whether this effect is suppressed (e.g., origin item is unequipped).
    * @type {boolean}
    */

@@ -119,6 +119,18 @@ export class FraggedEmpireRoll {
         el.querySelector("#rof")?.addEventListener("change", (e) => {
           rollData.rofValue = Number(e.currentTarget.value);
         });
+
+        // Conditional effect checkboxes
+        el.querySelectorAll(".conditional-effect-toggle").forEach(cb => {
+          cb.addEventListener("change", (e) => {
+            const effectId = e.currentTarget.dataset.effectId;
+            if (e.currentTarget.checked) {
+              rollData.selectedConditionalEffects.push(effectId);
+            } else {
+              rollData.selectedConditionalEffects = rollData.selectedConditionalEffects.filter(id => id !== effectId);
+            }
+          });
+        });
       }
     });
   }

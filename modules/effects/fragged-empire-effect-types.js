@@ -47,6 +47,10 @@ export const EFFECT_TARGET_TYPES = {
   attackTargetArmourCrit: "attackTargetArmourCrit",
   attackTargetCover: "attackTargetCover",
   attackSelfCover: "attackSelfCover",
+  // Skill category effects (apply to all skills of a category)
+  allPrimarySkills: "allPrimarySkills",
+  allPersonalCombatSkills: "allPersonalCombatSkills",
+  allSpacecraftSkills: "allSpacecraftSkills",
   // Skill tool effects (stored only, applied in roll dialog later)
   skillToolbox: "skillToolbox",
   skillWorkshop: "skillWorkshop"
@@ -63,7 +67,10 @@ export const EFFECT_CATEGORIES = {
       { type: EFFECT_TARGET_TYPES.skill, label: "FE2.Effects.TargetTypes.Skill", hasSubtype: true },
       { type: EFFECT_TARGET_TYPES.untrainedSkill, label: "FE2.Effects.TargetTypes.UntrainedSkill" },
       { type: EFFECT_TARGET_TYPES.skillToolbox, label: "FE2.Effects.TargetTypes.SkillToolbox", hasSubtype: true },
-      { type: EFFECT_TARGET_TYPES.skillWorkshop, label: "FE2.Effects.TargetTypes.SkillWorkshop", hasSubtype: true }
+      { type: EFFECT_TARGET_TYPES.skillWorkshop, label: "FE2.Effects.TargetTypes.SkillWorkshop", hasSubtype: true },
+      { type: EFFECT_TARGET_TYPES.allPrimarySkills, label: "FE2.Effects.TargetTypes.AllPrimarySkills" },
+      { type: EFFECT_TARGET_TYPES.allPersonalCombatSkills, label: "FE2.Effects.TargetTypes.AllPersonalCombatSkills" },
+      { type: EFFECT_TARGET_TYPES.allSpacecraftSkills, label: "FE2.Effects.TargetTypes.AllSpacecraftSkills" }
     ]
   },
   attributes: {
@@ -168,6 +175,10 @@ const KEY_MAP = {
   "fe2.npc.mobility": { targetType: EFFECT_TARGET_TYPES.npcMobility, targetId: null },
   "fe2.npc.bodies": { targetType: EFFECT_TARGET_TYPES.npcBodies, targetId: null },
   "fe2.npc.durability": { targetType: EFFECT_TARGET_TYPES.npcDurability, targetId: null },
+  // Skill categories
+  "fe2.skill.primary.all": { targetType: EFFECT_TARGET_TYPES.allPrimarySkills, targetId: null },
+  "fe2.skill.personalcombat.all": { targetType: EFFECT_TARGET_TYPES.allPersonalCombatSkills, targetId: null },
+  "fe2.skill.spaceshipcombat.all": { targetType: EFFECT_TARGET_TYPES.allSpacecraftSkills, targetId: null },
   // Attack
   "fe2.attack.targetarmour": { targetType: EFFECT_TARGET_TYPES.attackTargetArmour, targetId: null },
   "fe2.attack.targetarmourcrit": { targetType: EFFECT_TARGET_TYPES.attackTargetArmourCrit, targetId: null },
@@ -306,6 +317,13 @@ export function buildEffectKey(targetType, targetId) {
       return "fe2.attack.targetcover";
     case EFFECT_TARGET_TYPES.attackSelfCover:
       return "fe2.attack.selfcover";
+    // Skill categories
+    case EFFECT_TARGET_TYPES.allPrimarySkills:
+      return "fe2.skill.primary.all";
+    case EFFECT_TARGET_TYPES.allPersonalCombatSkills:
+      return "fe2.skill.personalcombat.all";
+    case EFFECT_TARGET_TYPES.allSpacecraftSkills:
+      return "fe2.skill.spaceshipcombat.all";
     // Skill tools
     case EFFECT_TARGET_TYPES.skillToolbox:
       return `fe2.skill.toolbox.${targetId || "all"}`;

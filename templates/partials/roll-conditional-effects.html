@@ -1,0 +1,12 @@
+{{#if conditionalEffects.length}}
+<div class="conditional-effects-section">
+  <h4>{{localize "FE2.Effects.UI.ConditionalEffects"}}</h4>
+  {{#each conditionalEffects}}
+  <label class="conditional-effect-toggle-label">
+    <input type="checkbox" class="conditional-effect-toggle" data-effect-id="{{this.effectId}}" />
+    <img src="{{this.img}}" width="16" height="16" />
+    {{this.name}} ({{this.summary}})
+  </label>
+  {{/each}}
+</div>
+{{/if}}

@@ -1,7 +1,7 @@
 /* -------------------------------------------- */
 import { FraggedEmpireUtility } from "./fragged-empire-utility.js";
 import { FraggedEmpireRoll } from "./fragged-empire-roll-dialog.js";
-import { applyModifiers } from "./effects/fragged-empire-effect-helpers.js";
+import { applyModifiers, getRelevantConditionalEffects } from "./effects/fragged-empire-effect-helpers.js";
 import { SPACECRAFT_ATTRIBUTES } from "./effects/fragged-empire-effect-types.js";
 
 /* -------------------------------------------- */
@@ -435,6 +435,8 @@ export class SpacecraftDataModel extends foundry.abstract.TypeDataModel {
       let rofMax = 1;
       rollData.rofValue = rofMax;
       rollData.effectModifiers = actor._effectModifiers;
+      rollData.conditionalEffects = getRelevantConditionalEffects(actor, rollData.mode);
+      rollData.selectedConditionalEffects = [];
 
       await FraggedEmpireRoll.create(actor, rollData);
     } else {

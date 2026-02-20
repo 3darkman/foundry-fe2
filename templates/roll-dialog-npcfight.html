@@ -29,6 +29,8 @@
       </select>
     </div>
 
+    {{> "systems/foundry-fe2/templates/partials/roll-conditional-effects.html"}}
+
     <h3>{{localize "FE2.Items.Common.Stats"}}</h3>
     {{> "systems/foundry-fe2/templates/weapon-stats-section.html" stats=npcstats isfinal=false title=(localize "FE2.Items.Common.FinalStatsReminder") header=true}}
 
