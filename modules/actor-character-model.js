@@ -295,6 +295,9 @@ export class CharacterDataModel extends foundry.abstract.TypeDataModel {
       const allSkillMods = actor._effectModifiers?.skills?.all || [];
       const combinedMods = [...skillMods, ...allSkillMods];
       item.system._effectMod = combinedMods.length ? Math.round(applyModifiers(0, combinedMods, false)) : 0;
+      if (!item.system.trained) {
+        item.system._effectMod += actor._computed?.untrainedSkillMod || 0;
+      }
       item.system._effectiveStaticMod = (item.system.staticmod || 0) + item.system._effectMod;
       item.system._effectiveTotal = item.system.total + item.system._effectMod;
 

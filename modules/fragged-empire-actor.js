@@ -135,6 +135,16 @@ export class FraggedEmpireActor extends Actor {
       if (changed.system.influence.value > this.system.influence.total)
         changed.system.influence.value = this.system.influence.total;
     }
+
+    // Sync attribute current to value when value changes (character only)
+    if (this.type === "character" && changed.system?.attributes) {
+      for (const key of Object.keys(changed.system.attributes)) {
+        if (changed.system.attributes[key]?.value !== undefined) {
+          changed.system.attributes[key].current = changed.system.attributes[key].value;
+        }
+      }
+    }
+
     super._preUpdate(changed, options, user);
   }
 
