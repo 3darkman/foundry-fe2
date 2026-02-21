@@ -148,12 +148,22 @@ export class FraggedEmpireEffectSheet extends foundry.applications.sheets.Active
     const changes = this.document.changes || [];
     return changes.map((change, idx) => {
       const parsed = parseEffectKey(change.key);
+      let targetType = parsed?.targetType ?? "";
+      let targetId = parsed?.targetId ?? "";
+
+      // Map allSkills back to skill + "all" for the UI (allSkills is a subtype
+      // option under "Skill" in the dropdown, not a separate target type entry)
+      if (targetType === EFFECT_TARGET_TYPES.allSkills) {
+        targetType = EFFECT_TARGET_TYPES.skill;
+        targetId = "all";
+      }
+
       return {
         key: change.key,
         value: change.value,
         mode: change.mode,
-        targetType: parsed?.targetType ?? "",
-        targetId: parsed?.targetId ?? ""
+        targetType,
+        targetId
       };
     });
   }

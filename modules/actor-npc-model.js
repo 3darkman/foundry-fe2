@@ -287,7 +287,7 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
       rollData.effectHitBonus = controller._computed?.hitBonus || 0;
       rollData.effectEndDmg = controller._computed?.enduranceDamage || 0;
       rollData.untrainedSkillMod = controller._computed?.untrainedSkillMod || 0;
-      rollData.conditionalEffects = getRelevantConditionalEffects(controller, rollData.mode, { skillType: 'personalcombat' });
+      rollData.conditionalEffects = getRelevantConditionalEffects(controller, rollData.mode, { skillType: 'personalcombat', skillId: combatSkill?.id });
       rollData.selectedConditionalEffects = [];
       await FraggedEmpireRoll.create(actor, rollData);
       return;

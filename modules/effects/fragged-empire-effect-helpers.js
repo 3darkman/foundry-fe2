@@ -255,6 +255,8 @@ export function getRelevantConditionalEffects(actor, rollMode, rollContext = {})
         const parsed = parseEffectKey(change.key);
         if (!parsed || !relevantTypes.has(parsed.targetType)) return false;
         if (CATEGORY_TYPE_VALUES.has(parsed.targetType) && matchingCategoryType && parsed.targetType !== matchingCategoryType) return false;
+        // Skill-specific: only match if this change targets the rolled skill
+        if (parsed.targetType === "skill" && parsed.targetId && rollContext.skillId && parsed.targetId !== rollContext.skillId) return false;
         return true;
       });
     })
@@ -262,21 +264,34 @@ export function getRelevantConditionalEffects(actor, rollMode, rollContext = {})
       effectId: effect.id,
       name: effect.name,
       img: effect.img,
-      summary: summarizeEffectChanges(effect),
+      summary: summarizeEffectChanges(effect, relevantTypes, matchingCategoryType, rollContext),
       changes: effect.changes
     }));
 }
 
 /**
- * Build a human-readable summary of an effect's changes.
+ * Build a human-readable summary of an effect's changes, filtered to only
+ * show modifiers relevant to the current roll.
  * @param {ActiveEffect} effect
+ * @param {Set<string>} [relevantTypes] - target types relevant to the roll mode
+ * @param {string|null} [matchingCategoryType] - category-specific type that matches the rolled skill
+ * @param {Object} [rollContext={}] - optional context for dynamic filtering
  * @returns {string}
  */
-function summarizeEffectChanges(effect) {
+function summarizeEffectChanges(effect, relevantTypes, matchingCategoryType, rollContext = {}) {
   return effect.changes.map(c => {
     const parsed = parseEffectKey(c.key);
     if (!parsed) return null;
+    // Filter to only roll-relevant changes
+    if (relevantTypes) {
+      if (!relevantTypes.has(parsed.targetType)) return null;
+      if (CATEGORY_TYPE_VALUES.has(parsed.targetType) && matchingCategoryType && parsed.targetType !== matchingCategoryType) return null;
+    }
+    // Skill-specific: only show changes targeting the rolled skill
+    if (parsed.targetType === "skill" && parsed.targetId && rollContext.skillId && parsed.targetId !== rollContext.skillId) return null;
     const sign = Number(c.value) >= 0 ? "+" : "";
+    // Skip redundant label for skill-specific changes (the rolled skill is obvious from context)
+    if (parsed.targetType === "skill" && parsed.targetId && rollContext.skillId) return `${sign}${c.value}`;
     const label = getTargetTypeLabel(parsed.targetType);
     return `${sign}${c.value} ${label}`;
   }).filter(Boolean).join(", ");

@@ -570,7 +570,7 @@ export class CharacterDataModel extends foundry.abstract.TypeDataModel {
       rollData.effectModifiers = actor._effectModifiers;
       rollData.untrainedSkillMod = actor._computed?.untrainedSkillMod || 0;
       rollData.arcaneMod = actor._computed?.arcaneMod || 0;
-      rollData.conditionalEffects = getRelevantConditionalEffects(actor, rollData.mode, { skillType: skill.system.type });
+      rollData.conditionalEffects = getRelevantConditionalEffects(actor, rollData.mode, { skillType: skill.system.type, skillId: skill.id });
       rollData.selectedConditionalEffects = [];
       await FraggedEmpireRoll.create(actor, rollData);
     } else {
@@ -618,7 +618,7 @@ export class CharacterDataModel extends foundry.abstract.TypeDataModel {
     rollData.effectModifiers = actor._effectModifiers;
     rollData.untrainedSkillMod = actor._computed?.untrainedSkillMod || 0;
     rollData.arcaneMod = actor._computed?.arcaneMod || 0;
-    rollData.conditionalEffects = getRelevantConditionalEffects(actor, rollData.mode, { skillType: skill.system.type });
+    rollData.conditionalEffects = getRelevantConditionalEffects(actor, rollData.mode, { skillType: skill.system.type, skillId: skill.id });
     rollData.selectedConditionalEffects = [];
     await FraggedEmpireRoll.create(actor, rollData);
   }
@@ -698,7 +698,7 @@ export class CharacterDataModel extends foundry.abstract.TypeDataModel {
       rollData.effectHitBonus = actor._computed?.hitBonus || 0;
       rollData.effectEndDmg = actor._computed?.enduranceDamage || 0;
       rollData.untrainedSkillMod = actor._computed?.untrainedSkillMod || 0;
-      rollData.conditionalEffects = getRelevantConditionalEffects(actor, rollData.mode, { skillType: 'personalcombat' });
+      rollData.conditionalEffects = getRelevantConditionalEffects(actor, rollData.mode, { skillType: 'personalcombat', skillId: combatSkill?.id });
       rollData.selectedConditionalEffects = [];
       await FraggedEmpireRoll.create(actor, rollData);
     } else {
