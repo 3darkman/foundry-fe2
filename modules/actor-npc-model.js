@@ -245,11 +245,11 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
         ui.notifications.warn(game.i18n.localize("FE2.Sheet.NPC.NoController"));
         return;
       }
-      actor.updateWeaponStat(weapon);
       if (!weapon) {
         ui.notifications.warn(game.i18n.localize("FE2.Notifications.WeaponNotFound"), weaponId);
         return;
       }
+      actor.updateWeaponStat(weapon);
       // Build rollData using controller's attributes (skills, focus, grit)
       let rollData = {
         mode: 'weapon',
@@ -294,8 +294,8 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
     }
 
     // Henchman/Troop: standard NPC roll with +2 attack bonus
-    actor.updateWeaponStat(weapon);
     if (weapon) {
+      actor.updateWeaponStat(weapon);
       let rollData = {
         mode: 'weapon',
         alias: actor.name,
@@ -315,8 +315,6 @@ export class NPCDataModel extends foundry.abstract.TypeDataModel {
         bonusMalus: 2,
         optionsDifficulty: FraggedEmpireUtility.buildDifficultyOptions()
       };
-      // Henchman/Troop: add Attribute to end damage
-      rollData.weapon.system.statstotal.enddmg.value = Number(this.stats.Attribute.value) + Number(rollData.weapon.system.statstotal.enddmg.value);
 
       // Bodies bonus for non-individual NPCs
       const keywords = this.getKeywords();

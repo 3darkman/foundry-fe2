@@ -6,12 +6,14 @@
       <span class="competence-base flexrow" >{{localize "FE2.Roll.Labels.HitBonus"}} : {{weapon.system.statstotal.hit.value}}</span>
     </div>
 
+    {{#if weaponSkillChoices}}
     <div class="flexrow">
       <span class="competence-base flexrow" >{{localize "FE2.Roll.Labels.SkillToUse"}} : </span>
       <select class="competence-base flexrow" type="text" id="skillId" name="skillId" value="skillId" data-dtype="String">
         {{selectOptions weaponSkillChoices selected=skillId}}
       </select>
     </div>
+    {{/if}}
 
     <div class="flexrow">
       <span class="competence-base flexrow" >{{localize "FE2.Roll.Labels.BonusMalus"}} : </span>
