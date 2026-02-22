@@ -1087,7 +1087,43 @@ ul, li {
   color: var(--fe2-text);
 }
 
-/* Roll/submit button */
+/* Dialog window — remove border and match actor/item sheet background */
+.fraggedempiredialog {
+  border: none;
+  --background: var(--fe2-bg);
+}
+
+/* Keep dialog header dark like actor/item sheets */
+.fraggedempiredialog .window-header {
+  background: var(--fe2-header-bg);
+}
+
+/* Checkbox styling for roll dialogs (mirrors .application.foundry-fe2 checkbox rules) */
+.fraggedempiredialog input[type="checkbox"] {
+  --checkbox-size: 20px;
+  --checkbox-font-weight: 400;
+  --checkbox-background-color: var(--fe2-gray-text);
+  --checkbox-checked-color: var(--fe2-highlight);
+  --checkbox-checkmark-color: var(--fe2-bg);
+  --checkbox-disabled-color: var(--fe2-border);
+  padding: 0;
+}
+.fraggedempiredialog input[type="checkbox"]::before {
+  color: var(--fe2-gray-text);
+}
+.fraggedempiredialog input[type="checkbox"]:checked::before {
+  color: var(--fe2-off-white);
+}
+.fraggedempiredialog input[type="checkbox"]:checked::after {
+  color: var(--fe2-gray-text);
+}
+
+/* Dialog button borders — override Foundry's groove style */
+.fraggedempiredialog .form-footer button {
+  border: 1px solid var(--fe2-border);
+}
+
+/* Roll/submit button (primary emphasis) */
 .fraggedempiredialog .form-footer button,
 .fe2-roll-dialog button[type="submit"] {
   background: var(--fe2-btn-primary-bg);
@@ -1101,6 +1137,65 @@ ul, li {
 
 .fraggedempiredialog .form-footer button:hover {
   filter: brightness(1.1);
+}
+
+/* Cancel button — dark secondary appearance */
+.fraggedempiredialog .form-footer button[data-action="cancel"] {
+  background: var(--fe2-black);
+  color: var(--fe2-off-white);
+  border: 1px solid var(--fe2-border);
+}
+
+/* Weapon summary display for roll dialogs (read-only, matches Fight tab) */
+.fe2-weapon-summary-dialog {
+  margin: var(--fe2-space-sm) 0;
+}
+
+.fe2-weapon-summary-header {
+  display: flex;
+  background: var(--fe2-header-bg);
+  color: var(--fe2-text-heading);
+  padding: var(--fe2-space-xs) var(--fe2-space-sm);
+  font-family: var(--fe2-font-heading);
+  font-size: var(--fe2-font-size-sm);
+}
+
+.fe2-weapon-summary-header span {
+  flex: 1;
+  text-align: center;
+}
+
+.fe2-weapon-summary-values {
+  display: flex;
+  padding: var(--fe2-space-xs) var(--fe2-space-sm);
+}
+
+.fe2-weapon-summary-values span {
+  flex: 1;
+  text-align: center;
+  color: var(--fe2-text-value);
+  font-size: var(--fe2-font-size-sm);
+}
+
+/* Keywords row inside roll dialogs — chip-style layout */
+.fe2-weapon-summary-dialog .fe2-item-keywords-row {
+  padding: var(--fe2-space-xs) var(--fe2-space-sm);
+  gap: var(--fe2-space-sm);
+}
+
+/* Keyword tags in roll dialogs — chip appearance with alternating colors */
+.fe2-weapon-summary-dialog .fe2-keyword-tag-inline {
+  padding: 2px 8px;
+  border-radius: 12px;
+  border: 1px solid var(--fe2-green);
+  font-size: var(--fe2-font-size-xs);
+}
+.fe2-weapon-summary-dialog .fe2-keyword-tag-inline:nth-child(odd) {
+  background: var(--fe2-green-light);
+}
+.fe2-weapon-summary-dialog .fe2-keyword-tag-inline:nth-child(even) {
+  background: var(--fe2-bg);
+  border-color: var(--fe2-blue);
 }
 
 /* ============================================================

@@ -1,0 +1,18 @@
+{{!-- Weapon summary for roll dialogs — read-only label display matching Fight tab layout --}}
+<div class="fe2-weapon-summary-dialog">
+  <div class="fe2-weapon-summary-header">
+    <span>{{localize "FE2.Stats.Weapon.HitDice"}}</span>
+    <span>{{localize "FE2.Stats.Weapon.HitBonus"}}</span>
+    <span>{{localize "FE2.Stats.Weapon.EnduranceDamage"}}</span>
+    <span>{{localize "FE2.Stats.Weapon.CriticalDamage"}}</span>
+    <span>{{localize "FE2.Stats.Weapon.RangeIncrement"}}</span>
+  </div>
+  <div class="fe2-weapon-summary-values">
+    <span>{{weapon.system.statstotal.hitdice.value}}</span>
+    <span>{{weapon.system.statstotal.hit.value}}</span>
+    <span>{{weapon.system.statstotal.enddmg.value}}</span>
+    <span>{{weapon.system.statstotal.crit.value}}</span>
+    <span>{{weapon.system.statstotal.range.value}}</span>
+  </div>
+  {{> "systems/foundry-fe2/templates/partial-item-keywords-row.html" keywords=weapon.system.keywords}}
+</div>

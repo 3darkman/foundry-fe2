@@ -65,6 +65,7 @@ export class FraggedEmpireUtility  {
       'systems/foundry-fe2/templates/partial-stronghits-section.html',
       'systems/foundry-fe2/templates/item-keyword-sheet.html',
       'systems/foundry-fe2/templates/partial-item-keywords-row.html',
+      'systems/foundry-fe2/templates/partial-weapon-summary-dialog.html',
       'systems/foundry-fe2/templates/partials/roll-conditional-effects.html',
       'systems/foundry-fe2/templates/race-subitem-section.html'
     ]
