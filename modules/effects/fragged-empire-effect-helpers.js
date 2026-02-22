@@ -176,6 +176,9 @@ const EQUIPPABLE_TYPES = new Set(["weapon", "outfit", "utility", "spacecraftweap
 export function isEquipSuppressed(effect, actor) {
   if (!effect.origin) return false;
 
+  // NPC items are always active — NPCs have no equip/carry mechanic
+  if (actor.type === "npc") return false;
+
   // Find the origin item on the actor
   const originId = effect.origin.split(".").pop();
   const item = actor.items.get(originId);

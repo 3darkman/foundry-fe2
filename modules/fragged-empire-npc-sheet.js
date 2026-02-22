@@ -14,7 +14,6 @@ export class FraggedEmpireNPCSheet extends HandlebarsApplicationMixin(foundry.ap
     actions: {
       editItem: FraggedEmpireNPCSheet.#onEditItem,
       deleteItem: FraggedEmpireNPCSheet.#onDeleteItem,
-      equipItem: FraggedEmpireNPCSheet.#onEquipItem,
       rollSkill: FraggedEmpireNPCSheet.#onRollSkill,
       rollWeapon: FraggedEmpireNPCSheet.#onRollWeapon,
       rollNPCFight: FraggedEmpireNPCSheet.#onRollNPCFight,
@@ -164,12 +163,6 @@ export class FraggedEmpireNPCSheet extends HandlebarsApplicationMixin(foundry.ap
     FraggedEmpireUtility.confirmDelete(this.document, itemId);
   }
 
-  static #onEquipItem(event, target) {
-    const itemId = target.closest("[data-item-id]")?.dataset.itemId;
-    if (!itemId) return;
-    this.document.equipItem(itemId);
-  }
-
   static #onRollSkill(event, target) {
     const skillId = target.closest("[data-item-id]")?.dataset.itemId;
     if (!skillId) return;
@@ -282,6 +275,12 @@ export class FraggedEmpireNPCSheet extends HandlebarsApplicationMixin(foundry.ap
         }
         return;
       }
+
+      // Regular items — force keepId: false to prevent effect _id collisions
+      // on ActorDelta (unlinked tokens) when legacyTransferral copies effects
+      if (!this.actor.isOwner) return;
+      await this.document.createEmbeddedDocuments("Item", [item.toObject()], {keepId: false});
+      return;
     }
 
     super._onDrop(event);
