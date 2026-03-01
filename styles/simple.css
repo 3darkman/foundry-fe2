@@ -151,3 +151,67 @@ ul, li {
   width: 64px;
   height: 64px;
 }
+
+
+.carac-roll {
+  color: white;
+  background: black;
+  padding-left: 10px;
+  clip-path: polygon(0% 0%, 100% 0%, calc(100% - 5px) 50%, 100% 100%, 0% 100%, 0% 50%);
+  background-color: #000000
+}
+
+.carac-roll:first-child {
+  clip-path: polygon(10px 0%, 100% 0%, calc(100% - 5px) 50%, 100% 100%, 10px 100%, 0% 50%);
+}
+/* Ul style for the characteristics */
+.carac-ul {
+  gap: 5px;
+  display: flex;
+  flex-direction: column
+}
+
+.carac-input {
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  flex: 0 0 30px;
+  width: 30px;
+  text-align: center;
+  background-color: black;
+  color: white
+}
+
+.hex-label {
+  clip-path: polygon(10px 0%, calc(100% - 10px) 0%, 100% 50%, calc(100% - 10px) 100%, 10px 100%, 0% 50%);
+  background-color: black;
+  color: white;
+  text-align: center;
+}
+
+h3.hex-label {
+  margin-top: 10px;
+}
+
+.attribute-column {
+  display: grid;
+  grid-column: span 2 / span 2;
+  grid-template-columns: 40% 60%;
+  /* gap: 10px; */
+  /* margin: 10px 0; */
+  padding: 0;
+}
+
+.fight-column {
+  display: grid;
+  grid-column: span 2 / span 2;
+  grid-template-columns: 50% 50%;
+  /* gap: 10px; */
+  margin: 10px 0;
+  padding: 0;
+}
+
+
+
+.input-numeric-short{
+  flex: 0 1 30px;
+  text-align: center;
+}
