@@ -30,6 +30,7 @@ export class FraggedEmpireActor extends Actor {
         total: new fields.NumberField({ initial: 0 })
       }),
       sparetimepoints: new fields.NumberField({ initial: 1 }),
+      knowledge: new fields.NumberField({ initial: 3 }),
       attributes: new fields.SchemaField({
         strength: new fields.SchemaField({
           label: new fields.StringField({ initial: "Strength" }),
@@ -346,11 +347,11 @@ export class FraggedEmpireActor extends Actor {
   }
   /* -------------------------------------------- */
   getEquipmentSlotsUsed() {
-    let equipSlotsNeeded = this.items.filter( item => item.type == 'outfit' || item.type == 'utility' || item.type == 'weapon' || item.type == 'equipment');
+    let equipSlotsNeeded = this.items.filter( item => item.type == 'outfit' || item.type == 'utility' || item.type == 'weapon');
     let equipmentSlotsUsed = 0;
     for (let equip of equipSlotsNeeded) {
       if (!equip.system.equipped) {
-        equipmentSlotsUsed += 2;
+        equipmentSlotsUsed += 1;
       }
     }
     return equipmentSlotsUsed;
@@ -405,7 +406,7 @@ export class FraggedEmpireActor extends Actor {
   }
   /* ------------------------------------------- */
   getEquipments() {
-    return this.items.filter( item => item.type == 'utility' || item.type == 'outfit' || item.type == "weapon" || item.type == "equipment");
+    return this.items.filter( item => item.type == 'utility' || item.type == 'outfit' || item.type == "weapon" );
   }
   
   /* -------------------------------------------- */
@@ -497,7 +498,7 @@ export class FraggedEmpireActor extends Actor {
   /* -------------------------------------------- */
   getInitiativeScore( phase)  {
     if ( this.type == 'character') {
-      return this.system.attributes.intelligence.current + (this.system.attributes.reflexes.current/10) + this.system.combatordermod
+      return this.system.attributes.intelligence.current + (this.system.attributes.reflexes.current/10)
     } else if (this.type == 'spacecraft') {
       if (phase == 1) {
         return this.system.attributes.velocity.current + (this.system.attributes.crew.current/10)
@@ -642,9 +643,6 @@ export class FraggedEmpireActor extends Actor {
     if ( this.type == 'character' && this.system.gritreroll.value > 0 ) {
       return this.system.gritreroll.value;
     }
-    if ( this.type == 'spacecraft' ) {
-      return this.system.fight.gritreroll.value;
-    }
     return false;
   }
 
@@ -658,7 +656,7 @@ export class FraggedEmpireActor extends Actor {
         actorImg: this.img,
         actorId: this.id,
         img: skill.img,
-        hasFate: this.getGrit(),
+        // hasFate: this.getGrit(),
         rollMode: game.settings.get("core", "rollMode"),
         title: `Skill ${skill.name} : ${skill.system.total}`,
         skill: skill,
@@ -688,7 +686,7 @@ export class FraggedEmpireActor extends Actor {
       actorImg: this.img,
       actorId: this.id,
       img: this.img,
-      hasFate: this.getFate(),
+      // hasFate: this.getFate(),
       rollMode: game.settings.get("core", "rollMode"),
       title: `Generic Skill roll`,
       optionsBonusMalus: FraggedEmpireUtility.buildListOptions(-6, +6),
@@ -777,7 +775,7 @@ export class FraggedEmpireActor extends Actor {
       alias: this.name, 
       actorId: this.id,
       img: this.img,
-      hasFate: this.getFate(),
+      // hasFate: this.getFate(),
       npcstats: duplicate(this.system.stats),
       rollMode: game.settings.get("core", "rollMode"),
       title: "Attack : " + this.name,
@@ -803,7 +801,6 @@ export class FraggedEmpireActor extends Actor {
       let actorList = []
       if (game.user.isGM )  {
         let actorNPCship = this.items.filter( item => item.name == 'Rival' || item.name == 'Outclassed' || item.name == 'Outgunned')
-        console.log('NPC ships found', actorNPCship)
         if (actorNPCship.length != 0) {
         } else {
           for (let actor of game.actors) {
@@ -813,13 +810,13 @@ export class FraggedEmpireActor extends Actor {
         }
       } else {
         let actorWeapon = game.user.character;
-        actorList.push( { id:actorWeapon.id, name:actorWeapon.name, skills:actorWeapon.items.filter( item => item.type == 'skill' && item.system.type == 'spaceshipcombat') } );
+        actorList.push( { id:actorWeapon.id, name:actorWeapon.name, skills:actorWeapon.system.items.filter( item => item.type == 'skill' && item.system.type == 'spaceshipcombat') } );
       }
 
       // Skill prepare
       console.log(actorList.length)
       if (actorList.length != 0) {
-        let skill = actorList[0].skills[0]; 
+        let skill = actorList[0].skills[0];
         skill.system.trainedValue = (skill.system.trained) ? 1 : -2
         skill.system.total = skill.system.trainedValue + skill.system.bonus;
         skill.system.isTrait = skill.system.traits.length > 0; 
@@ -835,12 +832,11 @@ export class FraggedEmpireActor extends Actor {
           actorId: this.id,
           actorList: actorList,
           img: weapon.img,
-
+          // hasFate: this.getFate(),
           rollMode: game.settings.get("core", "rollMode"),
           title: "Spacecraft attack : " + weapon.name,
           weapon: weapon,
           munitions: this.system.fight.munitions.value,
-          hasGrit: this.getGrit(),
           skillId: actorList[0].skills[0].id,
           skill: actorList[0].skills[0],
           optionsBonusMalus: FraggedEmpireUtility.buildListOptions(-6, +6),
