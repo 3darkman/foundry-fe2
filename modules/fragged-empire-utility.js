@@ -236,8 +236,15 @@ export class FraggedEmpireUtility  {
     } else {
       rollData.strongHitAvailable = true;
     }
+    rollData.successMargin = myRoll.total - rollData.difficulty;
+    if (rollData.successMargin >= 4){
+      rollData.positiveOutcome = true;
+    }
+    if (rollData.successMargin <= 4){
+      rollData.negativeOutcome = true;
+    }
     console.log("ROLLLL!!!!", rollData);
-    
+
     let actor = game.actors.get(rollData.actorId);
     switch (actor.type) {
       case "npc":
