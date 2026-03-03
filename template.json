@@ -32,10 +32,10 @@
         "total": 0,
         "traitId": ""
       },
-      "knowledge": {
-        "value":0
-      },
       "sparetimepoints": {
+        "value": 0
+      },
+      "knowledge": {
         "value": 0
       },
       "attributes": {
@@ -107,6 +107,7 @@
         "recoverybonus": 0,  
         "recovery": 0  
       },
+      "combatordermod": 0,
       "stealthbonus": {
         "stealth": 0
       },
@@ -285,6 +286,11 @@
         },
         "munitions": {
           "label": "Munitions",
+          "valueonly": true,
+          "value": 0
+        },
+        "gritreroll":{
+          "label": "Grit re-rolls",
           "valueonly": true,
           "value": 0
         },
@@ -965,7 +971,7 @@
     },
     "equipment": {
       "equipped": false,
-      "weight": 0,
+      "type": "equipment",
       "cost": 0,
       "description": ""
     },
