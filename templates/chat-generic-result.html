@@ -61,6 +61,19 @@
     {{/if}}
 
     <li><strong>Total Roll : {{rollTotal}}</strong>
+    {{#if positiveOutcome}}
+    <li>Positive Unexpected Outcome!</li>
+    {{/if}}
+    {{#if negativeOutcome}}
+    <li>Negative Unexpected Outcome!</li>
+    {{/if}}
+    {{#if criticalSuccess}}
+    <li>Critical Success!</li>
+    {{/if}}
+    {{#if criticalFailure}}
+    <li>Critical Failure!</li>
+    {{/if}}
+
     <li><strong>Target defense: {{targetDefence}}</strong></li>
     {{#if (gt rollTotal targetDefence)}}<li><strong>Attack lands!</strong></li>
       {{#if (gt totalEndDmg targetEnd)}}<li><strong>Endurance 0, Critical Hit or Critical Boost!</strong></li>{{/if}}

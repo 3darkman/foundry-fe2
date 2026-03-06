@@ -243,7 +243,22 @@ export class FraggedEmpireUtility  {
     } else {
       rollData.strongHitAvailable = true;
     }
+    rollData.successMargin = myRoll.total - rollData.difficulty;
+    if (rollData.successMargin >= 4){
+      rollData.positiveOutcome = true;
+    }
+    else if (rollData.successMargin <= -4){
+      rollData.negativeOutcome = true;
+    }
+    if (rollData.diceResults.every((die) => die === 6)){
+      rollData.criticalSuccess = true;
+    }
+    else if (rollData.diceResults.every((die) => die === 1)){
+      rollData.criticalFailure = true;
+    }
     console.log("ROLLLL!!!!", rollData);
+
+    let actor = game.actors.get(rollData.actorId);
     
     
     switch (actor.type) {

@@ -30,6 +30,7 @@ export class FraggedEmpireActor extends Actor {
         total: new fields.NumberField({ initial: 0 })
       }),
       sparetimepoints: new fields.NumberField({ initial: 1 }),
+      knowledge: new fields.NumberField({ initial: 3 }),
       attributes: new fields.SchemaField({
         strength: new fields.SchemaField({
           label: new fields.StringField({ initial: "Strength" }),
@@ -659,7 +660,7 @@ export class FraggedEmpireActor extends Actor {
         actorImg: this.img,
         actorId: this.id,
         img: skill.img,
-        hasFate: this.getGrit(),
+        hasGrit: this.getGrit(),
         rollMode: game.settings.get("core", "rollMode"),
         title: `Skill ${skill.name} : ${skill.system.total}`,
         skill: skill,
@@ -669,7 +670,12 @@ export class FraggedEmpireActor extends Actor {
         difficulty: 0,
         useToolbox: false,
         useDedicatedworkshop: false,
-        toolsAvailable: skill.system.toolbox || skill.system.useDedicatedworkshop
+        toolsAvailable: skill.system.toolbox || skill.system.useDedicatedworkshop,
+        successMargin: 0,
+        positiveOutcome: false,
+        negativeOutcome: false,
+        criticalSuccess: false,
+        criticalFailure: false
       }
       if (skill.system.staticmod) {rollData.bonusMalus += skill.system.staticmod}
       if (skill.system.toolbox == true) {rollData.useToolbox = true}
@@ -689,7 +695,7 @@ export class FraggedEmpireActor extends Actor {
       actorImg: this.img,
       actorId: this.id,
       img: this.img,
-      hasFate: this.getFate(),
+      hasGrit: this.getGrit(),
       rollMode: game.settings.get("core", "rollMode"),
       title: `Generic Skill roll`,
       optionsBonusMalus: FraggedEmpireUtility.buildListOptions(-6, +6),
@@ -782,7 +788,7 @@ export class FraggedEmpireActor extends Actor {
       alias: this.name, 
       actorId: this.id,
       img: this.img,
-      hasFate: this.getFate(),
+      hasGrit: this.getGrit(),
       npcstats: duplicate(this.system.stats),
       rollMode: game.settings.get("core", "rollMode"),
       title: "Attack : " + this.name,

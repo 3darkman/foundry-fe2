@@ -35,6 +35,9 @@
       "sparetimepoints": {
         "value": 0
       },
+      "knowledge": {
+        "value": 0
+      },
       "attributes": {
         "strength":{ 
           "label": "Strength",
